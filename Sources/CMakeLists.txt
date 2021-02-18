@@ -7,6 +7,7 @@ set(root_dir ${CMAKE_CURRENT_SOURCE_DIR}/..)
 # Includes
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
+    Libraries/doctest
 )
 
 # Sources
@@ -23,7 +24,7 @@ file(GLOB_RECURSE sources
 )
 
 # Build executable
-add_library(${target}
+add_executable(${target}
     ${sources})
 
 # Project options
@@ -60,7 +61,3 @@ target_link_libraries(${target}
 
     INTERFACE
 )
-
-# Install
-install(TARGETS ${target} DESTINATION lib)
-install(DIRECTORY ${header_dir} DESTINATION include)
