@@ -22,6 +22,13 @@ file(GLOB_RECURSE sources
     ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
 )
 
+# MSVC compiler options
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+	set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
+		/wd4201 # ignore warning in "glm nonstandard extension used : nameless struct/union"
+	)
+endif ()
+
 # Build executable
 add_executable(${target}
     ${sources})
