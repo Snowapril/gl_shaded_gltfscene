@@ -1,6 +1,14 @@
 #include <iostream>
 #include <cxxopts/cxxopts.hpp>
 
+#include <GL3/Window.hpp>
+#include <GL3/Camera.hpp>
+#include <GL3/Mesh.hpp>
+#include <GL3/Shader.hpp>
+
+void Update();
+void DrawFrame();
+void ProcessInput();
 
 int main(int argc, char* argv[])
 {
@@ -20,5 +28,37 @@ int main(int argc, char* argv[])
 		exit(0);
 	}
 
+	GL3::Window window("modern-opengl-template", 1200, 900);
+
+	GL3::Camera camera;
+	camera.SetupCamera(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	
+	GL3::Shader shader;
+
+	while (window.CheckWindowShouldClose() == false)
+	{
+		ProcessInput();
+		Update();
+		DrawFrame();
+
+		window.SwapBuffer();
+		window.PollEvents();
+	}
+
+	window.CleanUp();
+
 	return 0;
+}
+
+void Update()
+{
+
+}
+void DrawFrame()
+{
+
+}
+void ProcessInput()
+{
+
 }
