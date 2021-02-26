@@ -75,7 +75,7 @@ namespace GL3 {
 			bFirstCall = false;
 		}
 
-		constexpr float sensitivity = 8e-4;
+		constexpr float sensitivity = 8e-4f;
 		const float xoffset = static_cast<float>(cursorPos.x - _lastCursorPos.x) * sensitivity;
 		const float yoffset = static_cast<float>(_lastCursorPos.y - cursorPos.y) * sensitivity;
 		
