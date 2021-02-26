@@ -4,7 +4,7 @@
 namespace GL3 {
 
 	PerspectiveCamera::PerspectiveCamera()
-		: _aspect(1.0f), _fovDegree(60.0f), _zNear(0.1f), _zFar(100.0f);
+		: _aspect(1.0f), _fovDegree(60.0f), _zNear(0.1f), _zFar(100.0f)
 	{
 		//! Do nothing
 	}
@@ -22,10 +22,8 @@ namespace GL3 {
 		this->_zFar		 = zFar;
 	}
 
-	void PerspectiveCamera::OnUpdateMatrix() override
+	void PerspectiveCamera::OnUpdateMatrix()
 	{
 		this->_projection = glm::perspective(glm::radians(this->_fovDegree), this->_aspect, this->_zNear, this->_zFar);
 	}
 };
-
-#endif //! end of PerspectiveCamera.hpp
