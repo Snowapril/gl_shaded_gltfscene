@@ -1,4 +1,7 @@
 # modern-opengl-oss-template
+
+[![CodeFactor](https://www.codefactor.io/repository/github/snowapril/modern-opengl-oss-template/badge)](https://www.codefactor.io/repository/github/snowapril/modern-opengl-oss-template)
+
 This is opengl 4.5 template project for building several test project.
 All you need to do for new project is Updating Application class.
 If you need to modify framework codes, issueing please.
