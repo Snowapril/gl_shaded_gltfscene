@@ -1,19 +1,33 @@
 #include <GL3/Camera.hpp>
+#include <glad/glad.h>
 #include <glfw/glfw3.h>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace GL3 {
 
 	Camera::Camera()
 		: _projection(1.0f), _view(1.0f), _position(0.0f), 
-		  _direction(0.0f, -1.0f, 0.0f), _up(0.0f, 1.0f, 0.0f), _speed(0.03f)
+		  _direction(0.0f, -1.0f, 0.0f), _up(0.0f, 1.0f, 0.0f), 
+		  _lastCursorPos(0.0, 0.0), _speed(0.03f), _uniformBuffer(0)
 	{
 		//! Do nothing
 	}
 
 	Camera::~Camera()
 	{
-		//! Do nothing
+		CleanUp();
+	}
+	
+	bool Camera::SetupUniformBuffer()
+	{
+
+		glGenBuffers(1, &_uniformBuffer);
+		glBindBuffer(GL_UNIFORM_BUFFER, _uniformBuffer);
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3, nullptr, GL_STATIC_DRAW);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+		return true;
 	}
 
 	void Camera::SetupCamera(const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& up)
@@ -33,30 +47,52 @@ namespace GL3 {
 		return this->_projection;
 	}
 	
+	void Camera::BindCamera() const
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, _uniformBuffer);
+	}
+
+	void Camera::UnbindCamera()
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	}
+	
+	GLuint Camera::GetUniformBuffer() const
+	{
+		return _uniformBuffer;
+	}
+
 	void Camera::UpdateMatrix()
 	{
 		this->_view = glm::lookAt(this->_position, this->_position + this->_direction, this->_up);
 
 		OnUpdateMatrix();
+
+		if (_uniformBuffer)
+		{
+			glBindBuffer(GL_UNIFORM_BUFFER, _uniformBuffer);
+			glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(_projection));
+			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(_view));
+			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4), glm::value_ptr(_projection * _view));
+			glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		}
 	}
 
-	void Camera::ProcessInput(unsigned int key, double dt)
+	void Camera::ProcessInput(unsigned int key)
 	{
-		const float speed = _speed * static_cast<float>(dt);
-
 		switch (key)
 		{
 		case GLFW_KEY_W :
-			this->_position += this->_direction * speed;
+			this->_position += this->_direction * _speed;
 			break;
 		case GLFW_KEY_A:
-			this->_position += glm::cross(this->_direction, this->_up) * speed;
+			this->_position += glm::cross(this->_direction, this->_up) * _speed;
 			break;
 		case GLFW_KEY_S:
-			this->_position -= this->_direction * speed;
+			this->_position -= this->_direction * _speed;
 			break;
 		case GLFW_KEY_D:
-			this->_position -= glm::cross(this->_direction, this->_up) * speed;
+			this->_position -= glm::cross(this->_direction, this->_up) * _speed;
 			break;
 		default:
 			return;
@@ -86,5 +122,10 @@ namespace GL3 {
 
 		this->_direction = (yawQuat * pitchQuat * this->_direction);
 		UpdateMatrix();
+	}
+
+	void Camera::CleanUp()
+	{
+		if (_uniformBuffer) glDeleteBuffers(1, &_uniformBuffer);
 	}
 };
