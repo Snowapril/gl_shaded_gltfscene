@@ -5,8 +5,10 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <Application.hpp>
 
 struct GLFWwindow;
+class Application;
 
 namespace GL3
 {
@@ -16,7 +18,8 @@ namespace GL3
 		//! Callback functions
 		using KeyCallback = std::function<void(unsigned int)>;
 		using CursorPosCallback = std::function<void(double, double)>;
-
+		//! Default constructor
+		Window();
 		//! Constructor with title and extent
 		Window(const std::string& title, int width, int height);
 		//! Default destructor
@@ -37,6 +40,12 @@ namespace GL3
 		void ProcessInput() const;
 		//! Mouse cursor position callback method.
 		void ProcessCursorPos(double xpos, double ypos) const;
+		//! Add input callback functions
+		void operator+=(const KeyCallback& callback);
+		//! Add cursor position callback functions
+		void operator+=(const CursorPosCallback& callback);
+		//! Returns the window extent aspect ratio.
+		float GetAspectRatio() const;
 	protected:
 		GLFWwindow* _window;
 		std::string _windowTitle;

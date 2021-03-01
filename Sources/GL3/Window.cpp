@@ -25,6 +25,12 @@ namespace
 
 namespace GL3
 {
+	Window::Window()
+		: _window(nullptr), _windowExtent(0, 0)
+	{
+		gWindowPtrs.push_back(this);
+	}
+
 	Window::Window(const std::string& title, int width, int height)
 	{
 		gWindowPtrs.push_back(this);
@@ -37,7 +43,7 @@ namespace GL3
 		for (auto iter = gWindowPtrs.begin(); iter != gWindowPtrs.end();)
 		{
 			if (this == *iter)
-				gWindowPtrs.erase(iter);
+				iter = gWindowPtrs.erase(iter);
 			else
 				++iter;
 		}
@@ -67,6 +73,7 @@ namespace GL3
 		if (this->_window == nullptr)
 		{
 			std::cerr << "Failed to Create GLFW Window" << std::endl;
+			StackTrace::PrintStack();
 			return false;
 		}
 
@@ -75,6 +82,7 @@ namespace GL3
 		if (gladLoadGLLoader((GLADloadproc)glfwGetProcAddress) == false)
 		{
 			std::cerr << "Failed to initialize GLAD" << std::endl;
+			StackTrace::PrintStack();
 			return false;
 		}
 
@@ -82,8 +90,8 @@ namespace GL3
 		glDebugMessageCallback(GL3Debug::DebugLog, nullptr);
 		glDebugMessageControl(GL_DEBUG_SOURCE_APPLICATION, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, true);
 		glDebugMessageControl(GL_DEBUG_SOURCE_THIRD_PARTY, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, true);
-		// glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW, 0, NULL, false);
-		// glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_OTHER, GL_DONT_CARE, 0, NULL, false);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW, 0, NULL, false);
+		glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_OTHER, GL_DONT_CARE, 0, NULL, false);
 		
 		glfwSetInputMode(this->_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 		glfwSetCursorPosCallback(this->_window, ::CursorPosCallback);
@@ -121,12 +129,37 @@ namespace GL3
 	//! Process Input
 	void Window::ProcessInput() const
 	{
+		static const std::vector<unsigned int> watchingKeys {
+			GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, GLFW_KEY_D, 
+			GLFW_KEY_ESCAPE, GLFW_KEY_SPACE, GLFW_KEY_ENTER
+		};
 
+		for (auto key : watchingKeys)
+			if (glfwGetKey(_window, key) == GLFW_PRESS)
+			{
+				for (auto& callback : _keyCallbacks)
+					callback(key);
+			}
 	}
 
 	void Window::ProcessCursorPos(double xpos, double ypos) const
 	{
 		for (auto& callback : _cursorPosCallbacks)
 			callback(xpos, ypos);
+	}
+
+	void Window::operator+=(const KeyCallback& callback)
+	{
+		_keyCallbacks.push_back(callback);
+	}
+
+	void Window::operator+=(const CursorPosCallback& callback)
+	{
+		_cursorPosCallbacks.push_back(callback);
+	}
+	
+	float Window::GetAspectRatio() const
+	{
+		return static_cast<float>(_windowExtent.x) / static_cast<float>(_windowExtent.y);
 	}
 };
