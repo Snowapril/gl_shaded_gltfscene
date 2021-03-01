@@ -1,14 +1,9 @@
 #include <iostream>
 #include <cxxopts/cxxopts.hpp>
 
+#include <Application.hpp>
 #include <GL3/Window.hpp>
-#include <GL3/Camera.hpp>
-#include <GL3/Mesh.hpp>
-#include <GL3/Shader.hpp>
-
-void Update();
-void DrawFrame();
-void ProcessInput();
+#include <chrono>
 
 int main(int argc, char* argv[])
 {
@@ -28,37 +23,28 @@ int main(int argc, char* argv[])
 		exit(0);
 	}
 
-	GL3::Window window("modern-opengl-template", 1200, 900);
-
-	GL3::Camera camera;
-	camera.SetupCamera(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	
-	GL3::Shader shader;
-
-	while (window.CheckWindowShouldClose() == false)
+	Application app;
+	if (!app.Initialize(result))
 	{
-		ProcessInput();
-		Update();
-		DrawFrame();
+		std::cerr << "Failed to initialize the application" << std::endl;
+		return EXIT_FAILURE;
+	}
+	
+	std::shared_ptr< GL3::Window > window;
+	auto startTime = std::chrono::steady_clock::now();
+	while ((window = app.GetCurrentWindow()) && window->CheckWindowShouldClose() == false)
+	{
+		auto nowTime = std::chrono::steady_clock::now();
+		double dt = std::chrono::duration_cast<std::chrono::microseconds>(nowTime - startTime).count() / 1e-6;
+		startTime = nowTime;
 
-		window.SwapBuffer();
-		window.PollEvents();
+		app.UpdateFrame(dt);
+		app.DrawFrame();
+
+		window->SwapBuffer();
+		window->PollEvents();
 	}
 
-	window.CleanUp();
-
+	window.reset();
 	return 0;
-}
-
-void Update()
-{
-
-}
-void DrawFrame()
-{
-
-}
-void ProcessInput()
-{
-
 }
