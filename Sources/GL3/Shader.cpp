@@ -23,7 +23,7 @@ std::string PreprocessShaderInclude(const std::string& path, std::string include
 
 	if (file.is_open() == false)
 	{
-		std::cerr << "Open shader source file failed" << std::endl;
+		std::cerr << "Open shader source file failed" << path << std::endl;
 		GL3::StackTrace::PrintStack();
 	}
 
@@ -73,14 +73,15 @@ namespace GL3 {
 
 			//! Load shader file contents handled with #include.
 			const std::string contents = PreprocessShaderInclude(path);
+			const char* source = contents.c_str();
 
 			GLuint shader = glCreateShader(type);
-			glShaderSource(shader, 1, (const char* const*)contents.c_str(), nullptr);
+			glShaderSource(shader, 1, &source, nullptr);
 			glCompileShader(shader);
 			
 			int success;
 			glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-			if (success)
+			if (!success)
 			{
 				int length;
 				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
@@ -88,6 +89,7 @@ namespace GL3 {
 				glGetShaderInfoLog(shader, length, nullptr, logs.data());
 				std::clog << "Shader Compile Error Log" << std::endl;
 				std::clog << logs.data() << std::endl;
+				StackTrace::PrintStack();
 				return false;
 			}
 
@@ -104,7 +106,7 @@ namespace GL3 {
 
 		int success;
 		glGetProgramiv(_programID, GL_LINK_STATUS, &success);
-		if (success)
+		if (!success)
 		{
 			int length;
 			glGetProgramiv(_programID, GL_INFO_LOG_LENGTH, &length);
@@ -112,13 +114,14 @@ namespace GL3 {
 			glGetProgramInfoLog(_programID, length, nullptr, logs.data());
 			std::clog << "Program Linking Error Log" << std::endl;
 			std::clog << logs.data() << std::endl;
+			StackTrace::PrintStack();
 			return false;
 		}
 
 		return true;
 	}
 
-	void Shader::BindShaderProgram()
+	void Shader::BindShaderProgram() const
 	{
 		glUseProgram(this->_programID);
 	}
@@ -126,6 +129,11 @@ namespace GL3 {
 	void Shader::UnbindShaderProgram()
 	{
 		glUseProgram(0);
+	}
+
+	void Shader::BindUniformBlock(const std::string& blockName, GLuint bindingPoint) const
+	{
+		glUniformBlockBinding(_programID, glGetUniformBlockIndex(_programID, blockName.c_str()), bindingPoint);
 	}
 
 	bool Shader::HasUniformVariable(const std::string& name)

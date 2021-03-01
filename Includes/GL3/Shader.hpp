@@ -18,10 +18,12 @@ namespace GL3 {
 		//! \param sources : a pair of shader type and it's source code file path.
 		bool Initialize(const std::unordered_map<GLenum, std::string>& sources);
 		//! Bind generated shader program.
-		void BindShaderProgram();
+		void BindShaderProgram() const;
 		//! Unbind shader program
 		//! declared as static because nothing related with member variables or method
 		static void UnbindShaderProgram();
+		//! Bind uniform block to this program
+		void BindUniformBlock(const std::string& blockName, GLuint bindingPoint) const;
 		//! Check this shader program has uniform variable with given name
 		bool HasUniformVariable(const std::string& name);
 		//! Returns the uniform variable location matched with given name.
