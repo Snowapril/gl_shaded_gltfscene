@@ -40,7 +40,7 @@ namespace GL3 {
 		glBindTexture(_target, _textureID);
 	}
 
-	void Texture::UnbindTexture()
+	void Texture::UnbindTexture() const
 	{
 		glBindTexture(_target, 0);
 	}

@@ -20,8 +20,7 @@ namespace GL3 {
 		//! Bind generated texture.
 		void BindTexture(GLuint slot) const;
 		//! Unbind texture with current bound slot
-		//! declared as static because nothing related with member variables or method
-		static void UnbindTexture();
+		void UnbindTexture() const;
 		//! Clean up the generated resources
 		void CleanUp();
 	private:
