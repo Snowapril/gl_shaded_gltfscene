@@ -5,10 +5,8 @@
 #include <string>
 #include <vector>
 #include <functional>
-#include <Application.hpp>
 
 struct GLFWwindow;
-class Application;
 
 namespace GL3
 {
