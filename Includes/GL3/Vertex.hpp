@@ -54,8 +54,7 @@ namespace GL3 {
 
         //! Position (3D), normal (3D), texture coordinates (3D), and color in RGBA
         //! (4D).
-        Position3Normal3TexCoord3Color4 = Position3Normal3Color4 | TexCoord3,
-
+        Position3Normal3TexCoord3Color4 = Position3Normal3Color4 | TexCoord3
     };
 
     //! Bit-wise operator for two vertex formats
