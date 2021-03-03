@@ -21,7 +21,7 @@ namespace GL3 {
 		_target = target;
 
 		glGenTextures(1, &_textureID);
-		glBindTexture(_target);
+		glBindTexture(_target, _textureID);
 		glTexParameteri(_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
