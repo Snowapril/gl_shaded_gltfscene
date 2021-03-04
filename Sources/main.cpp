@@ -1,8 +1,9 @@
 #include <iostream>
 #include <cxxopts/cxxopts.hpp>
 
-#include <GL3/Renderer.hpp>
+#include <SampleRenderer.hpp>
 #include <GL3/Window.hpp>
+#include <glfw/glfw3.h>
 #include <chrono>
 
 int main(int argc, char* argv[])
@@ -10,10 +11,9 @@ int main(int argc, char* argv[])
 	cxxopts::Options options("modern-opengl-template", "simple description");
 
 	options.add_options()
-		("d,debug", "Enable debugging") // a bool parameter
-		("i,integer", "Int param", cxxopts::value<int>())
-		("f,file", "File name", cxxopts::value<std::string>())
-		("v,verbose", "Verbose output", cxxopts::value<bool>()->default_value("false"));
+		("t,title", "Window Title(default is 'modern-opengl-template')", cxxopts::value<std::string>()->default_value("modern-opengl-template"))
+		("w,width", "Window width(default is 1200)", cxxopts::value<int>()->default_value("1200"))
+		("h,height", "Window height(default is 900)", cxxopts::value<int>()->default_value("900"));
 
 	auto result = options.parse(argc, argv);
 
@@ -23,28 +23,29 @@ int main(int argc, char* argv[])
 		exit(0);
 	}
 
-	GL3::Renderer renderer;
-	if (!renderer.Initialize(result))
+	auto renderer = std::make_unique<SampleRenderer>();
+	if (!renderer->Initialize(result))
 	{
 		std::cerr << "Failed to initialize the Renderer" << std::endl;
 		return EXIT_FAILURE;
 	}
 	
-	std::shared_ptr< GL3::Window > window;
+	std::shared_ptr< GL3::Window > window = renderer->GetWindow();
 	auto startTime = std::chrono::steady_clock::now();
-	while ((window = renderer.GetCurrentWindow()) && window->CheckWindowShouldClose() == false)
+	while (!renderer->GetRendererShouldExit())
 	{
 		auto nowTime = std::chrono::steady_clock::now();
 		double dt = std::chrono::duration_cast<std::chrono::microseconds>(nowTime - startTime).count() / 1e-6;
 		startTime = nowTime;
 
-		renderer.UpdateFrame(dt);
-		renderer.DrawFrame();
-
-		window->SwapBuffer();
-		window->PollEvents();
+		renderer->UpdateFrame(dt);
+		renderer->DrawFrame();
+		
+		glfwSwapBuffers(window->GetGLFWWindow());
+		glfwPollEvents();
 	}
 
-	window.reset();
+	renderer->CleanUp();
+
 	return 0;
 }
