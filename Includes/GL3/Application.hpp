@@ -9,10 +9,10 @@
 
 namespace GL3
 {
-	class Window;
 	class Camera;
 	class Shader;
 	class Texture;
+	class Window;
 
 	class Application
 	{
@@ -20,11 +20,9 @@ namespace GL3
 		//! Default constructor
 		Application();
 		//! Default desctrutor
-		~Application();
+		virtual ~Application();
 		//! Initialize the Application
-		bool Initialize(const cxxopts::ParseResult& configure);
-		//! Window instance to the application
-		bool InitWindow(const std::string& title, int width, int height);
+		bool Initialize(std::shared_ptr<GL3::Window> window, const cxxopts::ParseResult& configure);
 		//! Add camera instance with Perspective or Orthogonal
 		void AddCamera(std::shared_ptr< GL3::Camera >&& camera);
 		//! Update the application with delta time.
@@ -33,23 +31,22 @@ namespace GL3
 		void Draw();
 		//! Clean up the all resources.
 		void CleanUp();
-		//! Returns the current bound window
-		std::shared_ptr< GL3::Window > GetWindow() const;
+		//! Returns the application title
+		virtual const char* GetAppTitle() const = 0;
+		//! Process the input key
+		void ProcessInput(unsigned int key);
+		//!Process the mouse cursor positions
+		void ProcessCursorPos(double xpos, double ypos);
 	protected:
-		virtual bool OnInitialize(const cxxopts::ParseResult& configure) = 0;
+		virtual bool OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts::ParseResult& configure) = 0;
 		virtual void OnCleanUp() = 0;
 		virtual void OnUpdate(double dt) = 0;
 		virtual void OnDraw() = 0;
-
-		std::shared_ptr< GL3::Window > _window;
+		virtual void OnProcessInput(unsigned int key) = 0;
 
 		std::vector< std::shared_ptr< GL3::Camera > > _cameras;
 		std::unordered_map< std::string, std::shared_ptr< GL3::Shader > > _shaders;
 		std::unordered_map< std::string, std::shared_ptr< GL3::Texture > > _textures;
-
-	private:
-		void ProcessInput(unsigned int key);
-		void ProcessCursorPos(double xpos, double ypos);
 	};
 };
 
