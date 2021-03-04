@@ -8,17 +8,17 @@ namespace
 {
 	std::vector<GL3::Window*> gWindowPtrs;
 
-	GL3::Window* GetMatchedWinodw(GLFWwindow* window)
+	GL3::Window* GetMatchedWindow(GLFWwindow* window)
 	{
 		for (auto windowPtr : gWindowPtrs)
-			if (window == windowPtr->GetWindow())
+			if (window == windowPtr->GetGLFWWindow())
 				return windowPtr;
 		return nullptr;
 	}
 
 	void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 	{
-		GetMatchedWinodw(window)->ProcessCursorPos(xpos, ypos);
+		GetMatchedWindow(window)->ProcessCursorPos(xpos, ypos);
 	}
 };
 
@@ -39,7 +39,6 @@ namespace GL3
 
 	Window::~Window()
 	{
-		CleanUp();
 		for (auto iter = gWindowPtrs.begin(); iter != gWindowPtrs.end();)
 		{
 			if (this == *iter)
@@ -47,9 +46,10 @@ namespace GL3
 			else
 				++iter;
 		}
+		CleanUp();
 	}
 
-	bool Window::Initialize(const std::string& title, int width, int height)
+	bool Window::Initialize(const std::string& title, int width, int height, GLFWwindow* sharedWindow)
 	{
 		this->_windowTitle = title;
 		this->_windowExtent = glm::ivec2(width, height);
@@ -68,7 +68,7 @@ namespace GL3
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 #endif
 
-		this->_window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+		this->_window = glfwCreateWindow(width, height, title.c_str(), nullptr, sharedWindow);
 		
 		if (this->_window == nullptr)
 		{
@@ -103,38 +103,25 @@ namespace GL3
 	{
 		if (this->_window)
 			glfwDestroyWindow(this->_window);
-		glfwTerminate();
+		//! If there is no more glfw window, cleanup context too.
+		if (gWindowPtrs.empty())
+			glfwTerminate();
 	}
 
-	const GLFWwindow* Window::GetWindow() const
+	GLFWwindow* Window::GetGLFWWindow()
 	{
 		return this->_window;
 	}
 
-	bool Window::CheckWindowShouldClose() const
+	glm::ivec2 Window::GetWindowExtent() const
 	{
-		return glfwWindowShouldClose(this->_window) == GLFW_TRUE;
-	}
-	//! Poll window events
-	void Window::PollEvents() const
-	{
-		glfwPollEvents();
-	}
-	//! Swap buffers
-	void Window::SwapBuffer() const
-	{
-		glfwSwapBuffers(this->_window);
+		return this->_windowExtent;
 	}
 
 	//! Process Input
 	void Window::ProcessInput() const
 	{
-		static const std::vector<unsigned int> watchingKeys {
-			GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, GLFW_KEY_D, 
-			GLFW_KEY_ESCAPE, GLFW_KEY_SPACE, GLFW_KEY_ENTER
-		};
-
-		for (auto key : watchingKeys)
+		for (unsigned int key = GLFW_KEY_SPACE; key <= GLFW_KEY_LAST; ++key)
 			if (glfwGetKey(_window, key) == GLFW_PRESS)
 			{
 				for (auto& callback : _keyCallbacks)
