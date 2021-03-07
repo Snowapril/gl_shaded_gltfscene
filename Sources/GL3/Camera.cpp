@@ -9,7 +9,7 @@ namespace GL3 {
 	Camera::Camera()
 		: _projection(1.0f), _view(1.0f), _position(0.0f), 
 		  _direction(0.0f, -1.0f, 0.0f), _up(0.0f, 1.0f, 0.0f), 
-		  _lastCursorPos(0.0, 0.0), _speed(0.03f), _uniformBuffer(0)
+		  _speed(0.03f), _uniformBuffer(0)
 	{
 		//! Do nothing
 	}
@@ -21,7 +21,6 @@ namespace GL3 {
 	
 	bool Camera::SetupUniformBuffer()
 	{
-
 		glGenBuffers(1, &_uniformBuffer);
 		glBindBuffer(GL_UNIFORM_BUFFER, _uniformBuffer);
 		glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3, nullptr, GL_STATIC_DRAW);
@@ -47,9 +46,9 @@ namespace GL3 {
 		return this->_projection;
 	}
 	
-	void Camera::BindCamera() const
+	void Camera::BindCamera(GLuint bindingPoint) const
 	{
-		glBindBuffer(GL_UNIFORM_BUFFER, _uniformBuffer);
+		glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, _uniformBuffer);
 	}
 
 	void Camera::UnbindCamera()
@@ -86,13 +85,13 @@ namespace GL3 {
 			this->_position += this->_direction * _speed;
 			break;
 		case GLFW_KEY_A:
-			this->_position += glm::cross(this->_direction, this->_up) * _speed;
+			this->_position -= glm::cross(this->_direction, this->_up) * _speed;
 			break;
 		case GLFW_KEY_S:
 			this->_position -= this->_direction * _speed;
 			break;
 		case GLFW_KEY_D:
-			this->_position -= glm::cross(this->_direction, this->_up) * _speed;
+			this->_position += glm::cross(this->_direction, this->_up) * _speed;
 			break;
 		default:
 			return;
@@ -104,23 +103,26 @@ namespace GL3 {
 	void Camera::ProcessCursorPos(double xpos, double ypos)
 	{
 		static bool bFirstCall = true;
+		static glm::dvec2 lastCursorPos;
+		
 		const glm::dvec2 cursorPos(xpos, ypos);
 		if (bFirstCall)
 		{
-			_lastCursorPos = cursorPos;
+			lastCursorPos = cursorPos;
 			bFirstCall = false;
 		}
 
-		constexpr float sensitivity = 8e-4f;
-		const float xoffset = static_cast<float>(cursorPos.x - _lastCursorPos.x) * sensitivity;
-		const float yoffset = static_cast<float>(_lastCursorPos.y - cursorPos.y) * sensitivity;
-		
+		constexpr float sensitivity = 8e-2f;
+		const float xoffset = static_cast<float>(lastCursorPos.x - cursorPos.x) * sensitivity;
+		const float yoffset = static_cast<float>(lastCursorPos.y - cursorPos.y) * sensitivity;
+		lastCursorPos = cursorPos;
+
 		//! create quaternion matrix with up vector and yaw angle.
 		auto yawQuat	= glm::angleAxis(glm::radians(xoffset), this->_up);
 		//! create quaternion matrix with right vector and pitch angle.
 		auto pitchQuat	= glm::angleAxis(glm::radians(yoffset), glm::cross(this->_direction, this->_up));
 
-		this->_direction = (yawQuat * pitchQuat * this->_direction);
+		this->_direction = glm::normalize(yawQuat * pitchQuat) * this->_direction;
 		UpdateMatrix();
 	}
 

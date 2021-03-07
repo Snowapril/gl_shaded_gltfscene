@@ -25,7 +25,7 @@ namespace GL3 {
 		//! Returns projection matrix
 		glm::mat4 GetProjectionMatrix();
 		//! Bind the uniform buffer to the current context.
-		void BindCamera() const;
+		void BindCamera(GLuint bindingPoint) const;
 		//! Unbind camera
 		//! declared as static because nothing related with member variables or method
 		static void UnbindCamera();
@@ -48,7 +48,6 @@ namespace GL3 {
 		GLint GetUniformLocation(const std::string& name);
 
 		std::unordered_map<std::string, GLint> _uniformCache;
-		glm::dvec2 _lastCursorPos;
 		float _speed;
 		GLuint _uniformBuffer;
 	};
