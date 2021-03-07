@@ -1,6 +1,5 @@
-#include <GL3/Mesh.hpp>
+#include <GL3/AssetLoader.hpp>
 #include <GL3/DebugUtils.hpp>
-#include <glad/glad.h>
 #include <iostream>
 #include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
@@ -76,7 +75,6 @@ void ComputeSmoothingNormals(const tinyobj::attrib_t& attrib, const tinyobj::sha
                 iter->second += normal;
             }
         }
-
     }  // f
 
     // Normalize the normals, that is, make them unit vectors
@@ -114,18 +112,7 @@ inline bool operator<(const PackedVertex& v1, const PackedVertex& v2)
 
 namespace GL3 {
 
-	Mesh::Mesh()
-		: _vao(0), _vbo(0), _ebo(0), _numVertices(0)
-	{
-		//! Do nothing
-	}
-
-	Mesh::~Mesh()
-	{
-		CleanUp();
-	}
-
-	bool Mesh::LoadObj(const char* path, bool scaleToUnitBox)
+    bool AssetLoader::LoadObjFile(const std::string& path, std::vector<float>& vertices, std::vector<unsigned int>& indices, VertexFormat format)
 	{
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
@@ -134,7 +121,7 @@ namespace GL3 {
         std::string err;
 
         //! Load obj file with tinyobjloader 
-        bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path);
+        bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str());
         if (!ret)
         {
             std::cerr << "Failed to load " << path << std::endl;
@@ -148,8 +135,6 @@ namespace GL3 {
             return false;
         }
 
-        std::vector<PackedVertex> vertices;
-        std::vector<unsigned int> indices;
         for (auto& shape : shapes)
         {
             std::map<int, glm::vec3> smoothVertexNormals;
@@ -159,7 +144,6 @@ namespace GL3 {
             }
             
             std::map<PackedVertex, unsigned int> packedVerticesMap;
-            BoundingBox boundingBox;
             for (size_t faceIndex = 0; faceIndex < shape.mesh.indices.size() / 3; ++faceIndex)
             {
                 /*
@@ -182,101 +166,108 @@ namespace GL3 {
                 glm::vec2 texCoord[3];
                 glm::vec3 normal[3];
 
-                for (int k = 0; k < 3; k++)
+                if (static_cast<int>(format & VertexFormat::Position3))
                 {
-                    int f0 = idx0.vertex_index;
-                    int f1 = idx1.vertex_index;
-                    int f2 = idx2.vertex_index;
-                    assert(f0 >= 0 && f1 >= 0 && f2 >= 0);
-
-                    position[0][k] = attrib.vertices[3 * f0 + k];
-                    position[1][k] = attrib.vertices[3 * f1 + k];
-                    position[2][k] = attrib.vertices[3 * f2 + k];
-                    //! Merge the bounding box with new point
-                    boundingBox.Merge(position[k]);
-                }
-
-                bool invalidNormal = false;
-                if (attrib.normals.size() > 0)
-                {
-                    int f0 = idx0.normal_index;
-                    int f1 = idx1.normal_index;
-                    int f2 = idx2.normal_index;
-                    if (f0 < 0 || f1 < 0 || f2 < 0)
+                    for (int k = 0; k < 3; k++)
                     {
-                        invalidNormal = true;
-                    }
-                    else
-                    {
-                        for (size_t k = 0; k < 3; k++)
-                        {
-                            assert(size_t(3 * f0 + k) < attrib.normals.size());
-                            assert(size_t(3 * f1 + k) < attrib.normals.size());
-                            assert(size_t(3 * f2 + k) < attrib.normals.size());
-                            normal[0][k] = attrib.normals[3 * f0 + k];
-                            normal[1][k] = attrib.normals[3 * f1 + k];
-                            normal[2][k] = attrib.normals[3 * f2 + k];
-                        }
-                    }
-                }
-                else
-                {
-                    invalidNormal = true;
-                }
-                if (invalidNormal)
-                {
-                    if (!smoothVertexNormals.empty())
-                    {
-                        //! Use smoothing normals
                         int f0 = idx0.vertex_index;
                         int f1 = idx1.vertex_index;
                         int f2 = idx2.vertex_index;
-                        if (f0 >= 0 && f1 >= 0 && f2 >= 0)
+                        assert(f0 >= 0 && f1 >= 0 && f2 >= 0);
+
+                        position[0][k] = attrib.vertices[3 * f0 + k];
+                        position[1][k] = attrib.vertices[3 * f1 + k];
+                        position[2][k] = attrib.vertices[3 * f2 + k];
+                    }
+                }
+
+                if (static_cast<int>(format & VertexFormat::Normal3))
+                {
+                    bool invalidNormal = false;
+                    if (attrib.normals.size() > 0)
+                    {
+                        int f0 = idx0.normal_index;
+                        int f1 = idx1.normal_index;
+                        int f2 = idx2.normal_index;
+                        if (f0 < 0 || f1 < 0 || f2 < 0)
                         {
-                            normal[0] = smoothVertexNormals[f0];
-                            normal[1] = smoothVertexNormals[f1];
-                            normal[2] = smoothVertexNormals[f2];
+                            invalidNormal = true;
+                        }
+                        else
+                        {
+                            for (size_t k = 0; k < 3; k++)
+                            {
+                                assert(size_t(3 * f0 + k) < attrib.normals.size());
+                                assert(size_t(3 * f1 + k) < attrib.normals.size());
+                                assert(size_t(3 * f2 + k) < attrib.normals.size());
+                                normal[0][k] = attrib.normals[3 * f0 + k];
+                                normal[1][k] = attrib.normals[3 * f1 + k];
+                                normal[2][k] = attrib.normals[3 * f2 + k];
+                            }
                         }
                     }
                     else
                     {
-                        normal[0] = CalculateNormal(position[0], position[1], position[2]);
-                        normal[1] = normal[0];
-                        normal[2] = normal[0];
+                        invalidNormal = true;
+                    }
+                    if (invalidNormal)
+                    {
+                        if (!smoothVertexNormals.empty())
+                        {
+                            //! Use smoothing normals
+                            int f0 = idx0.vertex_index;
+                            int f1 = idx1.vertex_index;
+                            int f2 = idx2.vertex_index;
+                            if (f0 >= 0 && f1 >= 0 && f2 >= 0)
+                            {
+                                normal[0] = smoothVertexNormals[f0];
+                                normal[1] = smoothVertexNormals[f1];
+                                normal[2] = smoothVertexNormals[f2];
+                            }
+                        }
+                        else
+                        {
+                            normal[0] = CalculateNormal(position[0], position[1], position[2]);
+                            normal[1] = normal[0];
+                            normal[2] = normal[0];
+                        }
                     }
                 }
-
-                if (attrib.texcoords.size() > 0)
+                
+                if (static_cast<int>(format & VertexFormat::TexCoord2))
                 {
-                    int f0 = idx0.texcoord_index;
-                    int f1 = idx1.texcoord_index;
-                    int f2 = idx2.texcoord_index;
+                    if (attrib.texcoords.size() > 0)
+                    {
+                        int f0 = idx0.texcoord_index;
+                        int f1 = idx1.texcoord_index;
+                        int f2 = idx2.texcoord_index;
 
-                    if (f0 < 0 || f1 < 0 || f2 < 0)
+                        if (f0 < 0 || f1 < 0 || f2 < 0)
+                        {
+                            texCoord[0] = glm::vec2(0.0f, 0.0f);
+                            texCoord[1] = glm::vec2(0.0f, 0.0f);
+                            texCoord[2] = glm::vec2(0.0f, 0.0f);
+                        }
+                        else
+                        {
+                            assert(attrib.texcoords.size() > size_t(2 * f0 + 1));
+                            assert(attrib.texcoords.size() > size_t(2 * f1 + 1));
+                            assert(attrib.texcoords.size() > size_t(2 * f2 + 1));
+
+                            //! Flip Y coord.
+                            texCoord[0] = glm::vec2(attrib.texcoords[2 * f0], 1.0f - attrib.texcoords[2 * f0 + 1]);
+                            texCoord[1] = glm::vec2(attrib.texcoords[2 * f1], 1.0f - attrib.texcoords[2 * f1 + 1]);
+                            texCoord[2] = glm::vec2(attrib.texcoords[2 * f2], 1.0f - attrib.texcoords[2 * f2 + 1]);
+                        }
+                    }
+                    else
                     {
                         texCoord[0] = glm::vec2(0.0f, 0.0f);
                         texCoord[1] = glm::vec2(0.0f, 0.0f);
                         texCoord[2] = glm::vec2(0.0f, 0.0f);
                     }
-                    else
-                    {
-                        assert(attrib.texcoords.size() > size_t(2 * f0 + 1));
-                        assert(attrib.texcoords.size() > size_t(2 * f1 + 1));
-                        assert(attrib.texcoords.size() > size_t(2 * f2 + 1));
-
-                        //! Flip Y coord.
-                        texCoord[0] = glm::vec2(attrib.texcoords[2 * f0], 1.0f - attrib.texcoords[2 * f0 + 1]);
-                        texCoord[1] = glm::vec2(attrib.texcoords[2 * f1], 1.0f - attrib.texcoords[2 * f1 + 1]);
-                        texCoord[2] = glm::vec2(attrib.texcoords[2 * f2], 1.0f - attrib.texcoords[2 * f2 + 1]);
-                    }
                 }
-                else
-                {
-                    texCoord[0] = glm::vec2(0.0f, 0.0f);
-                    texCoord[1] = glm::vec2(0.0f, 0.0f);
-                    texCoord[2] = glm::vec2(0.0f, 0.0f);
-                }
-
+                
                 //! From now on, vertices in one face allocated.
                 for (unsigned int k = 0; k < 3; ++k)
                 {
@@ -286,7 +277,12 @@ namespace GL3 {
 
                     if (iter == packedVerticesMap.end())
                     {
-                        vertices.push_back(iter->first);
+                        if (static_cast<int>(format & VertexFormat::Position3))
+                            vertices.insert(vertices.end(), { position[k].x, position[k].y, position[k].z });
+                        if (static_cast<int>(format & VertexFormat::Normal3))
+                            vertices.insert(vertices.end(), { normal[k].x, normal[k].y, normal[k].z });
+                        if (static_cast<int>(format & VertexFormat::TexCoord2))
+                            vertices.insert(vertices.end(), { texCoord[k].x, texCoord[k].y });
                         unsigned int newIndex = static_cast<unsigned int>(vertices.size() - 1);
                         indices.push_back(newIndex);
                         packedVerticesMap[vertex] = newIndex;
@@ -297,61 +293,25 @@ namespace GL3 {
                     }
                 }
             }
-            _boundingBox.Merge(boundingBox);
         }
-
-        if (scaleToUnitBox)
-        {
-            const auto& minCorner = _boundingBox.GetLowerCorner();
-            const auto& maxCorner = _boundingBox.GetUpperCorner();
-            const auto& delta = maxCorner - minCorner;
-            const float maxLengthHalf = std::max({ delta.x, delta.y, delta.z }) / 2.0f;
-
-            for (auto& vertex : vertices)
-            {
-                vertex.position -= minCorner;
-                vertex.position /= maxLengthHalf;
-                vertex.position -= 1.0f;
-            }
-        }
-
-        glGenVertexArrays(1, &_vao);
-        glGenBuffers(1, &_vbo);
-        glGenBuffers(1, &_ebo);
-
-        glBindVertexArray(_vao);
-        glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(PackedVertex)* vertices.size(), vertices.data(), GL_STATIC_DRAW);
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(PackedVertex), (void*)offsetof(PackedVertex, position));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(PackedVertex), (void*)offsetof(PackedVertex, texCoord));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(PackedVertex), (void*)offsetof(PackedVertex, normal));
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)* indices.size(), indices.data(), GL_STATIC_DRAW);
-     
-        glBindVertexArray(0);
-
-        _numVertices = indices.size();
 
         return true;
     }
 
-	void Mesh::DrawMesh(GLenum mode)
-	{
-		glBindVertexArray(_vao);
-		glDrawElements(mode, _numVertices, GL_UNSIGNED_INT, nullptr);
-		glBindVertexArray(0);
-	}
+    bool AssetLoader::LoadRawFile(const std::string& path, std::vector<char>& data)
+    {
+        std::ifstream file(path, std::ios::in | std::ios::binary | std::ios::ate);
+        if (!file.is_open())
+            return false;
 
-	void Mesh::CleanUp()
-	{
-		if (_vao) glDeleteVertexArrays(1, &_vao);
-		if (_vbo) glDeleteBuffers(1, &_vbo);
-		if (_ebo) glDeleteBuffers(1, &_ebo);
-	}
+        const size_t fileSize = file.tellg();
+        data.resize(fileSize);
+        file.seekg(std::ios::beg);
+        file.read(&data[0], fileSize);
+        
+        file.close();
+
+        return true;
+    }
 
 }; //! end of Mesh.cpp
