@@ -173,39 +173,38 @@ namespace GL3 {
 	}
 
 	template <>
-	void Shader::SendUniformVariable(const std::string& name, int&& val)
+	void Shader::SendUniformVariable(const std::string& name, int val)
 	{
 		GLint loc = GetUniformLocation(name);
 		glUniform1i(loc, val);
 	}
 
 	template <>
-	void Shader::SendUniformVariable(const std::string& name, float&& val)
+	void Shader::SendUniformVariable(const std::string& name, float val)
 	{
 		GLint loc = GetUniformLocation(name);
 		glUniform1f(loc, val);
 	}
 
 	template <>
-	void Shader::SendUniformVariable(const std::string& name, glm::vec3&& val)
+	void Shader::SendUniformVariable(const std::string& name, glm::vec3 val)
 	{
 		GLint loc = GetUniformLocation(name);
 		glUniform3fv(loc, 1, glm::value_ptr(val));
 	}
 
 	template <>
-	void Shader::SendUniformVariable(const std::string& name, glm::vec4&& val)
+	void Shader::SendUniformVariable(const std::string& name, glm::vec4 val)
 	{
 		GLint loc = GetUniformLocation(name);
 		glUniform4fv(loc, 1, glm::value_ptr(val));
 	}
 
 	template <>
-	void Shader::SendUniformVariable(const std::string& name, glm::mat4&& val)
+	void Shader::SendUniformVariable(const std::string& name, glm::mat4 val)
 	{
 		GLint loc = GetUniformLocation(name);
-		glm::mat4 movedVal = std::move(val);
-		glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(movedVal));
+		glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(val));
 	}
 
 };

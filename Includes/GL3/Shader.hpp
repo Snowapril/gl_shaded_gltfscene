@@ -30,7 +30,7 @@ namespace GL3 {
 		GLint GetUniformLocation(const std::string& name);
 		//! Send the uniform variable to the pipeline.
 		template <typename Type>
-		void SendUniformVariable(const std::string& name, Type&& val);
+		void SendUniformVariable(const std::string& name, Type val);
 		//! Clean up the generated resources
 		void CleanUp();
 	private:
@@ -39,7 +39,5 @@ namespace GL3 {
 	};
 
 };
-
-#include <GL3/Shader-Impl.hpp>
 
 #endif //! end of Shader.hpp
