@@ -44,3 +44,8 @@ void SampleRenderer::OnProcessInput(unsigned int key)
 {
 	(void)key;
 }
+
+void SampleRenderer::OnProcessResize(int width, int height)
+{
+	(void)width; (void)height;
+}

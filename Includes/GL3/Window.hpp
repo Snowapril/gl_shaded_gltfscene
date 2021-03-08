@@ -16,6 +16,7 @@ namespace GL3
 		//! Callback functions
 		using KeyCallback = std::function<void(unsigned int)>;
 		using CursorPosCallback = std::function<void(double, double)>;
+		using ResizeCallback = std::function<void(int, int)>;
 		//! Default constructor
 		Window();
 		//! Constructor with title and extent
@@ -34,10 +35,14 @@ namespace GL3
 		void ProcessInput() const;
 		//! Mouse cursor position callback method.
 		void ProcessCursorPos(double xpos, double ypos) const;
+		//! Screen resize callback method.
+		void ProcessResize(int width, int height);
 		//! Add input callback functions
 		void operator+=(const KeyCallback& callback);
 		//! Add cursor position callback functions
 		void operator+=(const CursorPosCallback& callback);
+		//! Add screen resize callback functions
+		void operator+=(const ResizeCallback& callback);
 		//! Returns the window extent aspect ratio.
 		float GetAspectRatio() const;
 	protected:
@@ -47,6 +52,7 @@ namespace GL3
 	private:
 		std::vector< KeyCallback > _keyCallbacks;
 		std::vector< CursorPosCallback > _cursorPosCallbacks;
+		std::vector< ResizeCallback > _resizeCallbacks;
 	};
 };
 

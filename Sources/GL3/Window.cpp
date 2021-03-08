@@ -20,6 +20,11 @@ namespace
 	{
 		GetMatchedWindow(window)->ProcessCursorPos(xpos, ypos);
 	}
+
+	void ResizeCallback(GLFWwindow* window, int width, int height)
+	{
+		GetMatchedWindow(window)->ProcessResize(width, height);
+	}
 };
 
 
@@ -95,7 +100,7 @@ namespace GL3
 		
 		glfwSetInputMode(this->_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		glfwSetCursorPosCallback(this->_window, ::CursorPosCallback);
-
+		glfwSetFramebufferSizeCallback(this->_window, ::ResizeCallback);
 		return this->_window != nullptr;
 	}
 
@@ -134,6 +139,13 @@ namespace GL3
 		for (auto& callback : _cursorPosCallbacks)
 			callback(xpos, ypos);
 	}
+	
+	void Window::ProcessResize(int width, int height)
+	{
+		_windowExtent = glm::ivec2(width, height);
+		for (auto& callback : _resizeCallbacks)
+			callback(width, height);
+	}
 
 	void Window::operator+=(const KeyCallback& callback)
 	{
@@ -144,7 +156,12 @@ namespace GL3
 	{
 		_cursorPosCallbacks.push_back(callback);
 	}
-	
+
+	void Window::operator+=(const ResizeCallback& callback)
+	{
+		_resizeCallbacks.push_back(callback);
+	}
+
 	float Window::GetAspectRatio() const
 	{
 		return static_cast<float>(_windowExtent.x) / static_cast<float>(_windowExtent.y);

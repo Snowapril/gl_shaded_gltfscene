@@ -12,6 +12,7 @@ namespace GL3
 {
 	class Application;
 	class Window;
+	class PostProcessing;
 
 	class Renderer
 	{
@@ -46,6 +47,7 @@ namespace GL3
 		virtual void OnBeginDraw() = 0;
 		virtual void OnEndDraw() = 0;
 		virtual void OnProcessInput(unsigned int key) = 0;
+		virtual void OnProcessResize(int width, int height) = 0;
 
 		//! Begin of GPU Time measurement
 		void BeginGPUMeasure();
@@ -56,11 +58,14 @@ namespace GL3
 		std::vector< std::shared_ptr< GL3::Application > > _applications;
 		std::shared_ptr< GL3::Window > _mainWindow;
 		std::vector< std::shared_ptr< GL3::Window > > _sharedWindows;
+		std::unique_ptr< PostProcessing > _postProcessing;
 	private:
 		//! Process the input key
 		void ProcessInput(unsigned int key);
 		//!Process the mouse cursor positions
 		void ProcessCursorPos(double xpos, double ypos);
+		//!Resize the renderer resources
+		void ProcessResize(int width, int height);
 
 		GLuint _queryID;
 		bool _bMeasureGPUTime;

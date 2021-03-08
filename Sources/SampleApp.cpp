@@ -79,3 +79,8 @@ void SampleApp::OnProcessInput(unsigned int key)
 {
 	(void)key;
 }
+
+void SampleApp::OnProcessResize(int width, int height)
+{
+	(void)width; (void)height;
+}

@@ -2,6 +2,7 @@
 #include <GL3/Application.hpp>
 #include <GL3/Camera.hpp>
 #include <GL3/Window.hpp>
+#include <GL3/PostProcessing.hpp>
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
 
@@ -32,8 +33,15 @@ namespace GL3 {
 		using namespace std::placeholders;
 		std::function<void(unsigned int)> inputCallback = std::bind(&Renderer::ProcessInput, this, std::placeholders::_1);
 		std::function<void(double, double)> cursorCallback = std::bind(&Renderer::ProcessCursorPos, this, std::placeholders::_1, std::placeholders::_2);
+		std::function<void(int, int)> resizeCallback = std::bind(&Renderer::ProcessResize, this, std::placeholders::_1, std::placeholders::_2);
 		_mainWindow->operator+=(inputCallback);
 		_mainWindow->operator+=(cursorCallback);
+		_mainWindow->operator+=(resizeCallback);
+
+		_postProcessing = std::make_unique<PostProcessing>();
+		if (!_postProcessing->Initialize())
+			return false;
+		_postProcessing->Resize(_mainWindow->GetWindowExtent());
 
 		//! Initialize implementation parts
 		if (!OnInitialize(configure))
@@ -169,6 +177,16 @@ namespace GL3 {
 		auto app = GetCurrentApplication();
 		assert(app);
 		app->ProcessCursorPos(xpos, ypos);
+	}
+
+	void Renderer::ProcessResize(int width, int height)
+	{
+		_postProcessing->Resize(glm::ivec2(width, height));
+		OnProcessResize(width, height);
+
+		auto app = GetCurrentApplication();
+		assert(app);
+		app->ProcessResize(width, height);
 	}
 
 	void Renderer::SwitchApplication(std::shared_ptr< GL3::Application > app)

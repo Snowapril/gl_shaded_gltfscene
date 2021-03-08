@@ -65,4 +65,8 @@ namespace GL3 {
 			camera->ProcessCursorPos(xpos, ypos);
 	}
 
+	void Application::ProcessResize(int width, int height)
+	{
+		OnProcessResize(width, height);
+	}
 };

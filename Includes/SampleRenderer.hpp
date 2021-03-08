@@ -17,6 +17,7 @@ protected:
 	void OnBeginDraw() override;
 	void OnEndDraw() override;
 	void OnProcessInput(unsigned int key) override;
+	void OnProcessResize(int width, int height) override;
 };
 
 #endif //! end of SampleRenderer.hpp
