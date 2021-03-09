@@ -24,6 +24,8 @@ namespace GL3 {
 		static void UnbindShaderProgram();
 		//! Bind uniform block to this program
 		void BindUniformBlock(const std::string& blockName, GLuint bindingPoint) const;
+		//! Bind frag data location (STANDARD)
+		void BindFragDataLocation(const std::string& name, GLuint location);
 		//! Check this shader program has uniform variable with given name
 		bool HasUniformVariable(const std::string& name);
 		//! Returns the uniform variable location matched with given name.

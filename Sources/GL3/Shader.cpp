@@ -135,6 +135,11 @@ namespace GL3 {
 	{
 		glUniformBlockBinding(_programID, glGetUniformBlockIndex(_programID, blockName.c_str()), bindingPoint);
 	}
+	
+	void Shader::BindFragDataLocation(const std::string& name, GLuint location)
+	{
+		glBindFragDataLocation(_programID, location, name.c_str());
+	}
 
 	bool Shader::HasUniformVariable(const std::string& name)
 	{
