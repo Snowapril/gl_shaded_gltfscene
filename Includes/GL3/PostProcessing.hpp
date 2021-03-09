@@ -30,7 +30,7 @@ namespace GL3 {
 		}
 	protected:
 	private:
-		GLuint _fbo, _rbo;
+		GLuint _fbo;
 		GLuint _color, _depth;
 		GLuint _vao;
 		std::unique_ptr< GL3::Shader > _shader;

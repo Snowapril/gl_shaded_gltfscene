@@ -6,6 +6,8 @@
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
 
+static const float kClearColor[] = { 0.81f, 0.81f, 0.81f, 1.0f };
+
 namespace GL3 {
 
 	Renderer::Renderer()
@@ -84,11 +86,13 @@ namespace GL3 {
 		//! Get current application and it must be valid pointer
 		auto app = GetCurrentApplication();
 		assert(app);
+		const glm::ivec2 windowExtent = _mainWindow->GetWindowExtent();
 
 		//! If measure GPU performance is enabled.
 		//! Below draw calls will not be rendered to screen because of GL_RASTERIZER_DISCARD.
 		if (_bMeasureGPUTime)
 		{
+			glViewport(0, 0, windowExtent.x, windowExtent.y);
 			glEnable(GL_RASTERIZER_DISCARD);
 
 			BeginGPUMeasure();
@@ -97,8 +101,8 @@ namespace GL3 {
 
 			app->Draw();
 
-			size_t elapsed_ms = EndGPUMeasure() / 1000000;
-			std::clog << '\r' << "Geometry Processing Measured " << elapsed_ms << "(ms)" << std::flush;
+			size_t elapsed_microsec = EndGPUMeasure() / 1000;
+			std::clog << '\r' << "Geometry Processing Measured " << elapsed_microsec << "(microsecond)" << std::flush;
 
 			OnEndDraw();
 
@@ -106,9 +110,18 @@ namespace GL3 {
 		}
 
 		//! Actual rendering part.
+		glViewport(0, 0, windowExtent.x, windowExtent.y);
+		glBindFramebuffer(GL_FRAMEBUFFER, _postProcessing->GetFramebuffer());
+		glClearBufferfv(GL_COLOR, 0, kClearColor);
+		glClearBufferfi(GL_DEPTH_STENCIL, 0, 1.0f, 0);
 		OnBeginDraw();
 		app->Draw();
 		OnEndDraw();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearBufferfv(GL_COLOR, 0, kClearColor);
+		glClearBufferfi(GL_DEPTH_STENCIL, 0, 1.0f, 0);
+		_postProcessing->Render();
 	}
 
 	void Renderer::CleanUp()
