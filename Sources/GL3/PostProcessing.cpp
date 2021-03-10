@@ -18,27 +18,23 @@ namespace GL3 {
 
 	bool PostProcessing::Initialize()
 	{
-		glGenFramebuffers(1, &_fbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
+		glCreateFramebuffers(1, &_fbo);
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &_color);
 		glTextureParameteri(_color, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameteri(_color, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTextureParameteri(_color, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameteri(_color, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, _color, 0);
+		glNamedFramebufferTexture(_fbo, GL_COLOR_ATTACHMENT0, _color, 0);
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &_depth);
 		glTextureParameteri(_depth, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameteri(_depth, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTextureParameteri(_depth, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameteri(_depth, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _depth, 0);
+		glNamedFramebufferTexture(_fbo, GL_DEPTH_ATTACHMENT, _depth, 0);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		glGenVertexArrays(1, &_vao);
-
+		glCreateVertexArrays(1, &_vao);
 		_shader = std::make_unique< GL3::Shader >();
 		if (!_shader->Initialize({ {GL_VERTEX_SHADER, RESOURCES_DIR "/shaders/quad.glsl"},
 								   {GL_FRAGMENT_SHADER, RESOURCES_DIR "/shaders/postprocessing.glsl"} }))
