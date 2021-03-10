@@ -21,20 +21,18 @@ namespace GL3 {
 		glGenFramebuffers(1, &_fbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
 
-		glGenTextures(1, &_color);
-		glBindTexture(GL_TEXTURE_2D, _color);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glCreateTextures(GL_TEXTURE_2D, 1, &_color);
+		glTextureParameteri(_color, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameteri(_color, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameteri(_color, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(_color, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, _color, 0);
 
-		glGenTextures(1, &_depth);
-		glBindTexture(GL_TEXTURE_2D, _depth);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glCreateTextures(GL_TEXTURE_2D, 1, &_depth);
+		glTextureParameteri(_depth, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameteri(_depth, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameteri(_depth, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(_depth, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _depth, 0);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -43,7 +41,7 @@ namespace GL3 {
 
 		_shader = std::make_unique< GL3::Shader >();
 		if (!_shader->Initialize({ {GL_VERTEX_SHADER, RESOURCES_DIR "/shaders/quad.glsl"},
-								   {GL_FRAGMENT_SHADER, RESOURCES_DIR "/shaders/postprocessing.glsl"}}))
+								   {GL_FRAGMENT_SHADER, RESOURCES_DIR "/shaders/postprocessing.glsl"} }))
 		{
 			StackTrace::PrintStack();
 			std::cerr << "Failed to create postprocessing shader" << std::endl;
@@ -61,10 +59,8 @@ namespace GL3 {
 	void PostProcessing::Render() const
 	{
 		_shader->BindShaderProgram();
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, _color);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, _depth);
+		glBindTextureUnit(0, _color);
+		glBindTextureUnit(1, _depth);
 		glBindVertexArray(_vao);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		glBindVertexArray(0);
@@ -72,10 +68,8 @@ namespace GL3 {
 
 	void PostProcessing::Resize(const glm::ivec2& extent)
 	{
-		glBindTexture(GL_TEXTURE_2D, _color);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, extent.x, extent.y, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-		glBindTexture(GL_TEXTURE_2D, _depth);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, extent.x, extent.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+		glTextureStorage2D(_color, 1, GL_RGB8, extent.x, extent.y);
+		glTextureStorage2D(_depth, 1, GL_DEPTH_COMPONENT24, extent.x, extent.y);
 	}
 
 	void PostProcessing::CleanUp()

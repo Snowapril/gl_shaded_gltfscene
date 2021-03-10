@@ -20,24 +20,23 @@ namespace GL3 {
 	{
 		_target = target;
 
-		glGenTextures(1, &_textureID);
-		glBindTexture(_target, _textureID);
-		glTexParameteri(_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glCreateTextures(target, 1, &_textureID);
+		glTextureParameteri(_textureID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(_textureID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(_textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTextureParameteri(_textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 
 	void Texture::UploadTexture(void* data, int width, int height, GLenum format, GLenum internalFormat, GLenum type)
 	{
-		glTexImage2D(_target, 0, internalFormat, width, height, 0, format, type, data);
-		glGenerateMipmap(_target);
+		glTextureStorage2D(_textureID, 1, internalFormat, width, height);
+		glTextureSubImage2D(_textureID, 0, 0, 0, width, height, format, type, data);
+		glGenerateTextureMipmap(_textureID);
 	}
 
 	void Texture::BindTexture(GLuint slot) const
 	{
-		glActiveTexture(GL_TEXTURE0 + slot);
-		glBindTexture(_target, _textureID);
+		glBindTextureUnit(slot, _textureID);
 	}
 
 	void Texture::UnbindTexture() const
