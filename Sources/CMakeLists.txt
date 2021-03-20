@@ -64,6 +64,6 @@ target_link_libraries(${target}
 	${DEFAULT_LIBRARIES}
     glad
     glfw
-
+    draco
     INTERFACE
 )

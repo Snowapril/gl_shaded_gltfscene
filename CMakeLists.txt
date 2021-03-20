@@ -26,6 +26,7 @@ include_directories(Libraries/tinygltf)
 include_directories(Libraries/tinyobjloader)
 include_directories(Libraries/glfw/include)
 include_directories(Libraries/draco/src)
+
 # Compile options
 include(Builds/CMake/CompileOptions.cmake)
 
@@ -45,4 +46,8 @@ add_subdirectory(Libraries/glad)
 add_subdirectory(Libraries/glfw)
 add_subdirectory(Libraries/imgui)
 add_subdirectory(Libraries/tinyobjloader)
+
+add_subdirectory(Libraries/draco)
+include_directories(${PROJECT_BINARY_DIR} /draco)
+
 add_subdirectory(Sources)
