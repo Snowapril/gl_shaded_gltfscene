@@ -25,7 +25,7 @@ include_directories(Libraries/imgui)
 include_directories(Libraries/tinygltf)
 include_directories(Libraries/tinyobjloader)
 include_directories(Libraries/glfw/include)
-
+include_directories(Libraries/draco/src)
 # Compile options
 include(Builds/CMake/CompileOptions.cmake)
 
