@@ -6,8 +6,7 @@
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image/stb_image.h>
+#include <tinygltf/stb_image.h>
 
 SampleApp::SampleApp()
 {
