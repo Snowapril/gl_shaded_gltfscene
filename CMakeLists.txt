@@ -22,7 +22,7 @@ include_directories(Libraries)
 include_directories(Libraries/glad)
 include_directories(Libraries/glm)
 include_directories(Libraries/imgui)
-include_directories(Libraries/stb_image)
+include_directories(Libraries/tinygltf)
 include_directories(Libraries/tinyobjloader)
 include_directories(Libraries/glfw/include)
 
