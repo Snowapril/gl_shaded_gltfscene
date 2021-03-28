@@ -7,6 +7,13 @@
 
 namespace GL3 {
 
+	//!
+	//! \brief      Program with attached arbitrary shaders
+	//!
+	//! Enable to have multiple applciation and multiple context with one main shared context.
+	//! This class provides render & update routine and profiling GPU time features.
+	//! Pass whole input callbacks such as mouse, keyboard into GLFWwindow callback function collection.
+	//! 
 	class Shader
 	{
 	public:
@@ -14,8 +21,11 @@ namespace GL3 {
 		Shader();
 		//! Default destructor
 		~Shader();
-		//! Initialize the shader program with given shader source files.
-		//! \param sources : a pair of shader type and it's source code file path.
+		//!
+		//! \brief Compile given shader files link the program
+		//!
+		//! \param sources - pairs of shader type and shader file path collection.
+		//!
 		bool Initialize(const std::unordered_map<GLenum, std::string>& sources);
 		//! Bind generated shader program.
 		void BindShaderProgram() const;

@@ -6,6 +6,11 @@
 
 namespace GL3 {
 
+	//!
+	//! \brief      Texture wrapping class
+	//!
+	//! Provides binding method and contents update method with DSA techniques
+	//!
 	class Texture
 	{
 	public:

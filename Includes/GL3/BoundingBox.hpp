@@ -5,6 +5,9 @@
 
 namespace GL3 {
 
+	//!
+	//! \brief      Generic 3D axis aligned bounding box class.
+	//!
 	class BoundingBox
 	{
 	public:

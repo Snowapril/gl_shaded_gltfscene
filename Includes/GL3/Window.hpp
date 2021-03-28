@@ -10,6 +10,12 @@ struct GLFWwindow;
 
 namespace GL3
 {
+	//!
+	//! \brief      Window context and callback managing class
+	//!
+	//! This class manage window resources(cross-platform) and handling multiple callback methods.
+	//! The other classes, by adding callback method to this window class, enable to handle inputs.
+	//!
 	class Window
 	{
 	public:
@@ -23,7 +29,14 @@ namespace GL3
 		Window(const std::string& title, int width, int height);
 		//! Default destructor
 		~Window();
-		//! Initialize the window with given arguments
+		//!
+		//! \brief      Create the GLFWwindow with given arguments
+		//!
+		//! \param title - window title
+		//! \param width - window screen width
+		//! \param height - window screen height
+		//! \param sharedWindow - if sharedWindow is not nullptr(e.g. generated window in advance), create shared context
+		//!
 		bool Initialize(const std::string& title, int width, int height, GLFWwindow* sharedWindow = nullptr);
 		//! Destroy the created window context
 		void CleanUp();

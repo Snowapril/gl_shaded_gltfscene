@@ -14,6 +14,13 @@ namespace GL3
 	class Window;
 	class PostProcessing;
 
+	//!
+	//! \brief      OpenGL Renderer managing whole resources
+	//!
+	//! Enable to have multiple applciation and multiple context with one main shared context.
+	//! This class provides render & update routine and profiling GPU time features.
+	//! Pass whole input callbacks such as mouse, keyboard into GLFWwindow callback function collection.
+	//! 
 	class Renderer
 	{
 	public:
