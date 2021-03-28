@@ -5,6 +5,11 @@
 
 namespace GL3 {
 
+	//!
+	//! \brief      Camera class providing Perspective-projection.
+	//!
+	//! Inherit Camera class and overriding update method for perspective projection matrix.
+	//! 
 	class PerspectiveCamera : public Camera
 	{
 	public:

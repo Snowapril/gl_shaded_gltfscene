@@ -8,6 +8,9 @@
 
 namespace GL3 {
 
+	//!
+	//! \brief      Collection of asset loader functions.
+	//!
 	class AssetLoader
 	{
 	public:

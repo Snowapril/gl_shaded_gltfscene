@@ -9,6 +9,13 @@
 
 namespace GL3 {
 
+	//!
+	//! \brief      FPS view Camera class
+	//!
+	//! This class provides view matrix and projection matrix getter for 
+	//! retrieving vertices which is transformed into camera space.
+	//! Also provide UBO(UniformBufferObject) for binding camera to multiple shader.
+	//! 
 	class Camera
 	{
 	public:

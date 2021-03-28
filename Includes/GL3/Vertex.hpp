@@ -48,12 +48,10 @@ namespace GL3 {
         //! Position (3D), texture coordinates (2D), and color in RGBA (4D).
         Position3TexCoord2Color4 = Position3TexCoord2 | Color4,
 
-        //! Position (3D), normal (3D), texture coordinates (2D), and color in RGBA
-        //! (4D).
+        //! Position (3D), normal (3D), texture coordinates (2D), and color in RGBA (4D).
         Position3Normal3TexCoord2Color4 = Position3Normal3TexCoord2 | Color4,
 
-        //! Position (3D), normal (3D), texture coordinates (3D), and color in RGBA
-        //! (4D).
+        //! Position (3D), normal (3D), texture coordinates (3D), and color in RGBA (4D).
         Position3Normal3TexCoord3Color4 = Position3Normal3Color4 | TexCoord3
     };
 
@@ -75,7 +73,9 @@ namespace GL3 {
         return static_cast<VertexFormat>(static_cast<int>(a) & static_cast<int>(b));
     }
 
-    //! Collection of vertex helper functions.
+    //!
+    //! \brief      Collection of vertex helper functions.
+    //!
     class VertexHelper
     {
      public:

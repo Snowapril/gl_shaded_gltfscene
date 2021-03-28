@@ -8,6 +8,13 @@
 
 namespace GL3 {
 
+	//!
+	//! \brief      Post-processing wrapper class
+	//!
+	//! Provides fbo(frame buffer object) binding method for drawing
+	//! whole scene into attached color texture. With passed scene
+	//! screen, do tone-mapping, gamma-correction and SSAO by default.
+	//! 
 	class PostProcessing
 	{
 	public:

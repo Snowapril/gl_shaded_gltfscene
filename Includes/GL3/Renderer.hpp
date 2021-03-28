@@ -14,6 +14,11 @@ namespace GL3
 	class Window;
 	class PostProcessing;
 
+	//!
+	//! \brief      OpenGL Renderer managing whole resources
+	//!
+	//! Inherit Camera class and overriding update method for perspective projection matrix.
+	//! 
 	class Renderer
 	{
 	public:

@@ -14,6 +14,12 @@ namespace GL3
 	class Texture;
 	class Window;
 
+	//!
+	//! \brief      Main update part of the program.
+	//!
+	//! This class represents main application of the program.
+	//! The program can generate multiple of Application instance, sharing opengl resources
+	//! like framebuffer, shader, etc..
 	class Application
 	{
 	public:
