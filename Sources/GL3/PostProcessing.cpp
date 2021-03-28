@@ -39,7 +39,7 @@ namespace GL3 {
 		if (!_shader->Initialize({ {GL_VERTEX_SHADER, RESOURCES_DIR "/shaders/quad.glsl"},
 								   {GL_FRAGMENT_SHADER, RESOURCES_DIR "/shaders/postprocessing.glsl"} }))
 		{
-			StackTrace::PrintStack();
+			DebugUtils::PrintStack();
 			std::cerr << "Failed to create postprocessing shader" << std::endl;
 			return false;
 		}

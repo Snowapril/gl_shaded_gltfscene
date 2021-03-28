@@ -29,7 +29,7 @@ namespace GL3
 {
 	// output the call stack
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-    void StackTrace::PrintStack() 
+    void DebugUtils::PrintStack() 
 	{
         unsigned int   i;
         void         * stack[ 100 ];
@@ -68,7 +68,7 @@ namespace GL3
         free( symbol );
     }
 #elif __linux__
-    void StackTrace::PrintStack() 
+    void DebugUtils::PrintStack() 
 	{
     	unw_cursor_t cursor; 
         unw_context_t uc;
@@ -163,7 +163,7 @@ namespace GL3
         }
     }
 
-    void GL3Debug::DebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const GLvoid* userParam)
+    void DebugUtils::DebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const GLvoid* userParam)
     {
         (void)userParam;
         (void)length;
@@ -175,6 +175,6 @@ namespace GL3
                           
         std::cerr << "[Message] : "    << message << std::endl;
         
-        StackTrace::PrintStack();
+        DebugUtils::PrintStack();
     }
 };

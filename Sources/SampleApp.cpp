@@ -49,7 +49,7 @@ bool SampleApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts:
 	if (data == nullptr || width == 0 || height == 0 || numChannels == 0)
 	{
 		std::cerr << "Failed to open image " << path << std::endl;
-		GL3::StackTrace::PrintStack();
+		GL3::DebugUtils::PrintStack();
 		return false;
 	}
 

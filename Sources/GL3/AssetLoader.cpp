@@ -125,13 +125,13 @@ namespace GL3 {
         if (!ret)
         {
             std::cerr << "Failed to load " << path << std::endl;
-            StackTrace::PrintStack();
+            DebugUtils::PrintStack();
             return false;
         }
         if (shapes.size() == 0)
         {
             std::cerr << "No shapes in " << path << std::endl;
-            StackTrace::PrintStack();
+            DebugUtils::PrintStack();
             return false;
         }
 

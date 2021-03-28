@@ -24,7 +24,7 @@ std::string PreprocessShaderInclude(const std::string& path, std::string include
 	if (file.is_open() == false)
 	{
 		std::cerr << "Open shader source file failed" << path << std::endl;
-		GL3::StackTrace::PrintStack();
+		GL3::DebugUtils::PrintStack();
 	}
 
 	std::string fullSourceCode = "";
@@ -89,7 +89,7 @@ namespace GL3 {
 				glGetShaderInfoLog(shader, length, nullptr, logs.data());
 				std::clog << "Shader Compile Error Log" << std::endl;
 				std::clog << logs.data() << std::endl;
-				StackTrace::PrintStack();
+				DebugUtils::PrintStack();
 				return false;
 			}
 
@@ -114,7 +114,7 @@ namespace GL3 {
 			glGetProgramInfoLog(_programID, length, nullptr, logs.data());
 			std::clog << "Program Linking Error Log" << std::endl;
 			std::clog << logs.data() << std::endl;
-			StackTrace::PrintStack();
+			DebugUtils::PrintStack();
 			return false;
 		}
 

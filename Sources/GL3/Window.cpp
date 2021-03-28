@@ -78,7 +78,7 @@ namespace GL3
 		if (this->_window == nullptr)
 		{
 			std::cerr << "Failed to Create GLFW Window" << std::endl;
-			StackTrace::PrintStack();
+			DebugUtils::PrintStack();
 			return false;
 		}
 
@@ -87,12 +87,12 @@ namespace GL3
 		if (gladLoadGLLoader((GLADloadproc)glfwGetProcAddress) == false)
 		{
 			std::cerr << "Failed to initialize GLAD" << std::endl;
-			StackTrace::PrintStack();
+			DebugUtils::PrintStack();
 			return false;
 		}
 
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-		glDebugMessageCallback(GL3Debug::DebugLog, nullptr);
+		glDebugMessageCallback(DebugUtils::DebugLog, nullptr);
 		glDebugMessageControl(GL_DEBUG_SOURCE_APPLICATION, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, true);
 		glDebugMessageControl(GL_DEBUG_SOURCE_THIRD_PARTY, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, true);
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW, 0, NULL, false);
