@@ -4,7 +4,7 @@
 #include <GL3/Window.hpp>
 #include <GL3/PostProcessing.hpp>
 #include <glad/glad.h>
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 static const float kClearColor[] = { 0.81f, 0.81f, 0.81f, 1.0f };
 
