@@ -5,10 +5,12 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define TINYGLTF_NOEXCEPTION //! optional. disable exception handling.
 #define TINYGLTF_ENABLE_DRACO
-#pragma warning(disable:4100)
-#pragma warning(disable:4804)
-#pragma warning(disable:4127)
-#pragma warning(disable:4018)
+#if defined(_MSC_VER)
+	#pragma warning(disable:4100)
+	#pragma warning(disable:4804)
+	#pragma warning(disable:4127)
+	#pragma warning(disable:4018)
+#endif
 #include <tinygltf/tiny_gltf.h>
 
 namespace GL3 {
