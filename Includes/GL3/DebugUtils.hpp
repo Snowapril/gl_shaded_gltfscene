@@ -16,7 +16,7 @@ namespace GL3 {
     {
     public:
         //! Print stack trace from the current code line.
-    #if defined(_WIN32)
+    #if defined(_WIN32) || defined(__linux__)
     	static void PrintStack();
     #else
         static void PrintStack() {};
