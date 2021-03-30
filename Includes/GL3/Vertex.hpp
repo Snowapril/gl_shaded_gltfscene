@@ -27,8 +27,8 @@ namespace GL3 {
         //! Color in RGBA (4D).
         Color4 = 1 << 4,
 
-        //! Tangents in 3D.
-        Tangent3 = 1 << 5,
+        //! Tangents in 4D.
+        Tangent4 = 1 << 5,
 
         //! Position (3D) and normal (3D).
         Position3Normal3 = Position3 | Normal3,
@@ -54,14 +54,14 @@ namespace GL3 {
         //! Position (3D), normal (3D), texture coordinates (2D), and color in RGBA (4D).
         Position3Normal3TexCoord2Color4 = Position3Normal3TexCoord2 | Color4,
 
-        //! Position (3D), normal (3D), and tangent coordinates (3D).
-        Position3Normal3Tangent3 = Position3Normal3 | TexCoord3,
+        //! Position (3D), normal (3D), and tangent coordinates (4D).
+        Position3Normal3Tangent4 = Position3Normal3 | Tangent4,
 
-        //! Position (3D), normal (3D), texture coordinates (2D), and tangent coordinates (3D).
-        Position3Normal3TexCoord2Tangent3 = Position3Normal3TexCoord2 | Tangent3,
+        //! Position (3D), normal (3D), texture coordinates (2D), and tangent coordinates (4D).
+        Position3Normal3TexCoord2Tangent4 = Position3Normal3TexCoord2 | Tangent4,
 
-        //! Position (3D), normal (3D), texture coordinates (2D), color in RGBA (4D), and tangent coordinates (3D).
-        Position3Normal3TexCoord2Color4Tangent3 = Position3Normal3TexCoord2Color4 | Tangent3,
+        //! Position (3D), normal (3D), texture coordinates (2D), color in RGBA (4D), and tangent coordinates (4D).
+        Position3Normal3TexCoord2Color4Tangent4 = Position3Normal3TexCoord2Color4 | Tangent4,
     };
 
     //! Bit-wise operator for two vertex formats
