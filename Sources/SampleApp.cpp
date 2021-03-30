@@ -2,6 +2,7 @@
 #include <GL3/Window.hpp>
 #include <GL3/PerspectiveCamera.hpp>
 #include <GL3/Shader.hpp>
+#include <GL3/GLTFScene.hpp>
 #include <GL3/Texture.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -54,6 +55,9 @@ bool SampleApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts:
 	}
 
 	stbi_image_free(data);*/
+
+	GL3::GLTFScene scene;
+	scene.Initialize(RESOURCES_DIR "/scenes/BoxVertexColors.gltf", GL3::VertexFormat::Position3Normal3TexCoord2Color4Tangent4);
 
 	return true;
 }
