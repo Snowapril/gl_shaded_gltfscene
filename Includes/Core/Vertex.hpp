@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstdint>
 
-namespace GL3 {
+namespace Core {
 
     //! Vertex format enums.
     enum class VertexFormat 

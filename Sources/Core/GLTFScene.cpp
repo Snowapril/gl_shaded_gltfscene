@@ -1,4 +1,4 @@
-#include <GL3/GLTFScene.hpp>
+#include <Core/GLTFScene.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <unordered_set>
@@ -19,7 +19,7 @@
 
 #include <tinygltf/tiny_gltf.h>
 
-namespace GL3 {
+namespace Core {
 
 	bool GLTFExtension::CheckRequiredExtensions(const tinygltf::Model& model)
 	{

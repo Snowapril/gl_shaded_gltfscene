@@ -112,7 +112,7 @@ inline bool operator<(const PackedVertex& v1, const PackedVertex& v2)
 
 namespace GL3 {
 
-    bool AssetLoader::LoadObjFile(const std::string& path, std::vector<float>& vertices, std::vector<unsigned int>& indices, VertexFormat format)
+    bool AssetLoader::LoadObjFile(const std::string& path, std::vector<float>& vertices, std::vector<unsigned int>& indices, Core::VertexFormat format)
 	{
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
@@ -166,7 +166,7 @@ namespace GL3 {
                 glm::vec2 texCoord[3];
                 glm::vec3 normal[3];
 
-                if (static_cast<int>(format & VertexFormat::Position3))
+                if (static_cast<int>(format & Core::VertexFormat::Position3))
                 {
                     for (int k = 0; k < 3; k++)
                     {
@@ -181,7 +181,7 @@ namespace GL3 {
                     }
                 }
 
-                if (static_cast<int>(format & VertexFormat::Normal3))
+                if (static_cast<int>(format & Core::VertexFormat::Normal3))
                 {
                     bool invalidNormal = false;
                     if (attrib.normals.size() > 0)
@@ -234,7 +234,7 @@ namespace GL3 {
                     }
                 }
                 
-                if (static_cast<int>(format & VertexFormat::TexCoord2))
+                if (static_cast<int>(format & Core::VertexFormat::TexCoord2))
                 {
                     if (attrib.texcoords.size() > 0)
                     {
@@ -277,11 +277,11 @@ namespace GL3 {
 
                     if (iter == packedVerticesMap.end())
                     {
-                        if (static_cast<int>(format & VertexFormat::Position3))
+                        if (static_cast<int>(format & Core::VertexFormat::Position3))
                             vertices.insert(vertices.end(), { position[k].x, position[k].y, position[k].z });
-                        if (static_cast<int>(format & VertexFormat::Normal3))
+                        if (static_cast<int>(format & Core::VertexFormat::Normal3))
                             vertices.insert(vertices.end(), { normal[k].x, normal[k].y, normal[k].z });
-                        if (static_cast<int>(format & VertexFormat::TexCoord2))
+                        if (static_cast<int>(format & Core::VertexFormat::TexCoord2))
                             vertices.insert(vertices.end(), { texCoord[k].x, texCoord[k].y });
                         unsigned int newIndex = static_cast<unsigned int>(vertices.size() - 1);
                         indices.push_back(newIndex);

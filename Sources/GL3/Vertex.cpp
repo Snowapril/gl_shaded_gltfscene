@@ -1,6 +1,6 @@
-#include <GL3/Vertex.hpp>
+#include <Core/Vertex.hpp>
 
-namespace GL3 {
+namespace Core {
 
     size_t VertexHelper::GetNumberOfFloats(VertexFormat format) 
     {

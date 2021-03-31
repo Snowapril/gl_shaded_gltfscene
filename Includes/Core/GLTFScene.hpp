@@ -1,7 +1,7 @@
 #ifndef GLTF_SCENE_HPP
 #define GLTF_SCENE_HPP
 
-#include <GL3/Vertex.hpp>
+#include <Core/Vertex.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -22,7 +22,7 @@
 #define KHR_MESH_QUANTIZATION_EXTENSION_NAME "KHR_mesh_quantization"
 #define KHR_TEXTURE_TRANSFORM_EXTENSION_NAME "KHR_texture_transform"
 
-namespace GL3 {
+namespace Core {
 
 	namespace GLTFExtension
 	{
@@ -222,6 +222,6 @@ namespace GL3 {
 
 }
 
-#include <GL3/GLTFScene-Impl.hpp>
+#include <Core/GLTFScene-Impl.hpp>
 
 #endif
