@@ -4,7 +4,7 @@
 #include <string>
 #include <tinygltf/tiny_gltf.h>
 
-namespace GL3 {
+namespace Core {
 
 	template <typename Type>
 	static bool GLTFScene::GetAttributes(const tinygltf::Model& model, const tinygltf::Primitive& primitive, std::vector<Type>& attributes, const std::string& name)
@@ -31,7 +31,7 @@ namespace GL3 {
 			}
 			else
 			{
-				auto bufferByte = reinterpret_cast<const unsigned int*>(bufData);
+				auto bufferByte = reinterpret_cast<const unsigned char*>(bufData);
 				for (size_t i = 0; i < numElements; ++i)
 				{
 					attributes.push_back(*reinterpret_cast<const Type*>(bufferByte));
@@ -47,7 +47,7 @@ namespace GL3 {
 			int strideComponent = accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE ? 1 : 2;
 
 			size_t byteStride = bufferView.byteStride > 0 ? bufferView.byteStride : numComponents * strideComponent;
-			auto bufferByte = reinterpret_cast<const unsigned int*>(bufData);
+			auto bufferByte = reinterpret_cast<const unsigned char*>(bufData);
 			for (size_t i = 0; i < numElements; ++i)
 			{
 				Type vecValue;
