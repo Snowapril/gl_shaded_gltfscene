@@ -20,6 +20,7 @@ namespace GL3 {
 		const Type* bufData = reinterpret_cast<const Type*>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
 		const auto& numElements = accessor.count;
 
+		//! Supporting KHR_mesh_quantization
 		assert(accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT);
 
 		if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT)

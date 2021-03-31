@@ -77,7 +77,7 @@ namespace GL3 {
 				if (prim.mode != TINYGLTF_MODE_TRIANGLES)
 					continue;
 
-				const auto& posAccessor = model.accessors[prim.attributes.find("POSITION3")->second];
+				const auto& posAccessor = model.accessors[prim.attributes.find("POSITION")->second];
 				numVertices += posAccessor.count;
 				if (prim.indices > -1)
 				{
@@ -127,6 +127,9 @@ namespace GL3 {
 
 		//! Clear all temporal resources.
 		_meshToPrimMap.clear();
+		_u8Buffer.clear();
+		_u16Buffer.clear();
+		_u32Buffer.clear();
 
 		//! Finally import materials from the model
 		ImportMaterials(model);
@@ -154,17 +157,24 @@ namespace GL3 {
 			const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
 
 			resultMesh.indexCount = static_cast<unsigned int>(indexAccessor.count);
-			std::vector<unsigned int> tempBuffer(indexAccessor.count);
 			switch (indexAccessor.componentType)
 			{
-			case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
-				std::memcpy(&tempBuffer[0], &buffer.data[indexAccessor.byteOffset + bufferView.byteOffset], indexAccessor.count * sizeof(unsigned int));
-				_indices.insert(_indices.end(), std::make_move_iterator(tempBuffer.begin()), std::make_move_iterator(tempBuffer.end()));
+			case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT:
+				_u32Buffer.resize(indexAccessor.count);
+				std::memcpy(&_u32Buffer[0], &buffer.data[indexAccessor.byteOffset + bufferView.byteOffset], indexAccessor.count * sizeof(unsigned int));
+				_indices.insert(_indices.end(), std::make_move_iterator(_u32Buffer.begin()), std::make_move_iterator(_u32Buffer.end()));
 				break;
-			//! case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
-			//! case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
+			case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
+				_u16Buffer.resize(indexAccessor.count);
+				std::memcpy(&_u16Buffer[0], &buffer.data[indexAccessor.byteOffset + bufferView.byteOffset], indexAccessor.count * sizeof(unsigned short));
+				_indices.insert(_indices.end(), std::make_move_iterator(_u16Buffer.begin()), std::make_move_iterator(_u16Buffer.end()));
+				break;
+			case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE:
+				_u8Buffer.resize(indexAccessor.count);
+				std::memcpy(&_u8Buffer[0], &buffer.data[indexAccessor.byteOffset + bufferView.byteOffset], indexAccessor.count * sizeof(unsigned char));
+				_indices.insert(_indices.end(), std::make_move_iterator(_u8Buffer.begin()), std::make_move_iterator(_u8Buffer.end()));
+				break;
 			default:
-				(void)tempBuffer;
 				std::cerr << "Unknown index component type : " << indexAccessor.componentType << " is not supported" << std::endl;
 				return;
 			}
@@ -390,9 +400,11 @@ namespace GL3 {
 		std::string err, warn;
 
 		bool res = loader.LoadBinaryFromFile(model, &err, &warn, filename);
-		if (!res)  loader.LoadASCIIFromFile(model, &err, &warn, filename);
+		if (!res)  
+			res = loader.LoadASCIIFromFile(model, &err, &warn, filename);
 
-		if (!res) std::cerr << "Failed to load GLTF model : " << filename << std::endl;
+		if (!res) 
+			std::cerr << "Failed to load GLTF model : " << filename << std::endl;
 
 		return res;
 	}

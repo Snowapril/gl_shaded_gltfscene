@@ -169,7 +169,7 @@ namespace GL3 {
 			glm::vec3 center = { 0.0f, 0.0f, 0.0f };
 			float radius{ 0.0f };
 		};
-	protected:
+
 		std::vector<GLTFMaterial> _sceneMaterials;
 		std::vector<GLTFNode> _sceneNodes;
 		std::vector<GLTFPrimMesh> _scenePrimMeshes;
@@ -215,6 +215,9 @@ namespace GL3 {
 		static void GetTextureID(const tinygltf::Value& value, const std::string& name, int& id);
 		//! Temporary storage for processing nodes.
 		std::unordered_map<unsigned int, std::vector<unsigned int>> _meshToPrimMap;
+		std::vector<unsigned int> _u32Buffer;
+		std::vector<unsigned short> _u16Buffer;
+		std::vector<unsigned char> _u8Buffer;
 	};
 
 }
