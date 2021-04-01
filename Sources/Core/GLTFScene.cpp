@@ -432,6 +432,30 @@ namespace Core {
 			GLTFCamera camera;
 			camera.world = worldMat;
 			camera.camera = model.cameras[model.nodes[nodeIdx].camera];
+
+			//! If the node has the Iray extension, extract the camera information
+			if (node.extensions.find("NV_attributes_iray") != node.extensions.end())
+			{
+				auto& iray_ext = node.extensions.find("NV_attributes_iray")->second;
+				auto& attributes = iray_ext.Get("attributes");
+				for (size_t idx = 0; idx < attributes.ArrayLen(); ++idx)
+				{
+					auto& attrib = attributes.Get(idx);
+					std::string attName = attrib.Get("name").Get<std::string>();
+					auto& attValue = attrib.Get("value");
+					if (attValue.IsArray())
+					{
+						auto vec = GetVector<float>(attValue);
+						if (attName == "ivew:position")
+							camera.eye = { vec[0], vec[1], vec[2] };
+						else if (attName == "iview:interest")
+							camera.center = { vec[0], vec[1], vec[2] };
+						else if (attName == "iview:up")
+							camera.up = { vec[0], vec[1], vec[2] };
+					}
+				}
+			}
+
 			_sceneCameras.emplace_back(camera);
 		}
 		else if (node.extensions.find(KHR_LIGHTS_PUNCTUAL_EXTENSION_NAME) != node.extensions.end())
