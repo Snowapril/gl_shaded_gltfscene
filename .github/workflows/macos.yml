@@ -49,7 +49,6 @@ jobs:
     - name: Install Dependencies
       if: startsWith(matrix.compiler, 'gcc')
       run: |
-        sudo xcode-select --install
         sudo ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
         sudo brew doctor
         export HOMEBREW_NO_ANALYTICS=1
