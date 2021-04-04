@@ -13,13 +13,7 @@
 #endif
 
 #if defined(__linux__)
-    #define UNW_LOCAL_ONLY
-	#include <libunwind.h>
-	#include <stdio.h>
-	#include <string.h>
-	#include <execinfo.h>
-	#include <stdlib.h>
-	#include <cxxabi.h>
+	#include <unistd.h>
 	#include <execinfo.h>
 #endif
 
@@ -70,35 +64,14 @@ namespace GL3
 #elif __linux__
     void DebugUtils::PrintStack() 
 	{
-    	unw_cursor_t cursor; 
-        unw_context_t uc;
-        unw_word_t ip, sp, off;
-        char name[256];
-        int status;
+        constexpr size_t kTraceDepth = 10;
+        void* arr[kTraceDepth];
+        size_t size;
 
-        unw_getcontext(&uc);
-        unw_init_local(&cursor, &uc);
+        size = backtrace(arr, kTraceDepth);
 
 		printf("---------------------Stack Trace---------------------\n");
-        while (unw_step(&cursor) > 0) 
-		{
-        	unw_get_reg(&cursor, UNW_REG_IP, &ip);
-			printf("0x%lx", ip);
-        	unw_get_reg(&cursor, UNW_REG_SP, &sp);
-
-        	unw_get_proc_name (&cursor, name, sizeof (name), &off);
-
-			char *realname = abi::__cxa_demangle(name, 0, 0, &status);
-        	if (realname)
-			{
-				printf("0x%lx (%s+0x%lx)\n", ip, realname, off);
-        		free(realname);
-        	}
-			else
-			{
-				printf("0x%lx (%s+0x%lx)\n", ip, name, off);
-        	}
-    	}
+        backtrace_symbols_fd(arr, size, STDERR_FILENO);
 		printf("-----------------------------------------------------\n");
     }
 #endif

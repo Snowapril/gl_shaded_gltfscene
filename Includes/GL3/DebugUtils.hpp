@@ -3,10 +3,6 @@
 
 #include <GL3/GLTypes.hpp>
 
-#if defined(__linux__)
-    extern const char *__progname;
-#endif
-
 namespace GL3 {
 
     //!
