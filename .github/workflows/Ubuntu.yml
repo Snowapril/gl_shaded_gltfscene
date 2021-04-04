@@ -1,0 +1,49 @@
+name: Ubuntu
+
+on:  
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-ubuntu:
+    strategy:
+      matrix:
+        include:
+          - name: "Ubuntu 18.04 + GCC-8"
+            os: ubuntu-18.04
+            compiler: gcc
+            version: "8"
+          - name: "Ubuntu 20.04 + GCC-9"
+            os: ubuntu-20.04
+            compiler: gcc
+            version: "9"
+          - name: "Ubuntu 18.04 + Clang-9"
+            os: ubuntu-18.04
+            compiler: clang
+            version: "9"
+          - name: "Ubuntu 20.04 + Clang-10"
+            os: ubuntu-20.04
+            compiler: clang
+            version: "10"
+    runs-on: ${{matrix.os}}
+    name: ${{matrix.name}}
+
+    steps:
+    - uses: actions/checkout@v1
+      with:
+      submodules: true
+    - name: Configure Compiler
+      run: |
+        if [ ${{matrix.compiler }} = "gcc"]; then
+          echo "CC=gcc-${{matrix.version}}" >> $GITHUB_ENV
+          echo "CXX=g++-${{matrix.version}}" >> $GITHUB_ENV
+        else
+          echo "CC=clang-${{matrix.version}}" >> $GITHUB_ENV
+          echo "CXX=clang++-${{matrix.version}}" >> $GITHUB_ENV
+        fi
+    - name: Configure Build
+      run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release
+    - name: Build
+      run: cd build && make
