@@ -2,12 +2,13 @@
 #define GLTF_SCENE_IMPL_HPP
 
 #include <string>
+#include <iostream>
 #include <tinygltf/tiny_gltf.h>
 
 namespace Core {
 
 	template <typename Type>
-	static bool GLTFScene::GetAttributes(const tinygltf::Model& model, const tinygltf::Primitive& primitive, std::vector<Type>& attributes, const std::string& name)
+	bool GLTFScene::GetAttributes(const tinygltf::Model& model, const tinygltf::Primitive& primitive, std::vector<Type>& attributes, const std::string& name)
 	{
 		auto iter = primitive.attributes.find(name);
 		if (iter == primitive.attributes.end())
@@ -98,12 +99,6 @@ namespace Core {
 		}
 
 		return retVec;
-	}
-
-	template <typename Type>
-	inline void GLTFScene::GetValue(const tinygltf::Value& value, const std::string& name, Type& val)
-	{
-		static_assert(false, "No implementation exists");
 	}
 
 	template <>
