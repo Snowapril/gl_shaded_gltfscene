@@ -15,7 +15,7 @@
 	#pragma warning(disable:4804)
 	#pragma warning(disable:4127)
 	#pragma warning(disable:4018)
-#elif defined(__GNUC__) || defined(__GNUG__)
+#elif (defined(__GNUC__) || defined(__GNUG__)) && !defined(__clang__)
 	#pragma GCC diagnostic ignored "-Wbool-compare"
 	#pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
