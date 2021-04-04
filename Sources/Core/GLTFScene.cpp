@@ -190,7 +190,7 @@ namespace Core {
 
 		//! POSITION
 		{
-			bool result = GetAttributes<glm::vec3>(model, mesh, _positions, "POSITION");
+			[[maybe_unused]] bool result = GetAttributes<glm::vec3>(model, mesh, _positions, "POSITION");
 
 			//! Keeping the size of this primitive (spec says this is required information)
 			const auto& accessor = model.accessors[mesh.attributes.find("POSITION")->second];
