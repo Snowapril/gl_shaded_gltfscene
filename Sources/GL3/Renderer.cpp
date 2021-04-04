@@ -157,9 +157,9 @@ namespace GL3 {
 		while (!done)
 			glGetQueryObjectiv(_queryID, GL_QUERY_RESULT_AVAILABLE, &done);
 
-		size_t elapsed;
+		GLuint64 elapsed;
 		glGetQueryObjectui64v(_queryID, GL_QUERY_RESULT, &elapsed);
-		return elapsed;
+		return static_cast<size_t>(elapsed);
 	}
 
 	std::shared_ptr<GL3::Application> Renderer::GetCurrentApplication() const

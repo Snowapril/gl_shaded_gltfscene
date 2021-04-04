@@ -19,14 +19,6 @@ jobs:
             os: macos-10.15
             compiler: xcode
             version: "12.2"
-          - name: "macOS 10.15 + gcc-8"
-            os: macos-10.15
-            compiler: gcc
-            version: "8"
-          - name: "macOS 10.15 + gcc-9"
-            os: macos-10.15
-            compiler: gcc
-            version: "9"
 
     runs-on: ${{matrix.os}}
     name: ${{matrix.name}}
@@ -37,26 +29,10 @@ jobs:
         submodules: true
     - name: Configure Compiler
       run: |
-        if [ "${{ matrix.compiler }}" = "gcc" ]; then
-          echo "CC=gcc-${{ matrix.version }}" >> $GITHUB_ENV
-          echo "CXX=g++-${{ matrix.version }}" >> $GITHUB_ENV
-        else
-          ls -ls /Applications/
-          sudo xcode-select -switch /Applications/Xcode_${{ matrix.version }}.app
-          echo "CC=clang" >> $GITHUB_ENV
-          echo "CXX=clang++" >> $GITHUB_ENV
-        fi
-    - name: Install Dependencies
-      if: startsWith(matrix.compiler, 'gcc')
-      run: |
-        ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-        brew doctor
-        export HOMEBREW_NO_ANALYTICS=1
-        brew update
-        brew upgrade
-        brew info gcc-${{ matrix.version }}
-        brew install gcc-${{ matrix.version }}
-        brew cleanup
+        ls -ls /Applications/
+        sudo xcode-select -switch /Applications/Xcode_${{ matrix.version }}.app
+        echo "CC=clang" >> $GITHUB_ENV
+        echo "CXX=clang++" >> $GITHUB_ENV
     - name: Configure Build
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release
     - name: Build

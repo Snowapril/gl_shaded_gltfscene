@@ -9,6 +9,7 @@
 #include <string>
 #include <limits>
 #include <functional>
+#include <unordered_map>
 #include <tinygltf/tiny_gltf.h>
 
 //! KHR extension list (https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos)
