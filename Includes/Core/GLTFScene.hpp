@@ -73,7 +73,7 @@ namespace Core {
 			glm::mat3  uvTransform{ 1 };  // Computed transform of offset, rotation, scale
 		};
 
-		static bool CheckRequiredExtensions(const tinygltf::Model& model);
+		bool CheckRequiredExtensions(const tinygltf::Model& model);
 	};
 
 	//!
