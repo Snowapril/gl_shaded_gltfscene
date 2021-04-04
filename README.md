@@ -1,6 +1,6 @@
 # modern-opengl-oss-template
 
-[![CodeFactor](https://www.codefactor.io/repository/github/snowapril/modern-opengl-oss-template/badge)](https://www.codefactor.io/repository/github/snowapril/modern-opengl-oss-template)
+[![CodeFactor](https://www.codefactor.io/repository/github/snowapril/modern-opengl-oss-template/badge)](https://www.codefactor.io/repository/github/snowapril/modern-opengl-oss-template)[![Ubuntu github action](https://github.com/Snowapril/modern-opengl-oss-template/actions/workflows/ubuntu.yml/badge.svg?branch=main)]
 
 This is opengl 4.5 template project for building several test project.
 All you need to do for new project is Updating Sample app and Sample renderer classes.
