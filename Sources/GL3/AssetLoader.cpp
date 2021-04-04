@@ -84,8 +84,6 @@ void ComputeSmoothingNormals(const tinyobj::attrib_t& attrib, const tinyobj::sha
     }
 }
 
-constexpr float EPSILON = 1e-6f;
-
 struct PackedVertex
 {
     glm::vec3 position;
