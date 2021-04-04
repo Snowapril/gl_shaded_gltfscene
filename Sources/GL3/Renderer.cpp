@@ -113,7 +113,7 @@ namespace GL3 {
 		glViewport(0, 0, windowExtent.x, windowExtent.y);
 		glBindFramebuffer(GL_FRAMEBUFFER, _postProcessing->GetFramebuffer());
 		glClearBufferfv(GL_COLOR, 0, kClearColor);
-		glClearBufferfi(GL_DEPTH, 0, 1.0f, 0);
+		glClearBufferfi(GL_DEPTH_STENCIL, 0, 1.0f, 0);
 		OnBeginDraw();
 		app->Draw();
 		OnEndDraw();
