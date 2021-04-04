@@ -27,6 +27,7 @@ jobs:
             os: ubuntu-20.04
             compiler: clang
             version: "10"
+
     runs-on: ${{matrix.os}}
     name: ${{matrix.name}}
 
@@ -36,12 +37,22 @@ jobs:
         submodules: true
     - name: Configure Compiler
       run: |
-        if [ ${{matrix.compiler }} = "gcc"]; then
-          echo "CC=gcc-${{matrix.version}}" >> $GITHUB_ENV
-          echo "CXX=g++-${{matrix.version}}" >> $GITHUB_ENV
+        if [ "${{ matrix.compiler }}" = "gcc" ]; then
+          echo "CC=gcc-${{ matrix.version }}" >> $GITHUB_ENV
+          echo "CXX=g++-${{ matrix.version }}" >> $GITHUB_ENV
         else
-          echo "CC=clang-${{matrix.version}}" >> $GITHUB_ENV
-          echo "CXX=clang++-${{matrix.version}}" >> $GITHUB_ENV
+          echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
+          echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
+        fi
+    - name: Install Dependencies
+      run: |
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+        sudo apt-get update
+        sudo apt-get install xorg-dev freeglut3-dev
+        if [ "${{ matrix.compiler }}" = "gcc" ]; then
+          sudo apt-get install cmake gcc-${{ matrix.version }} g++-${{ matrix.version }}
+        else
+          sudo apt-get install cmake clang-${{ matrix.version }} clang++-${{ matrix.version }}
         fi
     - name: Configure Build
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release
