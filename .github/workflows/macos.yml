@@ -49,14 +49,14 @@ jobs:
     - name: Install Dependencies
       if: startsWith(matrix.compiler, 'gcc')
       run: |
-        sudo ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-        sudo brew doctor
+        ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+        brew doctor
         export HOMEBREW_NO_ANALYTICS=1
-        sudo brew update
-        sudo brew upgrade
-        sudo brew info gcc-${{ matrix.version }}
-        sudo brew install gcc-${{ matrix.version }}
-        sudo brew cleanup
+        brew update
+        brew upgrade
+        brew info gcc-${{ matrix.version }}
+        brew install gcc-${{ matrix.version }}
+        brew cleanup
     - name: Configure Build
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release
     - name: Build
