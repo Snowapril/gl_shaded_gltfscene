@@ -8,6 +8,7 @@
 #include <glm/mat4x4.hpp>
 #include <string>
 #include <limits>
+#include <functional>
 #include <tinygltf/tiny_gltf.h>
 
 //! KHR extension list (https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos)
@@ -87,12 +88,13 @@ namespace Core {
 	class GLTFScene
 	{
 	public:
+		using ImageCallback = std::function<void(const tinygltf::Image& image)>;
 		//! Default Constructor
 		GLTFScene();
 		//! Default Destructor
 		~GLTFScene();
 		//! Initialize the GLTFScene with gltf scene file path
-		bool Initialize(const std::string& filename, VertexFormat format);
+		bool Initialize(const std::string& filename, VertexFormat format, ImageCallback imageCallback = nullptr);
 
 		//! https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#reference-material
 		struct GLTFMaterial

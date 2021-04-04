@@ -62,12 +62,12 @@ namespace Core {
 		//! Do nothing
 	}
 
-	bool GLTFScene::Initialize(const std::string& filename, VertexFormat format)
+	bool GLTFScene::Initialize(const std::string& filename, VertexFormat format, ImageCallback imageCallback)
 	{
 		tinygltf::Model model;
 		if (!LoadModel(&model, filename))
 			return false;
-		
+
 		if (!GLTFExtension::CheckRequiredExtensions(model))
 			return false;
 
@@ -134,8 +134,15 @@ namespace Core {
 		_u16Buffer.clear();
 		_u32Buffer.clear();
 
-		//! Finally import materials from the model
+		//! Import materials from the model
 		ImportMaterials(model);
+
+		//! Finally import images from the model
+		if (imageCallback != nullptr)
+		{
+			for (const auto& image : model.images)
+				imageCallback(image);
+		}
 
 		return true;
 	}
@@ -302,11 +309,11 @@ namespace Core {
 						uc = -pos.x;
 						vc = pos.y;
 					}
-					
+
 					//! Convert range from (-1~1) into (0~1)
 					float u = (uc / mapAxis + 1.0f) * 0.5f;
 					float v = (vc / mapAxis + 1.0f) * 0.5f;
-				
+
 					_texCoords.push_back(glm::vec2(u, v));
 				}
 			}
@@ -330,7 +337,7 @@ namespace Core {
 					unsigned int gidx0 = idx0 + resultMesh.vertexOffset;
 					unsigned int gidx1 = idx1 + resultMesh.vertexOffset;
 					unsigned int gidx2 = idx2 + resultMesh.vertexOffset;
-					
+
 					const auto& pos0 = _positions[gidx0];
 					const auto& pos1 = _positions[gidx1];
 					const auto& pos2 = _positions[gidx2];
@@ -344,7 +351,7 @@ namespace Core {
 					float y1 = uv1.y - uv0.y, y2 = uv2.y - uv0.y;
 
 					const float r = 1.0f / (x1 * y2 - x2 * y1);
-					glm::vec3 tangent	= (e1 * y2 - e2 * y1) * r;
+					glm::vec3 tangent = (e1 * y2 - e2 * y1) * r;
 					glm::vec3 bitangent = (e2 * x1 - e1 * x2) * r;
 
 					//! In case of degenerated UV coordinates
@@ -403,10 +410,10 @@ namespace Core {
 		std::string err, warn;
 
 		bool res = loader.LoadBinaryFromFile(model, &err, &warn, filename);
-		if (!res)  
+		if (!res)
 			res = loader.LoadASCIIFromFile(model, &err, &warn, filename);
 
-		if (!res) 
+		if (!res)
 			std::cerr << "Failed to load GLTF model : " << filename << std::endl;
 
 		return res;
