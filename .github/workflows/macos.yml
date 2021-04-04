@@ -47,7 +47,7 @@ jobs:
           echo "CXX=clang++" >> $GITHUB_ENV
         fi
     - name: Install Dependencies
-      if: startsWith(matrix.compiler, "gcc")
+      if: startsWith(matrix.compiler, 'gcc')
       run: |
         sudo xcode-select --install
         sudo ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
