@@ -55,14 +55,28 @@ target_compile_definitions(${target}
     RESOURCES_DIR="${RESOURCES_DIR}"
 )
 
-target_link_libraries(${target}
-    PRIVATE
-
-    PUBLIC
-    ${DEFAULT_LINKER_OPTIONS}
-	${DEFAULT_LIBRARIES}
-    glad
-    glfw
-    draco
-    INTERFACE
-)
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    target_link_libraries(${target}
+        PRIVATE
+    
+        PUBLIC
+        ${DEFAULT_LINKER_OPTIONS}
+    	${DEFAULT_LIBRARIES}
+        glad
+        glfw
+        draco
+        INTERFACE
+    )
+else()
+    target_link_libraries(${target}
+        PRIVATE
+    
+        PUBLIC
+        ${DEFAULT_LINKER_OPTIONS}
+    	${DEFAULT_LIBRARIES}
+        glad
+        glfw
+        draco_static
+        INTERFACE
+    )
+endif()
