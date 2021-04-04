@@ -27,7 +27,7 @@ namespace GL3 {
 		glTextureParameteri(_textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 
-	void Texture::UploadTexture(void* data, int width, int height, GLenum format, GLenum internalFormat, GLenum type)
+	void Texture::UploadTexture(const void* data, int width, int height, GLenum internalFormat, GLenum format, GLenum type)
 	{
 		glTextureStorage2D(_textureID, 1, internalFormat, width, height);
 		glTextureSubImage2D(_textureID, 0, 0, 0, width, height, format, type, data);

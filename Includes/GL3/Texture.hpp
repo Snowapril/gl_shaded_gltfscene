@@ -21,7 +21,7 @@ namespace GL3 {
 		//! Initialize the texture with given image path.
 		void Initialize(GLenum target);
 		//! Upload the texel data to the GPU memory
-		void UploadTexture(void* data, int width, int height, GLenum format, GLenum internalFormat, GLenum type);
+		void UploadTexture(const void* data, int width, int height, GLenum internalFormat, GLenum format, GLenum type);
 		//! Bind generated texture.
 		void BindTexture(GLuint slot) const;
 		//! Unbind texture with current bound slot
