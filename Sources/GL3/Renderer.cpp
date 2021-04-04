@@ -27,15 +27,15 @@ namespace GL3 {
 		_mainWindow = std::make_shared<Window>();
 		//! Initialize the window and check the returned error.
 		if (!_mainWindow->Initialize(configure["title"].as<std::string>(), 
-								 configure["width"].as<int>(), 
-								 configure["height"].as<int>()))
+									 configure["width"].as<int>(), 
+									 configure["height"].as<int>()))
 			return false;
 
 		//! Pass the Renderer input handling method to window.
 		using namespace std::placeholders;
-		std::function<void(unsigned int)> inputCallback = std::bind(&Renderer::ProcessInput, this, std::placeholders::_1);
-		std::function<void(double, double)> cursorCallback = std::bind(&Renderer::ProcessCursorPos, this, std::placeholders::_1, std::placeholders::_2);
-		std::function<void(int, int)> resizeCallback = std::bind(&Renderer::ProcessResize, this, std::placeholders::_1, std::placeholders::_2);
+		std::function<void(unsigned int)> inputCallback = std::bind(&Renderer::ProcessInput, this, _1);
+		std::function<void(double, double)> cursorCallback = std::bind(&Renderer::ProcessCursorPos, this, _1, _2);
+		std::function<void(int, int)> resizeCallback = std::bind(&Renderer::ProcessResize, this, _1, _2);
 		_mainWindow->operator+=(inputCallback);
 		_mainWindow->operator+=(cursorCallback);
 		_mainWindow->operator+=(resizeCallback);
@@ -113,14 +113,14 @@ namespace GL3 {
 		glViewport(0, 0, windowExtent.x, windowExtent.y);
 		glBindFramebuffer(GL_FRAMEBUFFER, _postProcessing->GetFramebuffer());
 		glClearBufferfv(GL_COLOR, 0, kClearColor);
-		glClearBufferfi(GL_DEPTH_STENCIL, 0, 1.0f, 0);
+		glClearBufferfi(GL_DEPTH, 0, 1.0f, 0);
 		OnBeginDraw();
 		app->Draw();
 		OnEndDraw();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClearBufferfv(GL_COLOR, 0, kClearColor);
-		glClearBufferfi(GL_DEPTH_STENCIL, 0, 1.0f, 0);
+		glClearColor(kClearColor[0], kClearColor[1], kClearColor[2], kClearColor[3]);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		_postProcessing->Render();
 	}
 
