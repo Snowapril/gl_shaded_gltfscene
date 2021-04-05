@@ -1,25 +1,45 @@
 #ifndef GL_TYPES_HPP
 #define GL_TYPES_HPP
 
-#include <cstddef>
-
-using GLchar     = char;
-using GLenum     = unsigned int;
-using GLboolean  = unsigned char;
-using GLbitfield = unsigned int;
-using GLbyte     = signed char;
-using GLshort    = short;
-using GLint      = int;
-using GLsizei    = int;
-using GLubyte    = unsigned char;
-using GLushort   = unsigned short;
-using GLuint     = unsigned int;
-using GLuint64   = unsigned long long;
-using GLhalf     = unsigned short;
-using GLfloat    = float;
-using GLclampf   = float;
-using GLdouble   = double;
-using GLclampd   = double;
-using GLvoid     = void;
+#include "khrplatform.h"
+typedef unsigned int GLenum;
+typedef unsigned char GLboolean;
+typedef unsigned int GLbitfield;
+typedef void GLvoid;
+typedef khronos_int8_t GLbyte;
+typedef khronos_uint8_t GLubyte;
+typedef khronos_int16_t GLshort;
+typedef khronos_uint16_t GLushort;
+typedef int GLint;
+typedef unsigned int GLuint;
+typedef khronos_int32_t GLclampx;
+typedef int GLsizei;
+typedef khronos_float_t GLfloat;
+typedef khronos_float_t GLclampf;
+typedef double GLdouble;
+typedef double GLclampd;
+typedef void* GLeglClientBufferEXT;
+typedef void* GLeglImageOES;
+typedef char GLchar;
+typedef char GLcharARB;
+#ifdef __APPLE__
+typedef void* GLhandleARB;
+#else
+typedef unsigned int GLhandleARB;
+#endif
+typedef khronos_uint16_t GLhalf;
+typedef khronos_uint16_t GLhalfARB;
+typedef khronos_int32_t GLfixed;
+typedef khronos_intptr_t GLintptr;
+typedef khronos_intptr_t GLintptrARB;
+typedef khronos_ssize_t GLsizeiptr;
+typedef khronos_ssize_t GLsizeiptrARB;
+typedef khronos_int64_t GLint64;
+typedef khronos_int64_t GLint64EXT;
+typedef khronos_uint64_t GLuint64;
+typedef khronos_uint64_t GLuint64EXT;
+typedef struct __GLsync* GLsync;
+typedef unsigned short GLhalfNV;
+typedef GLintptr GLvdpauSurfaceNV;
 
 #endif //! end of GLTypes.hpp
