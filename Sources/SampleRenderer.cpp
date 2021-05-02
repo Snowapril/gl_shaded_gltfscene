@@ -15,8 +15,7 @@ bool SampleRenderer::OnInitialize(const cxxopts::ParseResult& configure)
 {
 	if (!AddApplication(std::make_shared<SampleApp>(), configure))
 		return false;
-	if (!AddApplication(std::make_shared<SampleApp>(), configure))
-		return false;
+
 	return true;
 }
 
