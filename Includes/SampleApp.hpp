@@ -2,6 +2,11 @@
 #define SAMPLE_APP_HPP
 
 #include <GL3/Application.hpp>
+#include <GL3/Scene.hpp>
+
+namespace GL3 {
+	class Scene;
+};
 
 class SampleApp : public GL3::Application
 {
@@ -24,6 +29,7 @@ protected:
 	void OnProcessResize(int width, int height) override;
 
 private:
+	GL3::Scene _sceneInstance;
 };
 
 #endif //! end of SampleApp.hpp

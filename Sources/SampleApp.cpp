@@ -3,8 +3,8 @@
 #include <GL3/PerspectiveCamera.hpp>
 #include <GL3/Shader.hpp>
 #include <GL3/Texture.hpp>
+
 #include <glad/glad.h>
-#include <Core/GLTFScene.hpp>
 #include <GLFW/glfw3.h>
 
 #include <tinygltf/stb_image.h>
@@ -44,33 +44,16 @@ bool SampleApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts:
 
 	stbi_set_flip_vertically_on_load(true);
 
-	/*int width, height, numChannels;
-	unsigned char* data = stbi_load(path.c_str(), &width, &height, &numChannels);
-
-	if (data == nullptr || width == 0 || height == 0 || numChannels == 0)
-	{
-		std::cerr << "Failed to open image " << path << std::endl;
-		GL3::DebugUtils::PrintStack();
+	if (!_sceneInstance.Initialize(RESOURCES_DIR "/scenes/robot_toon/robot-toon.gltf",
+		Core::VertexFormat::Position3Normal3TexCoord2Color4Tangent4))
 		return false;
-	}
-
-	stbi_image_free(data);*/
-
-	Core::GLTFScene scene;
-	scene.Initialize(RESOURCES_DIR "/scenes/robot_toon/robot-toon.gltf", Core::VertexFormat::Position3Normal3TexCoord2Color4Tangent4, [&](const tinygltf::Image& image) {
-		std::string name = image.name.empty() ? std::string("texture") + std::to_string(this->_textures.size()) : image.name;
-		auto texture = std::make_shared<GL3::Texture>();
-		texture->Initialize(GL_TEXTURE_2D);
-		texture->UploadTexture(&image.image[0], image.width, image.height, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE);
-		_textures.emplace(name, std::move(texture));
-	});
 
 	return true;
 }
 
 void SampleApp::OnCleanUp()
 {
-	//! Do nothing
+	_sceneInstance.CleanUp();
 }
 
 void SampleApp::OnUpdate(double dt)
