@@ -11,7 +11,6 @@ namespace GL3
 {
 	class Camera;
 	class Shader;
-	class Texture;
 	class Window;
 
 	//!
@@ -55,7 +54,6 @@ namespace GL3
 
 		std::vector< std::shared_ptr< GL3::Camera > > _cameras;
 		std::unordered_map< std::string, std::shared_ptr< GL3::Shader > > _shaders;
-		std::unordered_map< std::string, std::shared_ptr< GL3::Texture > > _textures;
 	};
 };
 

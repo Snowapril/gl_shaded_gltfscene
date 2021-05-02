@@ -45,7 +45,6 @@ namespace GL3 {
 	void Application::CleanUp()
 	{
 		_shaders.clear();
-		_textures.clear();
 		_cameras.clear();
 
 		OnCleanUp();
