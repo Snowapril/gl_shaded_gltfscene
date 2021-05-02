@@ -74,7 +74,10 @@ namespace GL3
 #endif
 
 		this->_window = glfwCreateWindow(width, height, title.c_str(), nullptr, sharedWindow);
-		
+		std::cout << "_________________________________\n";
+		std::cout << "OpenGL Version :\n";
+		std::cout << " - requesting : #version 450 core\n";
+		std::cout << "_________________________________\n";
 		if (this->_window == nullptr)
 		{
 			std::cerr << "Failed to Create GLFW Window" << std::endl;
@@ -90,6 +93,10 @@ namespace GL3
 			DebugUtils::PrintStack();
 			return false;
 		}
+		std::cout << "Compatible Devices :\n";
+		std::cout << glGetString(GL_VENDOR) << '\n';
+		std::cout << glGetString(GL_RENDERER) << '\n';
+		std::cout << "_________________________________\n";
 
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glDebugMessageCallback(DebugUtils::DebugLog, nullptr);
