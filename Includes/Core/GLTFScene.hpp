@@ -92,11 +92,12 @@ namespace Core {
 		using ImageCallback = std::function<void(const tinygltf::Image& image)>;
 		//! Default Constructor
 		GLTFScene();
-		//! Default Destructor
-		~GLTFScene();
+		//! Default Virtual Destructor
+		virtual ~GLTFScene();
 		//! Initialize the GLTFScene with gltf scene file path
 		bool Initialize(const std::string& filename, VertexFormat format, ImageCallback imageCallback = nullptr);
 
+	protected:
 		//! https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#reference-material
 		struct GLTFMaterial
 		{
@@ -213,8 +214,10 @@ namespace Core {
 		//! Returns a vector of data for a tinygltf::Value
 		template <typename Type>
 		static std::vector<Type> GetVector(const tinygltf::Value& value);
+		//! Returns a value for a tinygltf::Value
 		template <typename Type>
 		static void GetValue(const tinygltf::Value& value, const std::string& name, Type& val);
+		//! Returns texture ID for a tinygltf::Value
 		static void GetTextureID(const tinygltf::Value& value, const std::string& name, int& id);
 		//! Temporary storage for processing nodes.
 		std::unordered_map<unsigned int, std::vector<unsigned int>> _meshToPrimMap;
