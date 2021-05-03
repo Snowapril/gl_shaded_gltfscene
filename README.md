@@ -17,6 +17,8 @@ If you need to modify framework codes, do it first and sharing code through pull
 *   imgui
 *   stb_image
 *   tinyobjloader
+*   tinygltf
+*   draco
 
 ## License
 <img align="right" src="http://opensource.org/trademarks/opensource/OSI-Approved-License-100x137.png">
