@@ -21,6 +21,9 @@ namespace Core {
         if (static_cast<int>(format & VertexFormat::Color4))
             size += 4;
 
+        if (static_cast<int>(format & VertexFormat::Tangent4))
+            size += 4;
+
         return size;
     }
 
