@@ -30,6 +30,9 @@ namespace Core {
         //! Tangents in 4D.
         Tangent4 = 1 << 5,
 
+        //! Last format
+        Last = 1 << 6,
+
         //! Position (3D) and normal (3D).
         Position3Normal3 = Position3 | Normal3,
 
