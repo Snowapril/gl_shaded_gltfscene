@@ -3,6 +3,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <unordered_set>
 #include <iostream>
+#include <cassert>
 
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -64,6 +65,8 @@ namespace Core {
 
 	bool GLTFScene::Initialize(const std::string& filename, VertexFormat format, ImageCallback imageCallback)
 	{
+		assert(static_cast<int>(format & Core::VertexFormat::Position3) && "Scene model must contain Position attribute");
+
 		tinygltf::Model model;
 		if (!LoadModel(&model, filename))
 			return false;
@@ -645,5 +648,15 @@ namespace Core {
 
 			_sceneMaterials.emplace_back(material);
 		}
+	}
+
+	void GLTFScene::ReleaseSourceData()
+	{
+		_positions.clear();
+		_normals.clear();
+		_tangents.clear();
+		_colors.clear();
+		_texCoords.clear();
+		_indices.clear();
 	}
 };
