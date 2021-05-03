@@ -98,6 +98,7 @@ namespace GL3
 		std::cout << glGetString(GL_RENDERER) << '\n';
 		std::cout << "_________________________________\n";
 
+		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glDebugMessageCallback(DebugUtils::DebugLog, nullptr);
 		glDebugMessageControl(GL_DEBUG_SOURCE_APPLICATION, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, true);
