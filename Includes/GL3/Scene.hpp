@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <string>
 #include <memory>
+#include <vector>
 
 namespace GL3 {
 
@@ -25,10 +26,14 @@ namespace GL3 {
 		~Scene();
 		//! Load GLTFScene from the given scene filename and generate buffers 
 		bool Initialize(const std::string& filename, Core::VertexFormat format);
+		//! Render the whole nodes of the parsed gltf-scene
+		void Render(const std::shared_ptr< Shader >& shader, GLenum alphaMode);
 		//! Clean up the generated resources
 		void CleanUp();
 	private:
 		std::unordered_map< std::string, std::shared_ptr< Texture > > _textures;
+		std::vector< GLuint > _buffers;
+		GLuint _vao, _ebo;
 	};
 
 };

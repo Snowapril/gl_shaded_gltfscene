@@ -1,7 +1,7 @@
 #include <GL3/Scene.hpp>
 #include <GL3/Shader.hpp>
 #include <GL3/Texture.hpp>
-
+#include <bitset>
 #include <glad/glad.h>
 
 namespace GL3 {
@@ -29,12 +29,54 @@ namespace GL3 {
 		}))
 			return false;
 		
+		//! vertex buffer storages index
+		int index = 0;
+		//! Resize vertex buffer storage with number of vertex attribute type in given format,
+		//! additionally index buffer also added.
+		_buffers.resize(std::bitset<static_cast<unsigned int>(Core::VertexFormat::Last)>(
+						static_cast<unsigned int>(format)).count() + 1);
+
+		glCreateVertexArrays(1, &_vao);
+		glCreateBuffers(_buffers.size(), _buffers.data());
+
+		auto bindingBuffer = [&](void* data, size_t num, Core::VertexFormat attribute) {
+			if (static_cast<int>(format & attribute))
+			{
+				const size_t numFloats = Core::VertexHelper::GetNumberOfFloats(attribute);
+				const size_t stride = numFloats * sizeof(float);
+				glNamedBufferStorage(_buffers[index], num * stride, data, GL_DYNAMIC_STORAGE_BIT);
+				glVertexArrayVertexBuffer(_vao, index, _buffers[index], 0, stride);
+				glEnableVertexArrayAttrib(_vao, index);
+				glVertexArrayAttribFormat(_vao, index, numFloats, GL_FLOAT, GL_FALSE, 0);
+				glVertexArrayAttribBinding(_vao, index, index);
+				++index;
+			}
+		};
+
+		bindingBuffer(_positions.data(), _positions.size(), Core::VertexFormat::Position3);
+		bindingBuffer(_normals.data(),	 _normals.size(),	Core::VertexFormat::Normal3	 );
+		bindingBuffer(_tangents.data(),  _tangents.size(),	Core::VertexFormat::Tangent4 );
+		bindingBuffer(_colors.data(),	 _colors.size(),	Core::VertexFormat::Color4	 );
+		bindingBuffer(_texCoords.data(), _texCoords.size(), Core::VertexFormat::TexCoord2);
+
+		glCreateBuffers(1, &_ebo);
+		glNamedBufferStorage(_ebo, _indices.size() * sizeof(unsigned int), _indices.data(), GL_DYNAMIC_STORAGE_BIT);
+		glVertexArrayElementBuffer(_vao, _ebo);
+
 		return true;
+	}
+
+	void Scene::Render(const std::shared_ptr< Shader >& shader, GLenum alphaMode)
+	{
+		(void)shader; (void)alphaMode;
 	}
 
 	void Scene::CleanUp()
 	{
 		_textures.clear();
+		glDeleteBuffers(_buffers.size(), _buffers.data());
+		glDeleteBuffers(1, &_ebo);
+		glDeleteVertexArrays(1, &_vao);
 	}
 
 };
