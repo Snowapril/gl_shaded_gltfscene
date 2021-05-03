@@ -188,6 +188,9 @@ namespace Core {
 		std::vector<unsigned int> _indices;
 
 		SceneDimension _sceneDim;
+
+		//! Release scene source datum
+		void ReleaseSourceData();
 	private:
 		//! Load GLTF model from the given filename and pass it by reference. 
 		//! Returns success or not.
