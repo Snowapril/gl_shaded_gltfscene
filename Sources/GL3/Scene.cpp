@@ -25,20 +25,23 @@ namespace GL3 {
 			auto texture = std::make_shared<GL3::Texture>();
 			texture->Initialize(GL_TEXTURE_2D);
 			texture->UploadTexture(&image.image[0], image.width, image.height, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE);
-			_textures.emplace(name, std::move(texture));
+			_textures.emplace_back(std::move(texture));
 		}))
 			return false;
 		
 		//! vertex buffer storages index
 		int index = 0;
+
 		//! Resize vertex buffer storage with number of vertex attribute type in given format,
 		//! additionally index buffer also added.
 		_buffers.resize(std::bitset<static_cast<unsigned int>(Core::VertexFormat::Last)>(
 						static_cast<unsigned int>(format)).count() + 1);
 
+		//! Create & Bind vertex array object
 		glCreateVertexArrays(1, &_vao);
 		glCreateBuffers(_buffers.size(), _buffers.data());
 
+		//! Temporary buffer binding lambda function
 		auto bindingBuffer = [&](void* data, size_t num, Core::VertexFormat attribute) {
 			if (static_cast<int>(format & attribute))
 			{
@@ -53,12 +56,14 @@ namespace GL3 {
 			}
 		};
 
+		//! Create & Bind the vertex buffers
 		bindingBuffer(_positions.data(), _positions.size(), Core::VertexFormat::Position3);
 		bindingBuffer(_normals.data(),	 _normals.size(),	Core::VertexFormat::Normal3	 );
 		bindingBuffer(_tangents.data(),  _tangents.size(),	Core::VertexFormat::Tangent4 );
 		bindingBuffer(_colors.data(),	 _colors.size(),	Core::VertexFormat::Color4	 );
 		bindingBuffer(_texCoords.data(), _texCoords.size(), Core::VertexFormat::TexCoord2);
 
+		//! Create buffers for indices
 		glCreateBuffers(1, &_ebo);
 		glNamedBufferStorage(_ebo, _indices.size() * sizeof(unsigned int), _indices.data(), GL_DYNAMIC_STORAGE_BIT);
 		glVertexArrayElementBuffer(_vao, _ebo);
@@ -69,6 +74,34 @@ namespace GL3 {
 	void Scene::Render(const std::shared_ptr< Shader >& shader, GLenum alphaMode)
 	{
 		(void)shader; (void)alphaMode;
+		glBindVertexArray(_vao);
+
+		int lastMaterialIdx = -1, nodeIdx = 0;
+
+		for (int i = 0; i < static_cast<int>(_textures.size()); ++i)
+			_textures[i]->BindTexture(i);
+
+		for (auto& node : _sceneNodes)
+		{
+			const size_t uboOffset = sizeof(NodeMatrix) * nodeIdx;
+
+			auto& primMesh = _scenePrimMeshes[node.primMesh];
+			if (primMesh.materialIndex != lastMaterialIdx)
+			{
+				lastMaterialIdx = primMesh.materialIndex;
+
+				//! GLTFSceneMaterial material = { ~~~ };
+				//! shader->sendUniform(material);
+			}
+
+			//! Draw elements with primitive mesh index informations.
+			glDrawElements(GL_TRIANGLES, primMesh.indexCount, GL_UNSIGNED_INT, 
+				static_cast<const void*>(&primMesh.firstIndex));
+
+			++nodeIdx;
+		}
+
+		glBindVertexArray(0);
 	}
 
 	void Scene::CleanUp()

@@ -4,7 +4,7 @@
 #include <GL3/GLTypes.hpp>
 #include <Core/GLTFScene.hpp>
 #include <Core/Vertex.hpp>
-#include <unordered_map>
+#include <glm/mat4x4.hpp>
 #include <string>
 #include <memory>
 #include <vector>
@@ -20,6 +20,8 @@ namespace GL3 {
 	class Scene : public Core::GLTFScene
 	{
 	public:
+		//! Scene node matrix type definition with pair of glm::mat4.
+		using NodeMatrix = std::pair<glm::mat4, glm::mat4>;
 		//! Default constructor
 		Scene();
 		//! Default destructor
@@ -31,9 +33,10 @@ namespace GL3 {
 		//! Clean up the generated resources
 		void CleanUp();
 	private:
-		std::unordered_map< std::string, std::shared_ptr< Texture > > _textures;
+		std::vector< std::shared_ptr< Texture > > _textures;
 		std::vector< GLuint > _buffers;
 		GLuint _vao, _ebo;
+		GLuint _matrixUBO;
 	};
 
 };
