@@ -68,6 +68,22 @@ namespace GL3 {
 		glNamedBufferStorage(_ebo, _indices.size() * sizeof(unsigned int), _indices.data(), GL_DYNAMIC_STORAGE_BIT);
 		glVertexArrayElementBuffer(_vao, _ebo);
 
+		//! Create shader storage buffer object for matrices per-instance.
+		std::vector<NodeMatrix> matrices;
+		for (const auto& node : _sceneNodes)
+		{
+			NodeMatrix instance;
+			instance.first = node.world;
+			instance.second = glm::transpose(node.world);
+			matrices.emplace_back(std::move(instance));
+		}
+		
+		glGenBuffers(1, &_matrixBuffer);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, _matrixBuffer);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, matrices.size() * sizeof(glm::mat4), matrices.data(), GL_STATIC_DRAW);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _matrixBuffer);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
 		return true;
 	}
 
@@ -97,7 +113,7 @@ namespace GL3 {
 
 			//! Draw elements with primitive mesh index informations.
 			glDrawElements(GL_TRIANGLES, primMesh.indexCount, GL_UNSIGNED_INT, 
-				static_cast<const void*>(&primMesh.firstIndex));
+				reinterpret_cast<const void*>(primMesh.firstIndex * sizeof(unsigned int)));
 
 			++nodeIdx;
 		}
@@ -108,6 +124,7 @@ namespace GL3 {
 	void Scene::CleanUp()
 	{
 		_textures.clear();
+		glDeleteBuffers(1, &_matrixBuffer);
 		glDeleteBuffers(_buffers.size(), _buffers.data());
 		glDeleteBuffers(1, &_ebo);
 		glDeleteVertexArrays(1, &_vao);

@@ -1,6 +1,6 @@
 #version 450 core
 
-in VSOUT
+layout(location = 0) in VSOUT
 {
 	vec3 worldPos;
 	vec3 normal;

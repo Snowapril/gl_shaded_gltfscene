@@ -4,7 +4,7 @@ layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 texCoords;
 
-layout(std140) uniform UBOCamera
+layout(std140, binding = 0) uniform UBOCamera
 {
 	mat4 projection;
 	mat4 view;
@@ -17,12 +17,12 @@ struct InstanceMat
 	mat4 modelIT;
 };
 
-layout(std430) readonly buffer UBOinstance
+layout(std430, binding = 1) readonly buffer UBOinstance
 {
 	InstanceMat matrices[];
 };
 
-out VSOUT
+layout(location = 0) out VSOUT
 {
 	vec3 worldPos;
 	vec3 normal;
