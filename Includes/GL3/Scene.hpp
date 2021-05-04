@@ -36,7 +36,6 @@ namespace GL3 {
 		std::vector< std::shared_ptr< Texture > > _textures;
 		std::vector< GLuint > _buffers;
 		GLuint _vao, _ebo;
-		GLuint _matrixUBO;
 	};
 
 };

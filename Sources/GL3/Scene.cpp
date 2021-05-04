@@ -84,6 +84,7 @@ namespace GL3 {
 		for (auto& node : _sceneNodes)
 		{
 			const size_t uboOffset = sizeof(NodeMatrix) * nodeIdx;
+			(void)uboOffset;
 
 			auto& primMesh = _scenePrimMeshes[node.primMesh];
 			if (primMesh.materialIndex != lastMaterialIdx)
