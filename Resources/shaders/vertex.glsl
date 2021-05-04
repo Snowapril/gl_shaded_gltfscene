@@ -4,11 +4,22 @@ layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 texCoords;
 
-layout(std140) uniform CamMatrices
+layout(std140) uniform UBOCamera
 {
 	mat4 projection;
 	mat4 view;
 	mat4 viewProj;
+};
+
+struct InstanceMat 
+{
+	mat4 model;
+	mat4 modelIT;
+};
+
+layout(std430) readonly buffer UBOinstance
+{
+	InstanceMat matrices[];
 };
 
 out VSOUT

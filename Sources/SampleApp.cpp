@@ -39,7 +39,7 @@ bool SampleApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts:
 									 {GL_FRAGMENT_SHADER, RESOURCES_DIR "/shaders/output.glsl"} }))
 		return false;
 
-	defaultShader->BindUniformBlock("CamMatrices", 0);
+	defaultShader->BindUniformBlock("UBOCamera", 0);
 	_shaders.emplace("default", std::move(defaultShader));
 
 	stbi_set_flip_vertically_on_load(true);
@@ -65,6 +65,9 @@ void SampleApp::OnDraw()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0f, 0.0f, 0.8f, 1.0f);
+
+	_shaders["default"]->BindShaderProgram();
+	_sceneInstance.Render(_shaders["default"], GL_BLEND_SRC_ALPHA);
 }
 
 void SampleApp::OnProcessInput(unsigned int key)
