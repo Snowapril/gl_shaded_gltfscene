@@ -6,6 +6,36 @@
 
 namespace GL3 {
 
+	struct GltfShadeMaterial
+	{
+		int shadingModel;  // 0: metallic-roughness, 1: specular-glossiness
+
+		// PbrMetallicRoughness
+		glm::vec4  pbrBaseColorFactor;
+		int   pbrBaseColorTexture;
+		float pbrMetallicFactor;
+		float pbrRoughnessFactor;
+		int   pbrMetallicRoughnessTexture;
+
+		// KHR_materials_pbrSpecularGlossiness
+		glm::vec4  khrDiffuseFactor;
+		int   khrDiffuseTexture;
+		glm::vec3  khrSpecularFactor;
+		float khrGlossinessFactor;
+		int   khrSpecularGlossinessTexture;
+
+		int   emissiveTexture;
+		glm::vec3  emissiveFactor;
+		int   alphaMode;
+		float alphaCutoff;
+		int   doubleSided;
+
+		int   normalTexture;
+		float normalTextureScale;
+		int   occlusionTexture;
+		float occlusionTextureStrength;
+	};
+
 	Scene::Scene()
 	{
 		//! Do nothing
@@ -82,7 +112,6 @@ namespace GL3 {
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, _matrixBuffer);
 		glBufferData(GL_SHADER_STORAGE_BUFFER, matrices.size() * sizeof(glm::mat4), matrices.data(), GL_STATIC_DRAW);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _matrixBuffer);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 		return true;
 	}
@@ -105,11 +134,31 @@ namespace GL3 {
 			auto& primMesh = _scenePrimMeshes[node.primMesh];
 			if (primMesh.materialIndex != lastMaterialIdx)
 			{
+				GLTFMaterial& mat = _sceneMaterials[primMesh.materialIndex];
+				shader->SendUniformVariable("shadingModel", mat.shadingModel);
+				shader->SendUniformVariable("pbrBaseColorFactor", mat.baseColorFactor);
+				shader->SendUniformVariable("pbrBaseColorTexture", mat.baseColorTexture);
+				shader->SendUniformVariable("pbrMetallicFactor", mat.metallicFactor);
+				shader->SendUniformVariable("pbrRoughnessFactor", mat.roughnessFactor);
+				shader->SendUniformVariable("pbrMetallicRoughnessTexture", mat.metallicRoughnessTexture);
+				shader->SendUniformVariable("khrDiffuseFactor", mat.specularGlossiness.diffuseFactor);
+				shader->SendUniformVariable("khrDiffuseTexture", mat.specularGlossiness.diffuseTexture);
+				shader->SendUniformVariable("khrSpecularFactor", mat.specularGlossiness.specularFactor);
+				shader->SendUniformVariable("khrGlossinessFactor", mat.specularGlossiness.glossinessFactor);
+				shader->SendUniformVariable("khrSpecularGlossinessTexture", mat.specularGlossiness.specularGlossinessTexture);
+				shader->SendUniformVariable("emissiveTexture", mat.emissiveTexture);
+				shader->SendUniformVariable("emissiveFactor", mat.emissiveFactor);
+				shader->SendUniformVariable("alphaMode", mat.alphaMode);
+				shader->SendUniformVariable("alphaCutoff", mat.alphaCutoff);
+				shader->SendUniformVariable("doubleSided", mat.doubleSided);
+				shader->SendUniformVariable("normalTexture", mat.normalTexture);
+				shader->SendUniformVariable("normalTextureScale", mat.normalTextureScale);
+				shader->SendUniformVariable("occlusionTexture", mat.occlusionTexture);
+				shader->SendUniformVariable("occlusionTextureStrength", mat.occlusionTextureStrength);
 				lastMaterialIdx = primMesh.materialIndex;
-
-				//! GLTFSceneMaterial material = { ~~~ };
-				//! shader->sendUniform(material);
 			}
+			
+			shader->SendUniformVariable("instanceIdx", nodeIdx);
 
 			//! Draw elements with primitive mesh index informations.
 			glDrawElementsBaseVertex(GL_TRIANGLES, primMesh.indexCount, GL_UNSIGNED_INT, 
