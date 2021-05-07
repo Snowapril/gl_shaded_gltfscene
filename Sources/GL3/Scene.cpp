@@ -112,8 +112,8 @@ namespace GL3 {
 			}
 
 			//! Draw elements with primitive mesh index informations.
-			glDrawElements(GL_TRIANGLES, primMesh.indexCount, GL_UNSIGNED_INT, 
-				reinterpret_cast<const void*>(primMesh.firstIndex * sizeof(unsigned int)));
+			glDrawElementsBaseVertex(GL_TRIANGLES, primMesh.indexCount, GL_UNSIGNED_INT, 
+				reinterpret_cast<const void*>(primMesh.firstIndex * sizeof(unsigned int)), primMesh.vertexOffset);
 
 			++nodeIdx;
 		}
