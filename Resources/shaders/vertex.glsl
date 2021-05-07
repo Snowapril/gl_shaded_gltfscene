@@ -29,11 +29,11 @@ layout(location = 0) out VSOUT
 	vec2 texCoords;
 } vs_out;
 
-uniform mat4 model;
+uniform int instanceIdx = 0;
 
 void main()
 {
-	vs_out.worldPos = (model * vec4(position, 1.0)).xyz;
+	vs_out.worldPos = position;
 	vs_out.normal = normal;
 	vs_out.texCoords = texCoords;
 
