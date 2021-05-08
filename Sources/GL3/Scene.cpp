@@ -110,8 +110,9 @@ namespace GL3 {
 		
 		glGenBuffers(1, &_matrixBuffer);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, _matrixBuffer);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, matrices.size() * sizeof(glm::mat4), matrices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, matrices.size() * sizeof(NodeMatrix), matrices.data(), GL_STATIC_COPY);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _matrixBuffer);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 		return true;
 	}
@@ -135,26 +136,26 @@ namespace GL3 {
 			if (primMesh.materialIndex != lastMaterialIdx)
 			{
 				GLTFMaterial& mat = _sceneMaterials[primMesh.materialIndex];
-				shader->SendUniformVariable("shadingModel", mat.shadingModel);
-				shader->SendUniformVariable("pbrBaseColorFactor", mat.baseColorFactor);
-				shader->SendUniformVariable("pbrBaseColorTexture", mat.baseColorTexture);
-				shader->SendUniformVariable("pbrMetallicFactor", mat.metallicFactor);
-				shader->SendUniformVariable("pbrRoughnessFactor", mat.roughnessFactor);
-				shader->SendUniformVariable("pbrMetallicRoughnessTexture", mat.metallicRoughnessTexture);
-				shader->SendUniformVariable("khrDiffuseFactor", mat.specularGlossiness.diffuseFactor);
-				shader->SendUniformVariable("khrDiffuseTexture", mat.specularGlossiness.diffuseTexture);
-				shader->SendUniformVariable("khrSpecularFactor", mat.specularGlossiness.specularFactor);
-				shader->SendUniformVariable("khrGlossinessFactor", mat.specularGlossiness.glossinessFactor);
-				shader->SendUniformVariable("khrSpecularGlossinessTexture", mat.specularGlossiness.specularGlossinessTexture);
-				shader->SendUniformVariable("emissiveTexture", mat.emissiveTexture);
-				shader->SendUniformVariable("emissiveFactor", mat.emissiveFactor);
-				shader->SendUniformVariable("alphaMode", mat.alphaMode);
-				shader->SendUniformVariable("alphaCutoff", mat.alphaCutoff);
-				shader->SendUniformVariable("doubleSided", mat.doubleSided);
-				shader->SendUniformVariable("normalTexture", mat.normalTexture);
-				shader->SendUniformVariable("normalTextureScale", mat.normalTextureScale);
-				shader->SendUniformVariable("occlusionTexture", mat.occlusionTexture);
-				shader->SendUniformVariable("occlusionTextureStrength", mat.occlusionTextureStrength);
+				shader->SendUniformVariable("material.shadingModel", mat.shadingModel);
+				shader->SendUniformVariable("material.pbrBaseColorFactor", mat.baseColorFactor);
+				shader->SendUniformVariable("material.pbrBaseColorTexture", mat.baseColorTexture);
+				shader->SendUniformVariable("material.pbrMetallicFactor", mat.metallicFactor);
+				shader->SendUniformVariable("material.pbrRoughnessFactor", mat.roughnessFactor);
+				shader->SendUniformVariable("material.pbrMetallicRoughnessTexture", mat.metallicRoughnessTexture);
+				shader->SendUniformVariable("material.khrDiffuseFactor", mat.specularGlossiness.diffuseFactor);
+				shader->SendUniformVariable("material.khrDiffuseTexture", mat.specularGlossiness.diffuseTexture);
+				shader->SendUniformVariable("material.khrSpecularFactor", mat.specularGlossiness.specularFactor);
+				shader->SendUniformVariable("material.khrGlossinessFactor", mat.specularGlossiness.glossinessFactor);
+				shader->SendUniformVariable("material.khrSpecularGlossinessTexture", mat.specularGlossiness.specularGlossinessTexture);
+				shader->SendUniformVariable("material.emissiveTexture", mat.emissiveTexture);
+				shader->SendUniformVariable("material.emissiveFactor", mat.emissiveFactor);
+				shader->SendUniformVariable("material.alphaMode", mat.alphaMode);
+				shader->SendUniformVariable("material.alphaCutoff", mat.alphaCutoff);
+				shader->SendUniformVariable("material.doubleSided", mat.doubleSided);
+				shader->SendUniformVariable("material.normalTexture", mat.normalTexture);
+				shader->SendUniformVariable("material.normalTextureScale", mat.normalTextureScale);
+				shader->SendUniformVariable("material.occlusionTexture", mat.occlusionTexture);
+				shader->SendUniformVariable("material.occlusionTextureStrength", mat.occlusionTextureStrength);
 				lastMaterialIdx = primMesh.materialIndex;
 			}
 			
