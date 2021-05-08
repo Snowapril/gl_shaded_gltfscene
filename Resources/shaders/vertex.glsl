@@ -33,7 +33,7 @@ uniform int instanceIdx = 0;
 
 void main()
 {
-	vs_out.worldPos = position;
+	vs_out.worldPos = (matrices[instanceIdx].model * vec4(position, 1.0)).xyz;
 	vs_out.normal = normal;
 	vs_out.texCoords = texCoords;
 
