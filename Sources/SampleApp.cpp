@@ -67,6 +67,7 @@ void SampleApp::OnDraw()
 	glClearColor(0.0f, 0.0f, 0.8f, 1.0f);
 
 	_shaders["default"]->BindShaderProgram();
+	_cameras[0]->BindCamera(0);
 	_sceneInstance.Render(_shaders["default"], GL_BLEND_SRC_ALPHA);
 }
 
