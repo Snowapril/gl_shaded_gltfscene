@@ -111,7 +111,7 @@ namespace GL3 {
 		glGenBuffers(1, &_matrixBuffer);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, _matrixBuffer);
 		glBufferData(GL_SHADER_STORAGE_BUFFER, matrices.size() * sizeof(NodeMatrix), matrices.data(), GL_STATIC_COPY);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _matrixBuffer);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _matrixBuffer);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 		return true;
@@ -119,13 +119,17 @@ namespace GL3 {
 
 	void Scene::Render(const std::shared_ptr< Shader >& shader, GLenum alphaMode)
 	{
-		(void)shader; (void)alphaMode;
+		(void)alphaMode;
 		glBindVertexArray(_vao);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _matrixBuffer);
 
 		int lastMaterialIdx = -1, nodeIdx = 0;
 
 		for (int i = 0; i < static_cast<int>(_textures.size()); ++i)
+		{
+			shader->SendUniformVariable("textures[" + std::to_string(i) + "]", i);
 			_textures[i]->BindTexture(i);
+		}
 
 		for (auto& node : _sceneNodes)
 		{
