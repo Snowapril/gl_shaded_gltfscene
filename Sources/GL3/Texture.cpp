@@ -34,6 +34,14 @@ namespace GL3 {
 		glGenerateTextureMipmap(_textureID);
 	}
 
+	void Texture::UploadTextureArray(const void* data, int width, int height, int layerCount, GLenum internalFormat, GLenum format, GLenum type)
+	{
+		glTextureStorage3D(_textureID, 1, internalFormat, width, height, layerCount);
+		glTextureSubImage3D(_textureID, 1, 0, 0, 0, width, height, layerCount, format, type, data);
+		glGenerateTextureMipmap(_textureID);
+	}
+
+
 	void Texture::BindTexture(GLuint slot) const
 	{
 		glBindTextureUnit(slot, _textureID);
