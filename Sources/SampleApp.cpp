@@ -45,7 +45,7 @@ bool SampleApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts:
 	stbi_set_flip_vertically_on_load(true);
 
 	if (!_sceneInstance.Initialize(RESOURCES_DIR "/scenes/FlightHelmet/FlightHelmet.gltf",
-		Core::VertexFormat::Position3Normal3TexCoord2Color4Tangent4))
+		Core::VertexFormat::Position3Normal3TexCoord2Color4))
 		return false;
 
 	return true;
