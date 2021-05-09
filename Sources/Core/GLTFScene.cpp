@@ -396,7 +396,7 @@ namespace Core {
 		}
 
 		//! COLOR
-		if (static_cast<int>(format & VertexFormat::Tangent4))
+		if (static_cast<int>(format & VertexFormat::Color4))
 		{
 			if (!GetAttributes(model, mesh, _colors, "COLOR_0"))
 			{
