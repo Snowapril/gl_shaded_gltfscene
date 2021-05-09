@@ -112,7 +112,7 @@ namespace Core {
 
 			int   emissiveTexture{ -1 };
 			glm::vec3  emissiveFactor{ 0.0f, 0.0f, 0.0f };
-			int   alphaMode{ 0 };
+			int   alphaMode{ 0 }; //! 0 : OPAQUE, 1 : MASK, 2 : BLEND
 			float alphaCutoff{ 0.5f };
 			int   doubleSided{ 0 };
 
