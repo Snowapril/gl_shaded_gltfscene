@@ -2,6 +2,7 @@
 #define SHADER_HPP
 
 #include <GL3/GLTypes.hpp>
+#include <GL3/DebugUtils.hpp>
 #include <unordered_map>
 #include <string>
 
@@ -47,6 +48,7 @@ namespace GL3 {
 		void CleanUp();
 	private:
 		std::unordered_map<std::string, GLint> _uniformCache;
+		DebugUtils _debug;
 		GLuint _programID;
 	};
 

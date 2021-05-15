@@ -26,6 +26,7 @@ namespace GL3 {
 		glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3 + sizeof(glm::vec4), nullptr, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+		_debug.SetObjectName(GL_BUFFER, _uniformBuffer, "CameraBuffer");
 		return true;
 	}
 
@@ -69,6 +70,7 @@ namespace GL3 {
 
 		if (_uniformBuffer)
 		{
+			auto scope = _debug.ScopeLabel("CameraBuffer Update");
 			glBindBuffer(GL_UNIFORM_BUFFER, _uniformBuffer);
 			glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(_projection));
 			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(_view));

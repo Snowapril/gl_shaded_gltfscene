@@ -2,11 +2,13 @@
 #define POST_PROCESSING_HPP
 
 #include <GL3/GLTypes.hpp>
-#include <GL3/Shader.hpp>
+#include <GL3/DebugUtils.hpp>
 #include <glm/vec2.hpp>
 #include <memory>
 
 namespace GL3 {
+
+	class Shader;
 
 	//!
 	//! \brief      Post-processing wrapper class
@@ -40,6 +42,7 @@ namespace GL3 {
 		GLuint _fbo;
 		GLuint _color, _depth;
 		GLuint _vao;
+		DebugUtils _debug;
 		std::unique_ptr< GL3::Shader > _shader;
 	};
 

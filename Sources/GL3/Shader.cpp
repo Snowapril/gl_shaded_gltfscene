@@ -119,6 +119,7 @@ namespace GL3 {
 			return false;
 		}
 
+		_debug.SetObjectName(GL_PROGRAM, _programID, "Shader Program");
 		return true;
 	}
 

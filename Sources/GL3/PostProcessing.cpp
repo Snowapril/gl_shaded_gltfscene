@@ -1,5 +1,5 @@
 #include <GL3/PostProcessing.hpp>
-#include <GL3/DebugUtils.hpp>
+#include <GL3/Shader.hpp>
 #include <iostream>
 #include <glad/glad.h>
 
@@ -19,6 +19,7 @@ namespace GL3 {
 	bool PostProcessing::Initialize()
 	{
 		glCreateFramebuffers(1, &_fbo);
+		_debug.SetObjectName(GL_FRAMEBUFFER, _fbo, "PostProcessing FrameBuffer");
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &_color);
 		glTextureParameteri(_color, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -26,6 +27,7 @@ namespace GL3 {
 		glTextureParameteri(_color, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameteri(_color, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glNamedFramebufferTexture(_fbo, GL_COLOR_ATTACHMENT0, _color, 0);
+		_debug.SetObjectName(GL_TEXTURE, _color, "PostProcessing Color Attachment");
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &_depth);
 		glTextureParameteri(_depth, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -33,6 +35,7 @@ namespace GL3 {
 		glTextureParameteri(_depth, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameteri(_depth, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glNamedFramebufferTexture(_fbo, GL_DEPTH_ATTACHMENT, _depth, 0);
+		_debug.SetObjectName(GL_TEXTURE, _depth, "PostProcessing Depth Attachment");
 
 		glCreateVertexArrays(1, &_vao);
 		_shader = std::make_unique< GL3::Shader >();
@@ -54,6 +57,7 @@ namespace GL3 {
 
 	void PostProcessing::Render() const
 	{
+		auto scope = _debug.ScopeLabel("Start PostProcessing");
 		_shader->BindShaderProgram();
 		glBindTextureUnit(0, _color);
 		glBindTextureUnit(1, _depth);

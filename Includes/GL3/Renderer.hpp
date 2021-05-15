@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <GL3/DebugUtils.hpp>
 #include <GL3/GLTypes.hpp>
 #include <cxxopts/cxxopts.hpp>
 
@@ -74,6 +75,7 @@ namespace GL3
 		//!Resize the renderer resources
 		void ProcessResize(int width, int height);
 
+		DebugUtils _debug;
 		GLuint _queryID;
 		bool _bMeasureGPUTime;
 	};

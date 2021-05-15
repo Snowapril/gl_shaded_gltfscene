@@ -2,6 +2,7 @@
 #define TEXTURE_HPP
 
 #include <GL3/GLTypes.hpp>
+#include <GL3/DebugUtils.hpp>
 #include <string>
 
 namespace GL3 {
@@ -31,6 +32,7 @@ namespace GL3 {
 		//! Clean up the generated resources
 		void CleanUp();
 	private:
+		DebugUtils _debug;
 		GLenum _target;
 		GLuint _textureID;
 	};

@@ -19,12 +19,12 @@ namespace GL3 {
 	void Texture::Initialize(GLenum target)
 	{
 		_target = target;
-
 		glCreateTextures(target, 1, &_textureID);
 		glTextureParameteri(_textureID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameteri(_textureID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTextureParameteri(_textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTextureParameteri(_textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		_debug.SetObjectName(GL_TEXTURE, _textureID, "Texture Resource");
 	}
 
 	void Texture::UploadTexture(const void* data, int width, int height, GLenum internalFormat, GLenum format, GLenum type)
@@ -40,7 +40,6 @@ namespace GL3 {
 		glTextureSubImage3D(_textureID, 1, 0, 0, 0, width, height, layerCount, format, type, data);
 		glGenerateTextureMipmap(_textureID);
 	}
-
 
 	void Texture::BindTexture(GLuint slot) const
 	{

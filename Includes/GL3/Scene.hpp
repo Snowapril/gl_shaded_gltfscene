@@ -2,6 +2,7 @@
 #define SCENE_HPP
 
 #include <GL3/GLTypes.hpp>
+#include <GL3/DebugUtils.hpp>
 #include <Core/GLTFScene.hpp>
 #include <Core/Vertex.hpp>
 #include <glm/mat4x4.hpp>
@@ -35,8 +36,9 @@ namespace GL3 {
 	private:
 		std::vector< std::shared_ptr< Texture > > _textures;
 		std::vector< GLuint > _buffers;
-		GLuint _vao, _ebo;
-		GLuint _matrixBuffer;
+		DebugUtils _debug;
+		GLuint _vao{ 0 }, _ebo{ 0 };
+		GLuint _matrixBuffer{ 0 };
 	};
 
 };

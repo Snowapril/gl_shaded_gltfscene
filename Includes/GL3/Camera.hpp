@@ -4,6 +4,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <GL3/GLTypes.hpp>
+#include <GL3/DebugUtils.hpp>
 #include <string>
 #include <unordered_map>
 
@@ -55,6 +56,7 @@ namespace GL3 {
 		GLint GetUniformLocation(const std::string& name);
 
 		std::unordered_map<std::string, GLint> _uniformCache;
+		DebugUtils _debug;
 		float _speed;
 		GLuint _uniformBuffer;
 	};

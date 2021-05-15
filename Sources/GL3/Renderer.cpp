@@ -67,6 +67,7 @@ namespace GL3 {
 
 	void Renderer::UpdateFrame(double dt)
 	{
+		auto scope = _debug.ScopeLabel("Start Renderer Update");
 		//! Do Input handling first
 		_mainWindow->ProcessInput();
 
@@ -92,6 +93,7 @@ namespace GL3 {
 		//! Below draw calls will not be rendered to screen because of GL_RASTERIZER_DISCARD.
 		if (_bMeasureGPUTime)
 		{
+			auto scope = _debug.ScopeLabel("Start Performance Measure");
 			glViewport(0, 0, windowExtent.x, windowExtent.y);
 			glEnable(GL_RASTERIZER_DISCARD);
 
@@ -110,6 +112,7 @@ namespace GL3 {
 		}
 
 		//! Actual rendering part.
+		auto scope = _debug.ScopeLabel("Start Rendering");
 		glViewport(0, 0, windowExtent.x, windowExtent.y);
 		glBindFramebuffer(GL_FRAMEBUFFER, _postProcessing->GetFramebuffer());
 		glClearBufferfv(GL_COLOR, 0, kClearColor);
