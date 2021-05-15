@@ -40,6 +40,7 @@ uniform sampler2D textures[MAX_TEXTURES];
 #include gltf.glsl
 uniform GltfShadeMaterial material;
 #include utils.glsl
+#include pbr.glsl
 
 #define PBR_METALLIC_ROUGHNESS_MODEL  0
 #define PBR_SPECULAR_GLOSSINESS_MODEL 1
@@ -123,7 +124,6 @@ void main()
 	vec3 specularEnvironmentR90 = vec3(clamp(reflectance * 50.0, 0.0, 1.0));
 
 	//! Lighting start
-	vec3 color = vec3(0.0);
 	vec3 normal = material.normalTexture > -1 ? getNormal(material.normalTexture) :
 												normalize(fs_in.normal);
 	vec3 view = normalize(uboCamera.camPos - fs_in.worldPos);
@@ -138,8 +138,38 @@ void main()
 	float LdotH = clamp(dot(light, h),			  0.0, 1.0);
 	float VdotH = clamp(dot(view, h),			  0.0, 1.0);
 
-	//! TODO : start from here.
-	//! https://github.com/SaschaWillems/Vulkan-glTF-PBR/blob/master/data/shaders/pbr_khr.frag
+	PBRInfo pbr = PBRInfo(NdotL, NdotV, NdotH, LdotH, VdotH, perceptualRoughness,
+						  metallic, specularEnvironmentR0, specularEnvironmentR90,
+						  alphaRoughness, diffuseColor, specularColor);
+	
+	//! Calculate the shading terms for the microfacet specular shading model
+	vec3 F = specularReflection(pbr);
+	float G = geometricOcclusion(pbr);
+	float D = microfacetDistribution(pbr);
 
-	fragColor = vec4(gammaCorrection(diffuseColor, 2.2), 1.0);
+	const vec3 kLightColor = vec3(1.0);
+
+	//! Calculate the analytical lighting distribution
+	vec3 diffuseContrib = (1.0 - F) * diffuse(pbr);
+	vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
+	//! Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cos law)
+	vec3 color = NdotL * kLightColor * (diffuseContrib + specContrib);
+
+	//! Calculate lighting contribution from image base lihgting source IBL
+	//! color += getIBLContribution(pbrInputs, n, reflection);
+
+	//! Apply optinal PBR terms for additional (optional) shading
+	if (material.occlusionTexture > -1)
+	{
+		float ao = texture(textures[material.occlusionTexture], fs_in.texCoord).r;
+		color = mix(color, color * ao, material.occlusionTextureStrength);
+	}
+
+	if (material.emissiveTexture > -1)
+	{
+		vec3 emissive = SRGBtoLinear(texture(textures[material.emissiveTexture], fs_in.texCoord), 2.2).rgb * material.emissiveFactor;
+		color += emissive;
+	}
+
+	fragColor = vec4(color, 1.0);
 }
