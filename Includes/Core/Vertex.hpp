@@ -2,7 +2,6 @@
 #define VERTEX_HPP
 
 #include <vector>
-#include <cstdint>
 
 namespace Core {
 
