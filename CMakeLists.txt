@@ -39,7 +39,7 @@ endif()
 set(CMAKE_MACOSX_RPATH ON)
 
 # Set resource directory
-set(RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Resources")
+set(RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Resources/")
 
 # Project modules
 add_subdirectory(Libraries/glad)

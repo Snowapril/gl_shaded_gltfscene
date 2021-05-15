@@ -13,7 +13,9 @@ int main(int argc, char* argv[])
 	options.add_options()
 		("t,title", "Window Title(default is 'modern-opengl-template')", cxxopts::value<std::string>()->default_value("modern-opengl-template"))
 		("w,width", "Window width(default is 1200)", cxxopts::value<int>()->default_value("1200"))
-		("h,height", "Window height(default is 900)", cxxopts::value<int>()->default_value("900"));
+		("h,height", "Window height(default is 900)", cxxopts::value<int>()->default_value("900"))
+		("s,scene", "GLTF Scene filepath(default is 'scenes/FlightHelmet/FlightHelmet.gltf')", 
+			cxxopts::value<std::string>()->default_value("scenes/FlightHelmet/FlightHelmet.gltf"));
 
 	auto result = options.parse(argc, argv);
 
