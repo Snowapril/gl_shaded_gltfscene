@@ -147,7 +147,7 @@ namespace GL3 {
 			auto& primMesh = _scenePrimMeshes[node.primMesh];
 			if (primMesh.materialIndex != lastMaterialIdx)
 			{
-				auto materialScope = _debug.ScopeLabel("Scene Material Binding");
+				auto materialScope = _debug.ScopeLabel("Material Binding: " + std::to_string(nodeIdx));
 				GLTFMaterial& mat = _sceneMaterials[primMesh.materialIndex];
 				shader->SendUniformVariable("material.shadingModel", mat.shadingModel);
 				shader->SendUniformVariable("material.pbrBaseColorFactor", mat.baseColorFactor);
@@ -174,7 +174,7 @@ namespace GL3 {
 			
 			shader->SendUniformVariable("instanceIdx", nodeIdx);
 
-			auto drawScope = _debug.ScopeLabel("Scene Draw call");
+			auto drawScope = _debug.ScopeLabel("Draw Mesh: " + std::to_string(nodeIdx));
 			//! Draw elements with primitive mesh index informations.
 			glDrawElementsBaseVertex(GL_TRIANGLES, primMesh.indexCount, GL_UNSIGNED_INT, 
 				reinterpret_cast<const void*>(primMesh.firstIndex * sizeof(unsigned int)), primMesh.vertexOffset);
