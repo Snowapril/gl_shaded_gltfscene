@@ -21,6 +21,36 @@
 
 namespace GL3
 {
+    GLuint DebugUtils::_scopeID = 0;
+    bool DebugUtils::_labelEnabled = true;
+
+    void DebugUtils::EnabelDebugLabel(bool enable)
+    {
+        DebugUtils::_labelEnabled = enable;
+    }
+
+    void DebugUtils::SetObjectName(GLenum identifier, GLuint name, const std::string& label) const
+    {
+        if (DebugUtils::_labelEnabled)
+            glObjectLabel(identifier, name, -1, label.c_str());
+    }
+
+    DebugUtils::ScopedLabel::ScopedLabel(const std::string& message)
+    {
+        if (DebugUtils::_labelEnabled)
+            glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, DebugUtils::_scopeID++, -1, message.c_str());
+    }
+
+    DebugUtils::ScopedLabel::~ScopedLabel()
+    {
+        if (DebugUtils::_labelEnabled)
+        {
+            glPopDebugGroup();
+            --DebugUtils::_scopeID;
+        }
+    }
+
+
 	// output the call stack
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     void DebugUtils::PrintStack() 

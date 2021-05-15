@@ -1,7 +1,8 @@
-#ifndef DEBUG_UTILS_HPP
+﻿#ifndef DEBUG_UTILS_HPP
 #define DEBUG_UTILS_HPP
 
 #include <GL3/GLTypes.hpp>
+#include <string>
 
 namespace GL3 {
 
@@ -20,6 +21,34 @@ namespace GL3 {
         //! Debug logging for opengl context.
         //! This function will be passed into glDebugMessageCallback call
         static void DebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const GLvoid* userParam);
+
+        //! Enable object & scope labeling for debug output
+        static void EnabelDebugLabel(bool enable);
+
+        //! Default constructor
+        DebugUtils() = default;
+        //! Default destructor
+        ~DebugUtils() = default;
+
+        void SetObjectName(GLenum identifier, GLuint name, const std::string& label) const;
+
+        struct ScopedLabel
+        {
+            //! Manually delete defualt constructor
+            ScopedLabel() = delete;
+            //! Constructor with pushing scoped label
+            ScopedLabel(const std::string& message);
+            //! Destructor with popping scoped label
+            ~ScopedLabel();
+        };
+
+        [[nodiscard]] ScopedLabel ScopeLabel(const std::string& message) const
+        {
+            return ScopedLabel(message);
+        }
+    private:
+        static GLuint _scopeID;
+        static bool _labelEnabled;
     };
 
 };
