@@ -11,7 +11,7 @@ static const float kClearColor[] = { 0.81f, 0.81f, 0.81f, 1.0f };
 namespace GL3 {
 
 	Renderer::Renderer()
-		: _queryID(0), _bMeasureGPUTime(true)
+		: _queryID(0), _bMeasureGPUTime(false)
 	{
 		//! Do nothing
 	}
@@ -109,6 +109,7 @@ namespace GL3 {
 			OnEndDraw();
 
 			glDisable(GL_RASTERIZER_DISCARD);
+			return;
 		}
 
 		//! Actual rendering part.
