@@ -3,10 +3,8 @@
 
 #include <GL3/Application.hpp>
 #include <GL3/Scene.hpp>
-
-namespace GL3 {
-	class Scene;
-};
+#include <GL3/DebugUtils.hpp>
+#include <GL3/SkyDome.hpp>
 
 class SampleApp : public GL3::Application
 {
@@ -30,6 +28,8 @@ protected:
 
 private:
 	GL3::Scene _sceneInstance;
+	GL3::SkyDome _skyDome;
+	GL3::DebugUtils _debug;
 };
 
 #endif //! end of SampleApp.hpp
