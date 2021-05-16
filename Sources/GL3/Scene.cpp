@@ -55,6 +55,7 @@ namespace GL3 {
 			auto texture = std::make_shared<GL3::Texture>();
 			texture->Initialize(GL_TEXTURE_2D);
 			texture->UploadTexture(&image.image[0], image.width, image.height, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE);
+			_debug.SetObjectName(GL_TEXTURE, texture->GetResourceID(), name);
 			_textures.emplace_back(std::move(texture));
 		}))
 			return false;
@@ -78,7 +79,7 @@ namespace GL3 {
 			{
 				const size_t numFloats = Core::VertexHelper::GetNumberOfFloats(attribute);
 				const size_t stride = numFloats * sizeof(float);
-				glNamedBufferStorage(_buffers[index], num * stride, data, GL_DYNAMIC_STORAGE_BIT);
+				glNamedBufferStorage(_buffers[index], num * stride, data, GL_MAP_READ_BIT);
 				glVertexArrayVertexBuffer(_vao, index, _buffers[index], 0, stride);
 				glEnableVertexArrayAttrib(_vao, index);
 				glVertexArrayAttribFormat(_vao, index, numFloats, GL_FLOAT, GL_FALSE, 0);
@@ -97,7 +98,7 @@ namespace GL3 {
 
 		//! Create buffers for indices
 		glCreateBuffers(1, &_ebo);
-		glNamedBufferStorage(_ebo, _indices.size() * sizeof(unsigned int), _indices.data(), GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(_ebo, _indices.size() * sizeof(unsigned int), _indices.data(), GL_MAP_READ_BIT);
 		glVertexArrayElementBuffer(_vao, _ebo);
 		_debug.SetObjectName(GL_BUFFER, _ebo, "Scene Element Buffer");
 
