@@ -1,4 +1,4 @@
-#include <GL3/AssetLoader.hpp>
+#include <Core/AssetLoader.hpp>
 #include <GL3/DebugUtils.hpp>
 #include <iostream>
 #include <algorithm>
@@ -6,6 +6,8 @@
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
+
+#include <tinygltf/stb_image.h>
 
 inline bool HasSmoothingGroup(const tinyobj::shape_t& shape)
 {
@@ -108,7 +110,7 @@ inline bool operator<(const PackedVertex& v1, const PackedVertex& v2)
     return false;
 }
 
-namespace GL3 {
+namespace Core {
 
     bool AssetLoader::LoadObjFile(const std::string& path, std::vector<float>& vertices, std::vector<unsigned int>& indices, Core::VertexFormat format)
 	{
@@ -122,14 +124,14 @@ namespace GL3 {
         bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str());
         if (!ret)
         {
-            std::cerr << "Failed to load " << path << std::endl;
-            DebugUtils::PrintStack();
+            std::cerr << "[AssetLoader:LoadObjFile] Failed to load " << path << std::endl;
+            GL3::DebugUtils::PrintStack();
             return false;
         }
         if (shapes.size() == 0)
         {
-            std::cerr << "No shapes in " << path << std::endl;
-            DebugUtils::PrintStack();
+            std::cerr << "[AssetLoader:LoadObjFile] No shapes in " << path << std::endl;
+            GL3::DebugUtils::PrintStack();
             return false;
         }
 
@@ -300,7 +302,11 @@ namespace GL3 {
     {
         std::ifstream file(path, std::ios::in | std::ios::binary | std::ios::ate);
         if (!file.is_open())
+        {
+            std::cerr << "[AssetLoader:LoadRawFile] Failed to load " << path << std::endl;
+            GL3::DebugUtils::PrintStack();
             return false;
+        }
 
         const size_t fileSize = file.tellg();
         data.resize(fileSize);
@@ -312,4 +318,22 @@ namespace GL3 {
         return true;
     }
 
-}; //! end of Mesh.cpp
+    float* AssetLoader::LoadImageFile(const std::string& path, int *width, int *height, int *channel)
+    {
+        float* pixels = stbi_loadf(path.c_str(), width, height, channel, STBI_rgb_alpha);
+        if (pixels == NULL || width == 0 || height == 0 || channel == 0)
+        {
+            std::cerr << "[AssetLoader:LoadImageFile] Failed to load " << path << std::endl;
+            GL3::DebugUtils::PrintStack();
+            return nullptr;
+        }
+
+        return pixels;
+    }
+
+    void AssetLoader::FreeImage(void* pixels)
+    {
+        stbi_image_free(pixels);
+    }
+
+}; //! end of AssetLoader.cpp

@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace GL3 {
+namespace Core {
 
 	//!
 	//! \brief      Collection of asset loader functions.
@@ -19,6 +19,13 @@ namespace GL3 {
 		static bool LoadObjFile(const std::string& path, std::vector<float>& vertices, std::vector<unsigned int>& indices, Core::VertexFormat format);
 		//! Load raw binary file and returns them to given reference argument.
 		static bool LoadRawFile(const std::string& path, std::vector<char>& data);
+		//! Load float-per-channel image and returns the dynamic allocated pointer 
+		//! and pass dimension to reference argument.
+		//! It returns nullptr on failed
+		[[nodiscard]] static float* LoadImageFile(const std::string& path, int* width, int* height, int* channel);
+		//! Free the heap-allocated image data
+		//! As this free require stb library, add one more static function
+		static void FreeImage(void* pixels);
 	};
 
 };
