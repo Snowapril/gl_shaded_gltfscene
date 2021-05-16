@@ -52,11 +52,17 @@ namespace GL3 {
 		if (!Core::GLTFScene::Initialize(filename, format, [&](const tinygltf::Image& image) {
 			std::string name = image.name.empty() ? std::string("texture") + std::to_string(this->_textures.size()) : image.name;
 			std::cout << "Loading Image : " << name << '\n';
-			auto texture = std::make_shared<GL3::Texture>();
-			texture->Initialize(GL_TEXTURE_2D);
-			texture->UploadTexture(&image.image[0], image.width, image.height, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE);
-			_debug.SetObjectName(GL_TEXTURE, texture->GetResourceID(), name);
-			_textures.emplace_back(std::move(texture));
+			GLuint texture;
+			glCreateTextures(GL_TEXTURE_2D, 1, &texture);
+			glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTextureStorage2D(texture, 1, GL_RGBA8, image.width, image.height);
+			glTextureSubImage2D(texture, 0, 0, 0, image.width, image.height, GL_RGBA, GL_UNSIGNED_BYTE, &image.image[0]);
+			glGenerateTextureMipmap(texture);
+			_debug.SetObjectName(GL_TEXTURE, texture, name);
+			_textures.emplace_back(texture);
 		}))
 			return false;
 		
@@ -136,7 +142,7 @@ namespace GL3 {
 			for (int i = 0; i < static_cast<int>(_textures.size()); ++i)
 			{
 				shader->SendUniformVariable("textures[" + std::to_string(i) + "]", i);
-				_textures[i]->BindTexture(i);
+				glBindTextureUnit(i, _textures[i]);
 			}
 		}
 
@@ -188,7 +194,7 @@ namespace GL3 {
 
 	void Scene::CleanUp()
 	{
-		_textures.clear();
+		glDeleteTextures(_textures.size(), _textures.data());
 		glDeleteBuffers(1, &_matrixBuffer);
 		glDeleteBuffers(_buffers.size(), _buffers.data());
 		glDeleteBuffers(1, &_ebo);

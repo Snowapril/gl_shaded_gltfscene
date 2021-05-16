@@ -12,7 +12,6 @@
 
 namespace GL3 {
 
-	class Texture;
 	class Shader;
 
 	//!
@@ -34,7 +33,7 @@ namespace GL3 {
 		//! Clean up the generated resources
 		void CleanUp();
 	private:
-		std::vector< std::shared_ptr< Texture > > _textures;
+		std::vector< GLuint > _textures;
 		std::vector< GLuint > _buffers;
 		DebugUtils _debug;
 		GLuint _vao{ 0 }, _ebo{ 0 };
