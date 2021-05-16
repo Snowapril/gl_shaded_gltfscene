@@ -119,7 +119,6 @@ namespace GL3 {
 			return false;
 		}
 
-		_debug.SetObjectName(GL_PROGRAM, _programID, "Shader Program");
 		return true;
 	}
 
@@ -177,6 +176,11 @@ namespace GL3 {
 	{
 		if (_programID)
 			glDeleteProgram(_programID);
+	}
+
+	GLuint Shader::GetResourceID() const
+	{
+		return _programID;
 	}
 
 	template <>

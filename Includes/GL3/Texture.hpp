@@ -2,7 +2,6 @@
 #define TEXTURE_HPP
 
 #include <GL3/GLTypes.hpp>
-#include <GL3/DebugUtils.hpp>
 #include <string>
 
 namespace GL3 {
@@ -31,8 +30,9 @@ namespace GL3 {
 		void UnbindTexture() const;
 		//! Clean up the generated resources
 		void CleanUp();
+		//! Returns texture resource ID
+		GLuint GetResourceID() const;
 	private:
-		DebugUtils _debug;
 		GLenum _target;
 		GLuint _textureID;
 	};

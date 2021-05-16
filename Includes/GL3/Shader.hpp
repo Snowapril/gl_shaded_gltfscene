@@ -2,7 +2,6 @@
 #define SHADER_HPP
 
 #include <GL3/GLTypes.hpp>
-#include <GL3/DebugUtils.hpp>
 #include <unordered_map>
 #include <string>
 
@@ -46,9 +45,10 @@ namespace GL3 {
 		void SendUniformVariable(const std::string& name, Type val);
 		//! Clean up the generated resources
 		void CleanUp();
+		//! Returns the program resource ID
+		GLuint GetResourceID() const;
 	private:
 		std::unordered_map<std::string, GLint> _uniformCache;
-		DebugUtils _debug;
 		GLuint _programID;
 	};
 
