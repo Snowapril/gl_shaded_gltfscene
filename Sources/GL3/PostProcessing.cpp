@@ -76,7 +76,7 @@ namespace GL3 {
 	{
 		if (_depth) glDeleteTextures(1, &_depth);
 		if (_color) glDeleteTextures(1, &_color);
-		if (_fbo) glDeleteFramebuffers(1, &_fbo);
+		if (_fbo)	glDeleteFramebuffers(1, &_fbo);
 	}
 
 };
