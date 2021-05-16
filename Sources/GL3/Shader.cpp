@@ -88,7 +88,7 @@ namespace GL3 {
 				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 				std::vector<GLchar> logs(length);
 				glGetShaderInfoLog(shader, length, nullptr, logs.data());
-				std::clog << "Shader Compile Error Log" << std::endl;
+				std::clog << "[Shader:Initialize] Shader Compile Error Log" << std::endl;
 				std::clog << logs.data() << std::endl;
 				DebugUtils::PrintStack();
 				return false;
@@ -113,7 +113,7 @@ namespace GL3 {
 			glGetProgramiv(_programID, GL_INFO_LOG_LENGTH, &length);
 			std::vector<GLchar> logs(length);
 			glGetProgramInfoLog(_programID, length, nullptr, logs.data());
-			std::clog << "Program Linking Error Log" << std::endl;
+			std::clog << "[Shader:Initialize] Program Linking Error Log" << std::endl;
 			std::clog << logs.data() << std::endl;
 			DebugUtils::PrintStack();
 			return false;

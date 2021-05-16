@@ -43,7 +43,7 @@ namespace GL3 {
 								   {GL_FRAGMENT_SHADER, RESOURCES_DIR "/shaders/postprocessing.glsl"} }))
 		{
 			DebugUtils::PrintStack();
-			std::cerr << "Failed to create postprocessing shader" << std::endl;
+			std::cerr << "[PostProcessing:Initialize] Failed to create postprocessing shader" << std::endl;
 			return false;
 		}
 

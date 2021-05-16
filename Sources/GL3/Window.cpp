@@ -61,7 +61,7 @@ namespace GL3
 
 		if (glfwInit() == GLFW_FALSE)
 		{
-			std::cerr << "Failed to initialize GLFW" << std::endl;
+			std::cerr << "[Window:Initialize] Failed to initialize GLFW" << std::endl;
 			return false;
 		}
 
@@ -80,7 +80,7 @@ namespace GL3
 		std::cout << "_________________________________\n";
 		if (this->_window == nullptr)
 		{
-			std::cerr << "Failed to Create GLFW Window" << std::endl;
+			std::cerr << "[Window:Initialize] Failed to Create GLFW Window" << std::endl;
 			DebugUtils::PrintStack();
 			return false;
 		}
@@ -89,7 +89,7 @@ namespace GL3
 
 		if (gladLoadGLLoader((GLADloadproc)glfwGetProcAddress) == false)
 		{
-			std::cerr << "Failed to initialize GLAD" << std::endl;
+			std::cerr << "[Window:Initialize] Failed to initialize GLAD" << std::endl;
 			DebugUtils::PrintStack();
 			return false;
 		}
