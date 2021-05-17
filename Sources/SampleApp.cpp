@@ -20,6 +20,9 @@ SampleApp::~SampleApp()
 
 bool SampleApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts::ParseResult& configure)
 {
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+
 	auto defaultCam = std::make_shared<GL3::PerspectiveCamera>();
 
 	if (!defaultCam->SetupUniformBuffer())
@@ -37,8 +40,16 @@ bool SampleApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts:
 		return false;
 
 	defaultShader->BindUniformBlock("UBOCamera", 0);
+
+	auto skyboxShader = std::make_shared<GL3::Shader>();
+	if (!skyboxShader->Initialize({ {GL_VERTEX_SHADER,	 RESOURCES_DIR "shaders/skybox.vert"},
+									{GL_FRAGMENT_SHADER, RESOURCES_DIR "shaders/skybox.frag"}}))
+		return false;
+
 	_debug.SetObjectName(GL_PROGRAM, defaultShader->GetResourceID(), "Default Program");
+	_debug.SetObjectName(GL_PROGRAM, skyboxShader->GetResourceID(), "Skybox Program");
 	_shaders.emplace("default", std::move(defaultShader));
+	_shaders.emplace("skybox", std::move(skyboxShader));
 
 	stbi_set_flip_vertically_on_load(true);
 
@@ -48,6 +59,11 @@ bool SampleApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts:
 
 	if (!_skyDome.Initialize(RESOURCES_DIR "scenes/environment.hdr"))
 		return false;
+
+	glGenBuffers(1, &_uniformBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, _uniformBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(SceneData), &_sceneData, GL_STATIC_COPY);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	return true;
 }
@@ -67,9 +83,24 @@ void SampleApp::OnDraw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0f, 0.0f, 0.8f, 1.0f);
 
-	_shaders["default"]->BindShaderProgram();
+	const auto& iblTextures = _skyDome.GetIBLTextureSet();
+
+	auto& skyboxShader = _shaders["skybox"];
+	skyboxShader->BindShaderProgram();
+
 	_cameras[0]->BindCamera(0);
-	_sceneInstance.Render(_shaders["default"], GL_BLEND_SRC_ALPHA);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 1, _uniformBuffer);
+	_skyDome.Render(skyboxShader, GL_BLEND_SRC_ALPHA);
+
+	auto& pbrShader = _shaders["default"];
+	pbrShader->BindShaderProgram();
+	glBindTextureUnit(0, iblTextures.irradianceCube);
+	glBindTextureUnit(1, iblTextures.brdfLUT);
+	glBindTextureUnit(2, iblTextures.prefilteredCube);
+
+	_cameras[0]->BindCamera(0);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 1, _uniformBuffer);
+	_sceneInstance.Render(pbrShader, GL_BLEND_SRC_ALPHA);
 }
 
 void SampleApp::OnProcessInput(unsigned int key)
