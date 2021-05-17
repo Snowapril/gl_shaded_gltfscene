@@ -27,9 +27,20 @@ protected:
 	void OnProcessResize(int width, int height) override;
 
 private:
+	struct SceneData {
+		glm::vec4	lightDirection { 1.0f };
+		float		lightIntensity{ 1.0f };
+		float		exposure{ 0.5f };
+		float		gamma{ 2.2f };
+		int			materialMode{ 0 };
+		float		envIntensity{ 0.2f };
+		int			_padding[3];
+	} _sceneData;
+
 	GL3::Scene _sceneInstance;
 	GL3::SkyDome _skyDome;
 	GL3::DebugUtils _debug;
+	GLuint _uniformBuffer;
 };
 
 #endif //! end of SampleApp.hpp
