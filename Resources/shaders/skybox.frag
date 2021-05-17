@@ -1,29 +1,22 @@
 #version 450
-#extension GL_GOOGLE_include_directive : enable
+#extension GL_ARB_shading_language_include : require
 
-#include "tonemapping.glsl"
-//#include "functions.glsl"
+#include tonemapping.glsl
 
-layout(set = 1, binding = 0) uniform sampler2D samplerEnv;
+layout(location = 0) in vec3 inWorldPosition;
+layout(location = 0) out vec4 outColor;
 
-layout(set = 0, location = 0) in vec3 inWorldPosition;
+layout (binding = 0) uniform sampler2D samplerEnv;
 
-layout(set = 0, location = 0) out vec4 outColor;
-
-
-layout(set = 0, binding = 0) uniform UBOscene
+layout(std140, binding = 1) uniform UBOScene
 {
-  mat4  projection;
-  mat4  model;
-  vec4  camPos;
-  vec4  lightDir;
-  float lightRadiance;
-  float exposure;
-  float gamma;
-  int   materialMode;
-  int   tonemap;
-}
-ubo;
+	vec4  lightDir;		 // 16
+	float lightRadiance; // 20
+	float exposure;		 // 24
+	float gamma;		 // 28
+	int   materialMode;	 // 32
+	float envIntensity;	 // 40
+} uboScene;
 
 const float ONE_OVER_PI = 0.3183099;
 
@@ -36,13 +29,11 @@ vec2 get_spherical_uv(vec3 v)
     return uv;
 }
 
-
-
 void main()
 {
   vec2 uv    = get_spherical_uv(normalize(inWorldPosition));
-  vec3 color = texture(samplerEnv, uv).rgb;
+  vec4 color = texture(samplerEnv, uv);
 
-  color    = toneMap(color, ubo.tonemap, ubo.gamma, ubo.exposure);
-  outColor = vec4(color, 1.0);
+  color    = tonemap(color, uboScene.gamma, uboScene.exposure);
+  outColor = color;
 }
