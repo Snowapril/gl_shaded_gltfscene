@@ -1,6 +1,5 @@
 #include <GL3/Scene.hpp>
 #include <GL3/Shader.hpp>
-#include <GL3/Texture.hpp>
 #include <bitset>
 #include <glad/glad.h>
 

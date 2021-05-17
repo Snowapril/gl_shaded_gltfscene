@@ -1,6 +1,5 @@
 #include <GL3/SkyDome.hpp>
 #include <GL3/Shader.hpp>
-#include <GL3/Texture.hpp>
 #include <Core/AssetLoader.hpp>
 #include <glad/glad.h>
 #include <glm/vec3.hpp>
@@ -180,10 +179,10 @@ namespace GL3 {
 		glCreateFramebuffers(1, &fbo);
 		glTextureStorage2D(_textureSet.brdfLUT, 1, GL_RG16F, dim, dim);
 		//glTextureSubImage2D(brdfLUT, 0, 0, 0, dim, dim, GL_RG, GL_FLOAT, nullptr);
-		glNamedFramebufferTexture(fbo, GL_COLOR_ATTACHMENT0, _textureSet.brdfLUT, 0);
+		glNamedFramebufferTexture(fbo, GL_COLOR_ATTACHMENT0, _textureSet.brdfLUT, 0);/*
 		glCreateRenderbuffers(1, &rbo);
 		glNamedRenderbufferStorage(rbo, GL_DEPTH_COMPONENT, dim, dim);
-		glNamedFramebufferRenderbuffer(fbo, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+		glNamedFramebufferRenderbuffer(fbo, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);*/
 
 		if (glCheckNamedFramebufferStatus(fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
@@ -231,10 +230,10 @@ namespace GL3 {
 		GLuint fbo, rbo;
 		glCreateFramebuffers(1, &fbo);
 		glTextureStorage2D(_textureSet.irradianceCube, numMips, GL_RGBA16F, dim, dim);
-		//glTextureSubImage2D(_textureSet.irradianceCube, 0, 0, 0, dim, dim, GL_RGBA, GL_FLOAT, nullptr);
-		glCreateRenderbuffers(1, &rbo);
-		glNamedRenderbufferStorage(rbo, GL_DEPTH_COMPONENT, dim, dim);
-		glNamedFramebufferRenderbuffer(fbo, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+		////glTextureSubImage2D(_textureSet.irradianceCube, 0, 0, 0, dim, dim, GL_RGBA, GL_FLOAT, nullptr);
+		//glCreateRenderbuffers(1, &rbo);
+		//glNamedRenderbufferStorage(rbo, GL_DEPTH_COMPONENT, dim, dim);
+		//glNamedFramebufferRenderbuffer(fbo, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
 		if (glCheckNamedFramebufferStatus(fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
@@ -276,10 +275,10 @@ namespace GL3 {
 		GLuint fbo, rbo;
 		glCreateFramebuffers(1, &fbo);
 		glTextureStorage2D(_textureSet.prefilteredCube, numMips, GL_RGBA16F, dim, dim);
-		//glTextureSubImage2D(_textureSet.prefilteredCube, 0, 0, 0, dim, dim, GL_RGBA, GL_FLOAT, nullptr);
-		glCreateRenderbuffers(1, &rbo);
-		glNamedRenderbufferStorage(rbo, GL_DEPTH_COMPONENT, dim, dim);
-		glNamedFramebufferRenderbuffer(fbo, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+		////glTextureSubImage2D(_textureSet.prefilteredCube, 0, 0, 0, dim, dim, GL_RGBA, GL_FLOAT, nullptr);
+		//glCreateRenderbuffers(1, &rbo);
+		//glNamedRenderbufferStorage(rbo, GL_DEPTH_COMPONENT, dim, dim);
+		//glNamedFramebufferRenderbuffer(fbo, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
 		if (glCheckNamedFramebufferStatus(fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
