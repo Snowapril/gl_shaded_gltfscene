@@ -139,10 +139,7 @@ namespace GL3 {
 		{
 			auto textureScope = _debug.ScopeLabel("Scene Texture Binding");
 			for (int i = 0; i < static_cast<int>(_textures.size()); ++i)
-			{
-				shader->SendUniformVariable("textures[" + std::to_string(i) + "]", i);
-				glBindTextureUnit(i, _textures[i]);
-			}
+				glBindTextureUnit(i + 3, _textures[i]);
 		}
 
 		for (auto& node : _sceneNodes)
