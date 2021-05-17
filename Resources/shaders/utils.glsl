@@ -11,11 +11,6 @@ vec3 gammaCorrection(vec3 color, float gamma)
 	return pow(color, vec3(1.0 / gamma));
 }
 
-vec4 SRGBtoLinear(vec4 srgbIn, float gamma)
-{
-	return vec4(pow(srgbIn.xyz, vec3(gamma)), srgbIn.w);
-}
-
 //! Gets metallic factor from specular glossiness workflow inputs
 float convertMetallic(vec3 diffuse, vec3 specular, float maxSpecular)
 {

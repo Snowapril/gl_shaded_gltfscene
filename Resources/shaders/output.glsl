@@ -30,20 +30,46 @@ layout(std140, binding = 1) uniform UBOScene
 	float exposure;		 // 24
 	float gamma;		 // 28
 	int   materialMode;	 // 32
-	int   tonemap;		 // 36
 	float envIntensity;	 // 40
 } uboScene;
 
-#define MAX_TEXTURES 10
-uniform sampler2D textures[MAX_TEXTURES];
+#define MAX_TEXTURES 20
+layout (binding = 0 ) uniform samplerCube samplerIrradiance;
+layout (binding = 1 ) uniform sampler2D samplerBRDFLUT;
+layout (binding = 2 ) uniform samplerCube prefilteredMap;
+layout (binding = 3 ) uniform sampler2D textures[MAX_TEXTURES];
 
 #include gltf.glsl
 uniform GltfShadeMaterial material;
+#include tonemapping.glsl
 #include utils.glsl
 #include pbr.glsl
+#include material_mode.glsl
 
 #define PBR_METALLIC_ROUGHNESS_MODEL  0
 #define PBR_SPECULAR_GLOSSINESS_MODEL 1
+
+// Calculation of the lighting contribution from an optional Image Based Light source.
+// Precomputed Environment Maps are required uniform inputs and are computed as outlined in [1].
+// See our README.md on Environment Maps [3] for additional discussion.
+vec3 getIBLContribution(PBRInfo pbr, vec3 normal, vec3 reflection)
+{
+	float lod = clamp(pbr.perceptualRoughness * float(10.0), 0.0, float(10.0));
+	// retrieve a scale and bias to F0. See [1], Figure 3
+	vec3 brdf = (texture(samplerBRDFLUT, vec2(pbr.NdotV, 1.0 - pbr.perceptualRoughness))).rgb;
+	vec3 diffuseLight = SRGBtoLinear(tonemap(texture(samplerIrradiance, normal), uboScene.gamma, uboScene.exposure), uboScene.gamma).rgb;
+
+	vec3 specularLight = SRGBtoLinear(tonemap(textureLod(prefilteredMap, reflection, lod), uboScene.gamma, uboScene.exposure), uboScene.gamma).rgb;
+
+	vec3 diffuse = diffuseLight * pbr.diffuseColor;
+	vec3 specular = specularLight * (pbr.specularColor * brdf.x + brdf.y);
+
+	// For presentation, this allows us to disable IBL terms
+	diffuse *= uboScene.envIntensity;
+	specular *= uboScene.envIntensity;
+
+	return diffuse + specular;
+}
 
 void main()
 {
@@ -156,7 +182,7 @@ void main()
 	vec3 color = NdotL * kLightColor * (diffuseContrib + specContrib);
 
 	//! Calculate lighting contribution from image base lihgting source IBL
-	//! color += getIBLContribution(pbrInputs, n, reflection);
+	color += getIBLContribution(pbr, normal, reflection);
 
 	//! Apply optinal PBR terms for additional (optional) shading
 	if (material.occlusionTexture > -1)
@@ -171,5 +197,5 @@ void main()
 		color += emissive;
 	}
 
-	fragColor = vec4(color, 1.0);
+	fragColor = tonemap(vec4(color, 1.0f), uboScene.gamma, uboScene.exposure);
 }
