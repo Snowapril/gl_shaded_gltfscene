@@ -35,16 +35,14 @@ namespace GL3 {
 			glTextureParameteri(_textureSet.hdrTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glTextureParameteri(_textureSet.hdrTexture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTextureParameteri(_textureSet.hdrTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTextureStorage2D(_textureSet.hdrTexture, 1, GL_RGB16F, width, height);
-			glTextureSubImage2D(_textureSet.hdrTexture, 0, 0, 0, width, height, GL_RGB, GL_FLOAT, pixels);
-			_debug.SetObjectName(GL_TEXTURE, _textureSet.hdrTexture, "SkyDome HDR Texture");
+			glTextureStorage2D(_textureSet.hdrTexture, 1, GL_RGBA32F, width, height);
+			glTextureSubImage2D(_textureSet.hdrTexture, 0, 0, 0, width, height, GL_RGBA, GL_FLOAT, pixels);
 
 			glCreateTextures(GL_TEXTURE_2D, 1, &_textureSet.accelTexture);
 			glTextureParameteri(_textureSet.accelTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTextureParameteri(_textureSet.accelTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glTextureParameteri(_textureSet.accelTexture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTextureParameteri(_textureSet.accelTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			_debug.SetObjectName(GL_TEXTURE, _textureSet.accelTexture, "SkyDome Acceleration Texture");
 
 			CreateEnvironmentAccelTexture(pixels, glm::vec2(width, height), _textureSet.accelTexture);
 
@@ -69,9 +67,13 @@ namespace GL3 {
 
 	void SkyDome::Render(const std::shared_ptr< Shader >& shader, GLenum alphaMode)
 	{
-		(void)shader; (void)alphaMode;
+		(void)shader;  (void)alphaMode;
 		auto renderScope = _debug.ScopeLabel("SkyDome Rendering");
-		//shader->Bind
+
+		glBindTextureUnit(0, _textureSet.hdrTexture);
+		glBindVertexArray(_vao);
+		glDrawElements(GL_TRIANGLE_STRIP, 36, GL_UNSIGNED_INT, nullptr);
+		glBindVertexArray(0);
 	}
 
 	const SkyDome::IBLTextureSet& SkyDome::GetIBLTextureSet() const
@@ -148,7 +150,6 @@ namespace GL3 {
 			{
 				glm::vec2 viewport = glm::vec2(dim) * std::powf(0.5f, mip);
 				glViewport(0, 0, viewport.x, viewport.y);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 				//! Update shader uniform variable
 				float roughness = static_cast<float>(mip) / static_cast<float>(numMips - 1);
@@ -159,6 +160,7 @@ namespace GL3 {
 				glNamedFramebufferTextureLayer(fbo, GL_COLOR_ATTACHMENT0, texture, mip, f);
 				
 				//! Draw cube
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glDrawElements(GL_TRIANGLE_STRIP, 36, GL_UNSIGNED_INT, nullptr);
 			}
 		}
@@ -179,10 +181,7 @@ namespace GL3 {
 		glCreateFramebuffers(1, &fbo);
 		glTextureStorage2D(_textureSet.brdfLUT, 1, GL_RG16F, dim, dim);
 		//glTextureSubImage2D(brdfLUT, 0, 0, 0, dim, dim, GL_RG, GL_FLOAT, nullptr);
-		glNamedFramebufferTexture(fbo, GL_COLOR_ATTACHMENT0, _textureSet.brdfLUT, 0);/*
-		glCreateRenderbuffers(1, &rbo);
-		glNamedRenderbufferStorage(rbo, GL_DEPTH_COMPONENT, dim, dim);
-		glNamedFramebufferRenderbuffer(fbo, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);*/
+		glNamedFramebufferTexture(fbo, GL_COLOR_ATTACHMENT0, _textureSet.brdfLUT, 0);
 
 		if (glCheckNamedFramebufferStatus(fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
@@ -225,22 +224,12 @@ namespace GL3 {
 		glTextureParameteri(_textureSet.irradianceCube, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTextureParameteri(_textureSet.irradianceCube, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTextureParameteri(_textureSet.irradianceCube, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureStorage2D(_textureSet.irradianceCube, numMips, GL_RGBA16F, dim, dim);
+		////glTextureSubImage3D(_textureSet.irradianceCube, 0, 0, 0, dim, dim, GL_RGBA, GL_FLOAT, nullptr);
 
 		//! Create framebuffer for capturing
 		GLuint fbo, rbo;
 		glCreateFramebuffers(1, &fbo);
-		glTextureStorage2D(_textureSet.irradianceCube, numMips, GL_RGBA16F, dim, dim);
-		////glTextureSubImage2D(_textureSet.irradianceCube, 0, 0, 0, dim, dim, GL_RGBA, GL_FLOAT, nullptr);
-		//glCreateRenderbuffers(1, &rbo);
-		//glNamedRenderbufferStorage(rbo, GL_DEPTH_COMPONENT, dim, dim);
-		//glNamedFramebufferRenderbuffer(fbo, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-		if (glCheckNamedFramebufferStatus(fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			std::cerr << "[SkyDome:PrefilterDiffuse] Framebuffer is not complete\n";
-			DebugUtils::PrintStack();
-			return;
-		}
 
 		//! Create shader
 		Shader shader;
@@ -270,22 +259,12 @@ namespace GL3 {
 		glTextureParameteri(_textureSet.prefilteredCube, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTextureParameteri(_textureSet.prefilteredCube, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTextureParameteri(_textureSet.prefilteredCube, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureStorage2D(_textureSet.prefilteredCube, numMips, GL_RGBA16F, dim, dim);
+		//glTextureSubImage3D(_textureSet.prefilteredCube, 0, 0, 0, dim, dim, GL_RGBA, GL_FLOAT, nullptr);
 
 		//! Create framebuffer for capturing
 		GLuint fbo, rbo;
 		glCreateFramebuffers(1, &fbo);
-		glTextureStorage2D(_textureSet.prefilteredCube, numMips, GL_RGBA16F, dim, dim);
-		////glTextureSubImage2D(_textureSet.prefilteredCube, 0, 0, 0, dim, dim, GL_RGBA, GL_FLOAT, nullptr);
-		//glCreateRenderbuffers(1, &rbo);
-		//glNamedRenderbufferStorage(rbo, GL_DEPTH_COMPONENT, dim, dim);
-		//glNamedFramebufferRenderbuffer(fbo, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-		if (glCheckNamedFramebufferStatus(fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			std::cerr << "[SkyDome:PrefilterGlossy] Framebuffer is not complete\n";
-			DebugUtils::PrintStack();
-			return;
-		}
 
 		//! Create shader
 		Shader shader;
