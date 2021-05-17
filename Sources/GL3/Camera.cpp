@@ -23,7 +23,7 @@ namespace GL3 {
 	{
 		glGenBuffers(1, &_uniformBuffer);
 		glBindBuffer(GL_UNIFORM_BUFFER, _uniformBuffer);
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3 + sizeof(glm::vec4), nullptr, GL_STATIC_DRAW);
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3 + sizeof(glm::vec4), nullptr, GL_STATIC_COPY);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 		_debug.SetObjectName(GL_BUFFER, _uniformBuffer, "CameraBuffer");
