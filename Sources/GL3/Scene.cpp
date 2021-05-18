@@ -113,7 +113,7 @@ namespace GL3 {
 		{
 			NodeMatrix instance;
 			instance.first = node.world;
-			instance.second = glm::transpose(node.world);
+			instance.second = glm::transpose(glm::inverse(node.world));
 			matrices.emplace_back(std::move(instance));
 		}
 		
