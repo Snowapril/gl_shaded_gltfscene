@@ -91,10 +91,10 @@ namespace Core {
     {
      public:
         //! Returns number of floats for a single vertex with given vertex format.
-        static size_t GetNumberOfFloats(VertexFormat format);
+        static std::size_t GetNumberOfFloats(VertexFormat format);
 
         //! Returns size of a single vertex with given format in bytes.
-        static size_t GetSizeInBytes(VertexFormat format);
+        static std::size_t GetSizeInBytes(VertexFormat format);
     };
 
 }  
