@@ -35,7 +35,7 @@ bool SampleApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts:
 	AddCamera(std::move(defaultCam));
 
 	auto defaultShader = std::make_shared<GL3::Shader>();
-	if (!defaultShader->Initialize({ {GL_VERTEX_SHADER, RESOURCES_DIR "shaders/vertex.glsl"},
+	if (!defaultShader->Initialize({ {GL_VERTEX_SHADER,	  RESOURCES_DIR "shaders/vertex.glsl"},
 									 {GL_FRAGMENT_SHADER, RESOURCES_DIR "shaders/output.glsl"} }))
 		return false;
 
@@ -105,7 +105,14 @@ void SampleApp::OnDraw()
 
 void SampleApp::OnProcessInput(unsigned int key)
 {
-	(void)key;
+	if (key >= GLFW_KEY_1 && key <= GLFW_KEY_9)
+	{
+		_sceneData.materialMode = static_cast<int>(key - GLFW_KEY_1);
+		//! Update uniform buffer
+		glBindBuffer(GL_UNIFORM_BUFFER, _uniformBuffer);
+		glBufferSubData(GL_UNIFORM_BUFFER, offsetof(SceneData, materialMode), sizeof(int), &_sceneData.materialMode);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	}
 }
 
 void SampleApp::OnProcessResize(int width, int height)
