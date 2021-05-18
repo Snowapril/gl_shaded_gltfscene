@@ -10,6 +10,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define TINYGLTF_NOEXCEPTION //! optional. disable exception handling.
 #define TINYGLTF_ENABLE_DRACO
+#define TINYGLTF_USE_CPP14
 
 #if defined(_MSC_VER)
 	#pragma warning(disable:4100)
