@@ -70,10 +70,12 @@ namespace GL3 {
 		(void)shader;  (void)alphaMode;
 		auto renderScope = _debug.ScopeLabel("SkyDome Rendering");
 
+		glDisable(GL_DEPTH_TEST);
 		glBindTextureUnit(0, _textureSet.hdrTexture);
 		glBindVertexArray(_vao);
 		glDrawElements(GL_TRIANGLE_STRIP, 36, GL_UNSIGNED_INT, nullptr);
 		glBindVertexArray(0);
+		glEnable(GL_DEPTH_TEST);
 	}
 
 	const SkyDome::IBLTextureSet& SkyDome::GetIBLTextureSet() const
@@ -202,7 +204,7 @@ namespace GL3 {
 			return;
 		}
 		shader.BindShaderProgram();
-		shader.BindFragDataLocation("outColor", 0);
+		shader.BindFragDataLocation("fragColor", 0);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		glViewport(0, 0, dim, dim);
