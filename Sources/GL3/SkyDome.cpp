@@ -6,6 +6,7 @@
 #include <glm/gtc/constants.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <chrono>
 #include <iostream>
 
 namespace GL3 {
@@ -172,6 +173,8 @@ namespace GL3 {
 
 	void SkyDome::IntegrateBRDF(unsigned int dim)
 	{
+		auto timerStart = std::chrono::high_resolution_clock::now();
+
 		glCreateTextures(GL_TEXTURE_2D, 1, &_textureSet.brdfLUT);
 		glTextureParameteri(_textureSet.brdfLUT, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameteri(_textureSet.brdfLUT, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -214,10 +217,15 @@ namespace GL3 {
 
 		glDeleteRenderbuffers(1, &rbo);
 		glDeleteBuffers(1, &fbo);
+
+		auto timerEnd = std::chrono::high_resolution_clock::now();
+		auto elapsed = std::chrono::duration<double, std::milli>(timerEnd - timerStart).count();
+		std::cout << "Intergrate BRDF LUT took " << elapsed << " (ms)\n";
 	};
 
 	void SkyDome::PrefilterDiffuse(unsigned int dim)
 	{
+		auto timerStart = std::chrono::high_resolution_clock::now();
 		const unsigned int numMips = static_cast<unsigned int>(std::floor(std::log2(dim))) + 1;
 
 		glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &_textureSet.irradianceCube);
@@ -249,10 +257,15 @@ namespace GL3 {
 		RenderToCube(fbo, _textureSet.irradianceCube, &shader, dim, numMips);
 		glDeleteRenderbuffers(1, &rbo);
 		glDeleteBuffers(1, &fbo);
+
+		auto timerEnd = std::chrono::high_resolution_clock::now();
+		auto elapsed = std::chrono::duration<double, std::milli>(timerEnd - timerStart).count();
+		std::cout << "Prefilter Diffuse took " << elapsed << " (ms)\n";
 	}
 
 	void SkyDome::PrefilterGlossy(unsigned int dim)
 	{
+		auto timerStart = std::chrono::high_resolution_clock::now();
 		const unsigned int numMips = static_cast<unsigned int>(std::floor(std::log2(dim))) + 1;
 
 		glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &_textureSet.prefilteredCube);
@@ -284,6 +297,10 @@ namespace GL3 {
 		RenderToCube(fbo, _textureSet.prefilteredCube, &shader, dim, numMips);
 		glDeleteRenderbuffers(1, &rbo);
 		glDeleteBuffers(1, &fbo);
+
+		auto timerEnd = std::chrono::high_resolution_clock::now();
+		auto elapsed = std::chrono::duration<double, std::milli>(timerEnd - timerStart).count();
+		std::cout << "Prefilter Glossy took " << elapsed << " (ms)\n";
 	}
 
 	namespace //! Anonymous namespace for file-specific helper functions

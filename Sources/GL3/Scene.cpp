@@ -2,6 +2,7 @@
 #include <GL3/Shader.hpp>
 #include <bitset>
 #include <glad/glad.h>
+#include <chrono>
 
 namespace GL3 {
 
@@ -47,10 +48,10 @@ namespace GL3 {
 
 	bool Scene::Initialize(const std::string& filename, Core::VertexFormat format)
 	{
-		std::cout << "Loading Scene : " << filename << '\n';
+		auto timerStart = std::chrono::high_resolution_clock::now();
+
 		if (!Core::GLTFScene::Initialize(filename, format, [&](const tinygltf::Image& image) {
 			std::string name = image.name.empty() ? std::string("texture") + std::to_string(this->_textures.size()) : image.name;
-			std::cout << "Loading Image : " << name << '\n';
 			GLuint texture;
 			glCreateTextures(GL_TEXTURE_2D, 1, &texture);
 			glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -65,6 +66,10 @@ namespace GL3 {
 		}))
 			return false;
 		
+		auto timerEnd = std::chrono::high_resolution_clock::now();
+		auto elapsed = std::chrono::duration<double, std::milli>(timerEnd - timerStart).count();
+		std::cout << "Loading Scene " << filename << " took " << elapsed << " (ms)\n";
+
 		//! vertex buffer storages index
 		int index = 0;
 
@@ -113,7 +118,7 @@ namespace GL3 {
 		{
 			NodeMatrix instance;
 			instance.first = node.world;
-			instance.second = glm::transpose(glm::inverse(node.world));
+			instance.second = glm::transpose(glm::inverse(instance.first));
 			matrices.emplace_back(std::move(instance));
 		}
 		
