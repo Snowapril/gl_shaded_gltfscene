@@ -53,11 +53,11 @@ bool SampleApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts:
 
 	stbi_set_flip_vertically_on_load(true);
 
-	if (!_sceneInstance.Initialize(RESOURCES_DIR + configure["scene"].as<std::string>(),
+	if (!_sceneInstance.Initialize(configure["scene"].as<std::string>(),
 		Core::VertexFormat::Position3Normal3TexCoord2Color4))
 		return false;
 
-	if (!_skyDome.Initialize(RESOURCES_DIR "scenes/environment.hdr"))
+	if (!_skyDome.Initialize(configure["envmap"].as<std::string>()))
 		return false;
 
 	glGenBuffers(1, &_uniformBuffer);
