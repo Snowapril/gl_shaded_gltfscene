@@ -5,7 +5,7 @@
 //! 1. https://github.com/SaschaWillems/Vulkan-glTF-PBR/blob/master/data/shaders/pbr_khr.frag
 //! 2. https://github.com/nvpro-samples/vk_shaded_gltfscene/blob/master/shaders/metallic-roughness.frag
 
-layout(location = 1) in VSOUT
+layout(location = 0) in VSOUT
 {
 	vec3 worldPos;
 	vec3 normal;
