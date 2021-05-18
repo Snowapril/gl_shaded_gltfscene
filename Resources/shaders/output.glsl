@@ -34,10 +34,10 @@ layout(std140, binding = 1) uniform UBOScene
 } uboScene;
 
 #define MAX_TEXTURES 20
-layout (binding = 0 ) uniform samplerCube samplerIrradiance;
-layout (binding = 1 ) uniform sampler2D samplerBRDFLUT;
-layout (binding = 2 ) uniform samplerCube prefilteredMap;
-layout (binding = 3 ) uniform sampler2D textures[MAX_TEXTURES];
+layout ( binding = 0 ) uniform samplerCube samplerIrradiance;
+layout ( binding = 1 ) uniform sampler2D samplerBRDFLUT;
+layout ( binding = 2 ) uniform samplerCube prefilteredMap;
+layout ( binding = 3 ) uniform sampler2D textures[MAX_TEXTURES];
 
 #include gltf.glsl
 uniform GltfShadeMaterial material;
@@ -79,14 +79,6 @@ void main()
 	vec3 f0						= vec3(0.04);
 	float perceptualRoughness;
 	float metallic;
-
-	//! The albedo maybe defined from a base texture or a flat color
-	if (material.alphaMode > 0)
-	{
-		baseColor = material.pbrBaseColorFactor;
-		if (material.pbrBaseColorTexture > -1)
-			baseColor *= SRGBtoLinear(texture(textures[material.pbrBaseColorTexture], fs_in.texCoord), 2.2);
-	}
 
 	if (material.shadingModel == PBR_METALLIC_ROUGHNESS_MODEL)
 	{
@@ -138,6 +130,9 @@ void main()
 	baseColor *= fs_in.color;
 	diffuseColor = baseColor.rgb * (vec3(1.0) - f0) * (1.0 - metallic);
 	specularColor = mix(f0, baseColor.rgb, metallic);
+
+	if (material.alphaMode > 0 && baseColor.a < material.alphaCutoff)
+		discard;
 
 	//! Roughness is authored as perceptual roughness; as is convention
 	//! convert to material roughness by squaring the perceptual roughness [2].
@@ -197,5 +192,50 @@ void main()
 		color += emissive;
 	}
 
-	fragColor = tonemap(vec4(color, 1.0f), uboScene.gamma, uboScene.exposure);
+	switch (uboScene.materialMode)
+	{
+	case NO_DEBUG_OUTPUT:
+		fragColor = tonemap(vec4(color, baseColor.a), uboScene.gamma, uboScene.exposure);
+		break;
+	case DEBUG_METALLIC:
+		fragColor.rgb = vec3(metallic);
+		break;
+	case DEBUG_ROUGHNESS:
+		fragColor.rgb = vec3(perceptualRoughness);
+		break;
+
+	case DEBUG_NORMAL:
+		fragColor.rgb = getNormal(material.normalTexture);
+		break;
+
+	case DEBUG_BASECOLOR:
+		fragColor.rgb = gammaCorrection(baseColor.rgb, uboScene.gamma);
+		break;
+
+	case DEBUG_OCCLUSION:
+		if (material.occlusionTexture > -1)
+			fragColor.rgb = texture(textures[material.occlusionTexture], fs_in.texCoord).rrr;
+		else
+			fragColor.rgb = vec3(1);
+		break;
+
+	case DEBUG_EMISSIVE:
+		if (material.emissiveTexture > -1)
+			fragColor.rgb = texture(textures[material.emissiveTexture], fs_in.texCoord).rrr;
+		else
+			fragColor.rgb = vec3(0);
+		break;
+
+	case DEBUG_F0:
+		fragColor.rgb = vec3(f0);
+		break;
+
+	case DEBUG_ALPHA:
+		fragColor.rgb = vec3(baseColor.a);
+		break;
+	default:
+		fragColor = tonemap(vec4(color, baseColor.a), uboScene.gamma, uboScene.exposure);
+	}
+
+	fragColor.a = 1.0;
 }
