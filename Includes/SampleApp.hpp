@@ -33,7 +33,7 @@ private:
 		float		exposure{ 0.5f };
 		float		gamma{ 2.2f };
 		int			materialMode{ 0 };
-		float		envIntensity{ 0.2f };
+		float		envIntensity{ 1.0f };
 		int			_padding[3];
 	} _sceneData;
 
