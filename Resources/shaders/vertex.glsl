@@ -36,10 +36,11 @@ uniform int instanceIdx = 0;
 
 void main()
 {
-	vs_out.worldPos = (matrices[instanceIdx].model * vec4(position, 1.0)).xyz;
-	vs_out.normal	= normal;
+	vec4 worldPos = matrices[instanceIdx].model * vec4(position, 1.0);
+	vs_out.worldPos = worldPos.xyz;
+	vs_out.normal	= (matrices[instanceIdx].modelIT * vec4(normal, 1.0)).xyz;
 	vs_out.color	= color;
 	vs_out.texCoord = texCoord;
 
-	gl_Position = uboCamera.viewProj * vec4(vs_out.worldPos, 1.0);
+	gl_Position = uboCamera.viewProj * worldPos;
 }
