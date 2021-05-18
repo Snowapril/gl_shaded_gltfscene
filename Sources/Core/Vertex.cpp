@@ -2,9 +2,9 @@
 
 namespace Core {
 
-    size_t VertexHelper::GetNumberOfFloats(VertexFormat format) 
+    std::size_t VertexHelper::GetNumberOfFloats(VertexFormat format) 
     {
-        size_t size = 0;
+        std::size_t size = 0;
 
         if (static_cast<int>(format & VertexFormat::Position3)) 
             size += 3;
@@ -27,7 +27,7 @@ namespace Core {
         return size;
     }
 
-    size_t VertexHelper::GetSizeInBytes(VertexFormat format) 
+    std::size_t VertexHelper::GetSizeInBytes(VertexFormat format) 
     {
         return sizeof(float) * GetNumberOfFloats(format);
     }
