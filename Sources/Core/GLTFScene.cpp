@@ -501,7 +501,7 @@ namespace Core {
 			S = glm::scale(S, glm::vec3(node.scale[0], node.scale[1], node.scale[2]));
 		if (node.rotation.empty() == false)
 		{
-			glm::quat rotationQuat(node.rotation[0], node.rotation[1], node.rotation[2], node.rotation[3]);
+			glm::quat rotationQuat(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
 			R = glm::toMat4(rotationQuat);
 		}
 		if (node.matrix.empty() == false)
