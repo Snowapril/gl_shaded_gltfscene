@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
 #include <iostream>
+#include <cmath>
 
 namespace GL3 {
 
