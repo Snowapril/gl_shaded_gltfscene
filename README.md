@@ -1,9 +1,9 @@
-# modern-opengl-oss-template
+# gl_shaded_gltfscene
 
-[![CodeFactor](https://www.codefactor.io/repository/github/snowapril/modern-opengl-oss-template/badge)](https://www.codefactor.io/repository/github/snowapril/modern-opengl-oss-template)
-![Ubuntu github action](https://github.com/Snowapril/modern-opengl-oss-template/actions/workflows/ubuntu.yml/badge.svg?branch=main)
-![Window github action](https://github.com/Snowapril/modern-opengl-oss-template/actions/workflows/window.yml/badge.svg?branch=main)
-![MacOS github action](https://github.com/Snowapril/modern-opengl-oss-template/actions/workflows/macos.yml/badge.svg?branch=main)
+[![CodeFactor](https://www.codefactor.io/repository/github/snowapril/gl_shaded_gltfscene/badge)](https://www.codefactor.io/repository/github/snowapril/gl_shaded_gltfscene)
+![Ubuntu github action](https://github.com/Snowapril/gl_shaded_gltfscene/actions/workflows/ubuntu.yml/badge.svg?branch=main)
+![Window github action](https://github.com/Snowapril/gl_shaded_gltfscene/actions/workflows/window.yml/badge.svg?branch=main)
+![MacOS github action](https://github.com/Snowapril/gl_shaded_gltfscene/actions/workflows/macos.yml/badge.svg?branch=main)
 
 This is opengl 4.5 template project for building several test project.
 All you need to do for new project is Updating Sample app and Sample renderer classes.

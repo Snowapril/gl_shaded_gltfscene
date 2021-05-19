@@ -1,5 +1,5 @@
 # Target name
-set(target modern-opengl-oss-template)
+set(target gl_shaded_gltfscene)
 
 # Define root directory
 set(root_dir ${CMAKE_CURRENT_SOURCE_DIR}/..)
