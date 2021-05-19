@@ -1,6 +1,7 @@
 # gl_shaded_gltfscene
 
 [![CodeFactor](https://www.codefactor.io/repository/github/snowapril/gl_shaded_gltfscene/badge)](https://www.codefactor.io/repository/github/snowapril/gl_shaded_gltfscene)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/82c7218998df4b4eb236ad21ae96c1fe)](https://www.codacy.com/gh/Snowapril/gl_shaded_gltfscene/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Snowapril/gl_shaded_gltfscene&amp;utm_campaign=Badge_Grade)
 ![Ubuntu github action](https://github.com/Snowapril/gl_shaded_gltfscene/actions/workflows/ubuntu.yml/badge.svg?branch=main)
 ![Window github action](https://github.com/Snowapril/gl_shaded_gltfscene/actions/workflows/window.yml/badge.svg?branch=main)
 ![MacOS github action](https://github.com/Snowapril/gl_shaded_gltfscene/actions/workflows/macos.yml/badge.svg?branch=main)
