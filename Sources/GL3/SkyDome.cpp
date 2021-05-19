@@ -151,7 +151,7 @@ namespace GL3 {
 		{
 			for (unsigned int f = 0; f < 6; ++f)
 			{
-				glm::vec2 viewport = glm::vec2(dim) * std::powf(0.5f, mip);
+				glm::vec2 viewport = glm::vec2(dim) * static_cast<float>(std::pow(0.5f, mip));
 				glViewport(0, 0, viewport.x, viewport.y);
 
 				//! Update shader uniform variable
