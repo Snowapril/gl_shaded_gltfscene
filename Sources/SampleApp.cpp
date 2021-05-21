@@ -51,7 +51,6 @@ bool SampleApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts:
 	_shaders.emplace("default", std::move(defaultShader));
 	_shaders.emplace("skybox", std::move(skyboxShader));
 
-	stbi_set_flip_vertically_on_load(true);
 
 	if (!_sceneInstance.Initialize(configure["scene"].as<std::string>(),
 		Core::VertexFormat::Position3Normal3TexCoord2Color4))

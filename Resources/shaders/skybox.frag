@@ -22,7 +22,7 @@ const float ONE_OVER_PI = 0.3183099;
 
 vec2 get_spherical_uv(vec3 v)
 {
-    float gamma = asin(v.y);
+    float gamma = asin(-v.y);
     float theta = atan(v.z, v.x);
 
     vec2 uv = vec2(theta * ONE_OVER_PI * 0.5, gamma * ONE_OVER_PI) + 0.5;
