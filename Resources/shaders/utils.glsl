@@ -36,17 +36,24 @@ float convertMetallic(vec3 diffuse, vec3 specular, float maxSpecular)
 //! or from the interpolated mesh normal and tangent attributes
 vec3 getNormal(int normalTexture)
 {
-	//! Perturb normal, see http://www.thetenthplanet.de/archives/1180
-	vec3 tangentNormal = texture(textures[normalTexture], fs_in.texCoord).rgb * 2.0 - 1.0;
-	vec3 q1 = dFdx(fs_in.worldPos);
-	vec3 q2 = dFdy(fs_in.worldPos);
-	vec2 st1 = dFdx(fs_in.texCoord);
-	vec2 st2 = dFdy(fs_in.texCoord);
+	if (normalTexture > -1)
+	{
+		vec3 tangentNormal = texture(textures[normalTexture], fs_in.texCoord).xyz;
+		if (length(tangentNormal) <= 0.01)
+			return fs_in.normal;
+		tangentNormal = tangentNormal * 2.0 - 1.0;
+		vec3 q1 = dFdx(fs_in.worldPos);
+		vec3 q2 = dFdy(fs_in.worldPos);
+		vec2 st1 = dFdx(fs_in.texCoord);
+		vec2 st2 = dFdy(fs_in.texCoord);
 
-	vec3 N = normalize(fs_in.normal);
-	vec3 T = normalize(q1 * st2.t - q2 * st1.t);
-	vec3 B = -normalize(cross(N, T));
-	mat3 TBN = mat3(T, B, N);
+		vec3 N = normalize(fs_in.normal);
+		vec3 T = normalize(q1 * st2.t - q2 * st1.t);
+		vec3 B = -normalize(cross(N, T));
+		mat3 TBN = mat3(T, B, N);
 
-	return normalize(TBN * tangentNormal);
+		return normalize(TBN * tangentNormal);
+	}
+	else
+		return normalize(fs_in.normal);
 }
