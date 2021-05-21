@@ -54,8 +54,8 @@ namespace GL3 {
 			std::string name = image.name.empty() ? std::string("texture") + std::to_string(this->_textures.size()) : image.name;
 			GLuint texture;
 			glCreateTextures(GL_TEXTURE_2D, 1, &texture);
-			glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTextureStorage2D(texture, 1, GL_RGBA8, image.width, image.height);
