@@ -33,7 +33,8 @@ float convertMetallic(vec3 diffuse, vec3 specular, float maxSpecular)
 }
 
 //! Find the normal for this fragment, pulling either from a predefined normal map
-//! or from the interpolated mesh normal and tangent attributes
+//! or from the interpolated mesh normal and tangent attributes.
+//! See http://www.thetenthplanet.de/archives/1180
 vec3 getNormal(int normalTexture)
 {
 	if (normalTexture > -1)
