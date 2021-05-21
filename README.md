@@ -43,6 +43,8 @@ Of course, without providing scene and environment files, rendering can be done 
 
 The class is licensed under the [MIT License](http://opensource.org/licenses/MIT):
 
+gl_shaded_gltfscene project's scene and skydome are largely referenced on [vk_shaded_gltfscene](https://github.com/nvpro-samples/vk_shaded_gltfscene)
+
 Copyright (c) 2021 Snowapril
 *   [Jihong Shin](https://github.com/Snowapril)
 
