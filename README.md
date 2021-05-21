@@ -6,9 +6,23 @@
 ![Window github action](https://github.com/Snowapril/gl_shaded_gltfscene/actions/workflows/window.yml/badge.svg?branch=main)
 ![MacOS github action](https://github.com/Snowapril/gl_shaded_gltfscene/actions/workflows/macos.yml/badge.svg?branch=main)
 
-This is opengl 4.5 template project for building several test project.
-All you need to do for new project is Updating Sample app and Sample renderer classes.
-If you need to modify framework codes, do it first and sharing code through pull-requuest please.
+This project visualizes gltf scene file with PBR shading techniques. The default lighting is Image-Based-Lighting which precomputes irradiance map and prefiltered glossy map and use them in the PBR shader. Material attributes passing implemented with simple structural uniform variables which can make performance low (This can be improved by ssbo). 
+
+## Build
+```bash
+git submodule init
+git submodule update
+mkdir build
+cd build
+cmake .. && make
+```
+
+## Run
+```bash
+# in the generated executable file directory
+gl_shaded_gltfscene -s "what_you_want.gltf" -e "hdr_environment.hdr"
+```
+Of course, without providing scene and environment files, rendering can be done with default resources.
 
 ## Screenshot
 ![image](https://user-images.githubusercontent.com/24654975/119116611-5d9c8700-ba63-11eb-8ecd-1682741b70bc.png)
