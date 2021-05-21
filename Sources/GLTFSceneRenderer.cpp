@@ -17,6 +17,9 @@ bool GLTFSceneRenderer::OnInitialize(const cxxopts::ParseResult& configure)
 	if (!AddApplication(std::make_shared<GLTFSceneApp>(), configure))
 		return false;
 
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+
 	return true;
 }
 

@@ -20,9 +20,6 @@ GLTFSceneApp::~GLTFSceneApp()
 
 bool GLTFSceneApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts::ParseResult& configure)
 {
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-
 	auto defaultCam = std::make_shared<GL3::PerspectiveCamera>();
 
 	if (!defaultCam->SetupUniformBuffer())
