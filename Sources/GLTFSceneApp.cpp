@@ -1,4 +1,4 @@
-#include <SampleApp.hpp>
+#include <GLTFSceneApp.hpp>
 #include <GL3/Window.hpp>
 #include <GL3/PerspectiveCamera.hpp>
 #include <GL3/Shader.hpp>
@@ -8,17 +8,17 @@
 
 #include <tinygltf/stb_image.h>
 
-SampleApp::SampleApp()
+GLTFSceneApp::GLTFSceneApp()
 {
 	//! Do nothing
 }
 
-SampleApp::~SampleApp()
+GLTFSceneApp::~GLTFSceneApp()
 {
 	//! Do nothing
 }
 
-bool SampleApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts::ParseResult& configure)
+bool GLTFSceneApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts::ParseResult& configure)
 {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -67,17 +67,17 @@ bool SampleApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts:
 	return true;
 }
 
-void SampleApp::OnCleanUp()
+void GLTFSceneApp::OnCleanUp()
 {
 	_sceneInstance.CleanUp();
 }
 
-void SampleApp::OnUpdate(double dt)
+void GLTFSceneApp::OnUpdate(double dt)
 {
 	(void)dt;
 }
 
-void SampleApp::OnDraw()
+void GLTFSceneApp::OnDraw()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0f, 0.0f, 0.8f, 1.0f);
@@ -102,7 +102,7 @@ void SampleApp::OnDraw()
 	_sceneInstance.Render(pbrShader, GL_BLEND_SRC_ALPHA);
 }
 
-void SampleApp::OnProcessInput(unsigned int key)
+void GLTFSceneApp::OnProcessInput(unsigned int key)
 {
 	if (key >= GLFW_KEY_1 && key <= GLFW_KEY_9)
 	{
@@ -114,7 +114,7 @@ void SampleApp::OnProcessInput(unsigned int key)
 	}
 }
 
-void SampleApp::OnProcessResize(int width, int height)
+void GLTFSceneApp::OnProcessResize(int width, int height)
 {
 	(void)width; (void)height;
 }

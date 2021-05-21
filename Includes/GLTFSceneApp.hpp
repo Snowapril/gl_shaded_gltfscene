@@ -1,22 +1,22 @@
-#ifndef SAMPLE_APP_HPP
-#define SAMPLE_APP_HPP
+#ifndef GLTF_SCENE_APP_HPP
+#define GLTF_SCENE_APP_HPP
 
 #include <GL3/Application.hpp>
 #include <GL3/Scene.hpp>
 #include <GL3/DebugUtils.hpp>
 #include <GL3/SkyDome.hpp>
 
-class SampleApp : public GL3::Application
+class GLTFSceneApp : public GL3::Application
 {
 public:
 	//! Default constructor
-	SampleApp();
+	GLTFSceneApp();
 	//! Default desctrutor
-	~SampleApp();
+	~GLTFSceneApp();
 	//! Returns overrided Application title
 	const char* GetAppTitle() const override
 	{
-		return "Sample Application";
+		return "OpenGL Shaded GLTF Scene";
 	}
 protected:
 	bool OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts::ParseResult& configure) override;
@@ -43,4 +43,4 @@ private:
 	GLuint _uniformBuffer;
 };
 
-#endif //! end of SampleApp.hpp
+#endif //! end of GLTFSceneApp.hpp

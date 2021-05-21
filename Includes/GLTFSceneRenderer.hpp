@@ -1,15 +1,15 @@
-#ifndef SAMPLE_RENDERER_HPP
-#define SAMPLE_RENDERER_HPP
+#ifndef GLTF_SCENE_RENDERER_HPP
+#define GLTF_SCENE_RENDERER_HPP
 
 #include <GL3/Renderer.hpp>
 
-class SampleRenderer : public GL3::Renderer
+class GLTFSceneRenderer : public GL3::Renderer
 {
 public:
 	//! Default constructor
-	SampleRenderer();
+	GLTFSceneRenderer();
 	//! Default desctrutor
-	~SampleRenderer();
+	~GLTFSceneRenderer();
 protected:
 	bool OnInitialize(const cxxopts::ParseResult& configure) override;
 	void OnCleanUp() override;
@@ -20,4 +20,4 @@ protected:
 	void OnProcessResize(int width, int height) override;
 };
 
-#endif //! end of SampleRenderer.hpp
+#endif //! end of GLTFSceneRenderer.hpp
