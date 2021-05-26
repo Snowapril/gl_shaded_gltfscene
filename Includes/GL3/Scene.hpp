@@ -38,6 +38,7 @@ namespace GL3 {
 		DebugUtils _debug;
 		GLuint _vao{ 0 }, _ebo{ 0 };
 		GLuint _matrixBuffer{ 0 };
+		GLuint _materialBuffer{ 0 };
 	};
 
 };
