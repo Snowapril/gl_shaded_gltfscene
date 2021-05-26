@@ -18,6 +18,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Includes
 include_directories(Includes)
+include_directories(Resources)
 include_directories(Libraries)
 include_directories(Libraries/glad)
 include_directories(Libraries/glm)
