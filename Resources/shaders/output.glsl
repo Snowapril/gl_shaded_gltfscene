@@ -33,14 +33,20 @@ layout(std140, binding = 1) uniform UBOScene
 	float envIntensity;	 // 40
 } uboScene;
 
+#include gltf.glsl
+layout(std430, binding = 3) readonly buffer UBOMaterial
+{
+	GltfShadeMaterial materials[];
+};
+
 #define MAX_TEXTURES 20
 layout ( binding = 0 ) uniform samplerCube samplerIrradiance;
 layout ( binding = 1 ) uniform sampler2D samplerBRDFLUT;
 layout ( binding = 2 ) uniform samplerCube prefilteredMap;
 layout ( binding = 3 ) uniform sampler2D textures[MAX_TEXTURES];
 
-#include gltf.glsl
-uniform GltfShadeMaterial material;
+uniform int materialIdx = 0;
+
 #include tonemapping.glsl
 #include utils.glsl
 #include pbr.glsl
@@ -79,6 +85,8 @@ void main()
 	vec3 f0						= vec3(0.04);
 	float perceptualRoughness;
 	float metallic;
+
+	GltfShadeMaterial material = materials[materialIdx];
 
 	if (material.shadingModel == PBR_METALLIC_ROUGHNESS_MODEL)
 	{
