@@ -67,11 +67,12 @@ bool GLTFSceneApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxop
 void GLTFSceneApp::OnCleanUp()
 {
 	_sceneInstance.CleanUp();
+	_skyDome.CleanUp();
 }
 
 void GLTFSceneApp::OnUpdate(double dt)
 {
-	(void)dt;
+	_sceneInstance.Update(dt);
 }
 
 void GLTFSceneApp::OnDraw()

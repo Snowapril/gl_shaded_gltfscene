@@ -28,6 +28,8 @@ namespace GL3 {
 		~Scene();
 		//! Load GLTFScene from the given scene filename and generate buffers 
 		bool Initialize(const std::string& filename, Core::VertexFormat format);
+		//! Update the scene for animating
+		void Update(double dt);
 		//! Render the whole nodes of the parsed gltf-scene
 		void Render(const std::shared_ptr< Shader >& shader, GLenum alphaMode);
 		//! Clean up the generated resources
