@@ -18,8 +18,12 @@ public:
 	{
 		return "OpenGL Shaded GLTF Scene";
 	}
-protected:
-	bool OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts::ParseResult& configure) override;
+	//! Add gltf scene into application
+    void AddGLTFScene(const std::string& scenePath);
+	//! Attach environment HDR image file
+    void AttachEnvironment(const std::string& hdrImage);
+ protected:
+	bool OnInitialize(std::shared_ptr<GL3::Window> window) override;
 	void OnCleanUp() override;
 	void OnUpdate(double dt) override;
 	void OnDraw() override;

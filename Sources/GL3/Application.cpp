@@ -19,9 +19,9 @@ namespace GL3 {
 		//! Do nothing
 	}
 
-	bool Application::Initialize(std::shared_ptr<GL3::Window> window, const cxxopts::ParseResult& configure)
+	bool Application::Initialize(std::shared_ptr<GL3::Window> window)
 	{
-		if (!OnInitialize(window, configure))
+		if (!OnInitialize(window))
 			return false;
 
 		return true;

@@ -7,7 +7,6 @@
 #include <unordered_map>
 #include <GL3/DebugUtils.hpp>
 #include <GL3/GLTypes.hpp>
-#include <cxxopts/cxxopts.hpp>
 
 namespace GL3
 {
@@ -30,9 +29,9 @@ namespace GL3
 		//! Default desctrutor
 		virtual ~Renderer();
 		//! Initialize the Renderer
-		bool Initialize(const cxxopts::ParseResult& configure);
+        bool Initialize(const std::string& title, int width, int height);
 		//! Add application implementation
-		bool AddApplication(std::shared_ptr<Application> app, const cxxopts::ParseResult& configure);
+		bool AddApplication(std::shared_ptr<Application> app);
 		//! Update the application with delta time.
 		void UpdateFrame(double dt);
 		//! Draw the one frame of the application.
@@ -49,7 +48,7 @@ namespace GL3
 		void SwitchApplication(std::shared_ptr< GL3::Application > app);
 		void SwitchApplication(size_t index);
 	protected:
-		virtual bool OnInitialize(const cxxopts::ParseResult& configure) = 0;
+		virtual bool OnInitialize() = 0;
 		virtual void OnCleanUp() = 0;
 		virtual void OnUpdateFrame(double dt) = 0;
 		virtual void OnBeginDraw() = 0;

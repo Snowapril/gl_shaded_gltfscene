@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 		("x,width", "Window width (default is 1200)", cxxopts::value<int>()->default_value("1200"))
 		("y,height", "Window height (default is 900)", cxxopts::value<int>()->default_value("900"))
 		("s,scene", "GLTF Scene filepath(default is '" RESOURCES_DIR "scenes/FlightHelmet/FlightHelmet.gltf')",
-			cxxopts::value<std::string>()->default_value(RESOURCES_DIR "scenes/FlightHelmet/FlightHelmet.gltf"))
+			cxxopts::value<std::string>()->default_value(RESOURCES_DIR "scenes/AnimatedCube/AnimatedCube.gltf"))
 		("e,envmap", "HDR SkyDome image filepath(default is '" RESOURCES_DIR  "scenes/environment.hdr')",
 			cxxopts::value<std::string>()->default_value(RESOURCES_DIR "scenes/environment.hdr"))
 		("h,help", "Print usage");
@@ -29,12 +29,12 @@ int main(int argc, char* argv[])
 	}
 
 	auto renderer = std::make_unique<GLTFSceneRenderer>();
-	if (!renderer->Initialize(result))
+    if (!renderer->Initialize(result["title"].as<std::string>(), result["width"].as<int>(), result["height"].as<int>()))
 	{
 		std::cerr << "Failed to initialize the Renderer" << std::endl;
 		return EXIT_FAILURE;
 	}
-	
+
 	std::shared_ptr< GL3::Window > window = renderer->GetWindow();
 	auto startTime = std::chrono::steady_clock::now();
 	while (!renderer->GetRendererShouldExit())
