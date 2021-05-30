@@ -165,6 +165,40 @@ namespace Core {
 			tinygltf::Light light;
 		};
 
+		struct GLTFAnimation
+		{
+			int samplerIndex{ 0 };
+			int samplerCount{ 0 };
+			int channelIndex{ 0 };
+			int channelCount{ 0 };
+			std::string name;
+		};
+
+		struct GLTFSampler
+		{
+			enum class Interpolation
+			{
+				Linear = 0,
+				Step = 1,
+				Cubicspline = 2
+			} mode;
+			int inputNodeIndex{ 0 };
+			int outputNodeIndex{ 0 };
+		};
+
+		struct GLTFChannels
+		{
+			int samplerIndex{ 0 };
+			int nodeIndex{ 0 };
+			enum class Path
+			{
+				Translation = 0,
+				Rotation = 1,
+				Scale = 2,
+				Weights = 3
+			} path;
+		};
+
 		struct SceneDimension
 		{
 			glm::vec3 min = { std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max() };
@@ -179,6 +213,9 @@ namespace Core {
 		std::vector<GLTFPrimMesh> _scenePrimMeshes;
 		std::vector<GLTFCamera> _sceneCameras;
 		std::vector<GLTFLight> _sceneLights;
+		std::vector<GLTFAnimation> _sceneAnims;
+		std::vector<GLTFSampler> _sceneSamplers;
+		std::vector<GLTFChannels> _sceneChannels;
 
 		std::vector<glm::vec3> _positions;
 		std::vector<glm::vec3> _normals;
@@ -210,6 +247,8 @@ namespace Core {
 		void ProcessMesh(const tinygltf::Model& model, const tinygltf::Primitive& mesh, VertexFormat format, const std::string& name);
 		//! Process node in the model recursively.
 		void ProcessNode(const tinygltf::Model& model, int& nodeIdx, const glm::mat4& parentMatrix);
+		//! Process animation in the model
+		void ProcessAnimation(const tinygltf::Model& model, const tinygltf::Animation& anim, std::size_t channelOffset, std::size_t samplerOffset);
 		//! Calculate the scene dimension from loaded nodes.
 		void CalculateSceneDimension();
 		//! Compute the uninitialized cameras with parsed scene dimension.

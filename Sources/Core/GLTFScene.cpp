@@ -128,6 +128,13 @@ namespace Core {
 			ProcessNode(model, nodeIdx, glm::mat4(1.0f));
 		}
 
+		//! Convert all channels & samplers into each single vectors,
+		//! make animation node point to base & stride of them.
+		for (const auto& anim : model.animations)
+		{
+			ProcessAnimation(model, anim, _sceneChannels.size(), _sceneSamplers.size());
+		}
+
 		//! Compute scene dimension
 		CalculateSceneDimension();
 		ComputeCamera();
@@ -485,6 +492,14 @@ namespace Core {
 		for (auto child : node.children)
 		{
 			ProcessNode(model, child, worldMat);
+		}
+	}
+
+	void GLTFScene::ProcessAnimation(const tinygltf::Model& model, const tinygltf::Animation& anim, std::size_t channelOffset, std::size_t samplerOffset)
+	{
+		for (const auto& sampler : anim.samplers)
+		{
+
 		}
 	}
 
