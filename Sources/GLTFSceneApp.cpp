@@ -39,6 +39,7 @@ bool GLTFSceneApp::OnInitialize(std::shared_ptr<GL3::Window> window)
 		return false;
 
 	defaultShader->BindUniformBlock("UBOCamera", 0);
+	defaultShader->BindUniformBlock("UBOScene", 1);
 	_debug.SetObjectName(GL_PROGRAM, defaultShader->GetResourceID(), "Default Program");
 	_shaders.emplace("default", std::move(defaultShader));
 
@@ -57,6 +58,7 @@ bool GLTFSceneApp::OnInitialize(std::shared_ptr<GL3::Window> window)
 	glBindBuffer(GL_UNIFORM_BUFFER, _uniformBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(SceneData), &_sceneData, GL_STATIC_COPY);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	_debug.SetObjectName(GL_BUFFER, _uniformBuffer, "SceneBuffer");
 
 	return true;
 }
@@ -65,7 +67,7 @@ bool GLTFSceneApp::AddGLTFScene(const std::string& scenePath)
 {
     GL3::Scene newScene;
     if (!newScene.Initialize(scenePath, Core::VertexFormat::Position3Normal3TexCoord2Color4))
-        return false;
+		return false;
 
 	_sceneInstances.emplace_back(std::move(newScene));
     return true;
@@ -74,8 +76,8 @@ bool GLTFSceneApp::AddGLTFScene(const std::string& scenePath)
 bool GLTFSceneApp::AttachEnvironment(const std::string& hdrImage)
 {
     if (!_skyDome.Initialize(hdrImage))
-        return false;
-		
+		return false;
+	
 	return true;
 }
 
