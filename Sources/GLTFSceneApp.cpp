@@ -20,6 +20,7 @@ GLTFSceneApp::~GLTFSceneApp()
 
 bool GLTFSceneApp::OnInitialize(std::shared_ptr<GL3::Window> window)
 {
+	//! Add perspective camera with default settings
 	auto defaultCam = std::make_shared<GL3::PerspectiveCamera>();
 
 	if (!defaultCam->SetupUniformBuffer())
@@ -31,23 +32,27 @@ bool GLTFSceneApp::OnInitialize(std::shared_ptr<GL3::Window> window)
 
 	AddCamera(std::move(defaultCam));
 
+	//! Add PBR shader which is main shading pipeline in this application
 	auto defaultShader = std::make_shared<GL3::Shader>();
 	if (!defaultShader->Initialize({ {GL_VERTEX_SHADER,	  RESOURCES_DIR "shaders/vertex.glsl"},
 									 {GL_FRAGMENT_SHADER, RESOURCES_DIR "shaders/output.glsl"} }))
 		return false;
 
 	defaultShader->BindUniformBlock("UBOCamera", 0);
+	_debug.SetObjectName(GL_PROGRAM, defaultShader->GetResourceID(), "Default Program");
+	_shaders.emplace("default", std::move(defaultShader));
 
+	//! Add Skybox shader for rendering environment map
 	auto skyboxShader = std::make_shared<GL3::Shader>();
 	if (!skyboxShader->Initialize({ {GL_VERTEX_SHADER,	 RESOURCES_DIR "shaders/skybox.vert"},
 									{GL_FRAGMENT_SHADER, RESOURCES_DIR "shaders/skybox.frag"}}))
 		return false;
 
-	_debug.SetObjectName(GL_PROGRAM, defaultShader->GetResourceID(), "Default Program");
+	skyboxShader->BindUniformBlock("UBOCamera", 0);
 	_debug.SetObjectName(GL_PROGRAM, skyboxShader->GetResourceID(), "Skybox Program");
-	_shaders.emplace("default", std::move(defaultShader));
 	_shaders.emplace("skybox", std::move(skyboxShader));
 
+	//! Initialize scene data uniform buffer
 	glGenBuffers(1, &_uniformBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, _uniformBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(SceneData), &_sceneData, GL_STATIC_COPY);
@@ -76,7 +81,9 @@ bool GLTFSceneApp::AttachEnvironment(const std::string& hdrImage)
 
 void GLTFSceneApp::OnCleanUp()
 {
+	//! Release scene data uniform buffer
 	glDeleteBuffers(1, &_uniformBuffer);
+	//! Clean up skydome and scenes
 	_skyDome.CleanUp();
     for (auto& scene : _sceneInstances)
 		scene.CleanUp();
@@ -93,24 +100,26 @@ void GLTFSceneApp::OnDraw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0f, 0.0f, 0.8f, 1.0f);
 
-	const auto& iblTextures = _skyDome.GetIBLTextureSet();
-
-	auto& skyboxShader = _shaders["skybox"];
-	skyboxShader->BindShaderProgram();
-
+	//! Bind uniform buffer & shader storage buffers
 	_cameras[0]->BindCamera(0);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, _uniformBuffer);
+
+	//! Bind skybox shader and render attached skydome
+	auto& skyboxShader = _shaders["skybox"];
+	skyboxShader->BindShaderProgram();
 	_skyDome.Render(skyboxShader, GL_BLEND_SRC_ALPHA);
 
+	//! Bind PBR shader
 	auto& pbrShader = _shaders["default"];
 	pbrShader->BindShaderProgram();
+
+	//! Attach IBL precalculated textures to the PBR shader
+	const auto& iblTextures = _skyDome.GetIBLTextureSet();
 	glBindTextureUnit(0, iblTextures.irradianceCube);
 	glBindTextureUnit(1, iblTextures.brdfLUT);
 	glBindTextureUnit(2, iblTextures.prefilteredCube);
 
-	_cameras[0]->BindCamera(0);
-	glBindBufferBase(GL_UNIFORM_BUFFER, 1, _uniformBuffer);
-
+	//! Render all the scenes
     for (const auto& scene : _sceneInstances)
         scene.Render(pbrShader, GL_BLEND_SRC_ALPHA);
 }
