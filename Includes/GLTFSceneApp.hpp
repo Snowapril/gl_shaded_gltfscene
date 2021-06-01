@@ -5,6 +5,7 @@
 #include <GL3/Scene.hpp>
 #include <GL3/DebugUtils.hpp>
 #include <GL3/SkyDome.hpp>
+#include <vector>
 
 class GLTFSceneApp : public GL3::Application
 {
@@ -19,9 +20,9 @@ public:
 		return "OpenGL Shaded GLTF Scene";
 	}
 	//! Add gltf scene into application
-    void AddGLTFScene(const std::string& scenePath);
+    bool AddGLTFScene(const std::string& scenePath);
 	//! Attach environment HDR image file
-    void AttachEnvironment(const std::string& hdrImage);
+    bool AttachEnvironment(const std::string& hdrImage);
  protected:
 	bool OnInitialize(std::shared_ptr<GL3::Window> window) override;
 	void OnCleanUp() override;
@@ -41,7 +42,7 @@ private:
 		int			_padding[3];
 	} _sceneData;
 
-	GL3::Scene _sceneInstance;
+	std::vector<GL3::Scene> _sceneInstances;
 	GL3::SkyDome _skyDome;
 	GL3::DebugUtils _debug;
 	GLuint _uniformBuffer;

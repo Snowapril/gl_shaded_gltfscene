@@ -48,13 +48,6 @@ bool GLTFSceneApp::OnInitialize(std::shared_ptr<GL3::Window> window)
 	_shaders.emplace("default", std::move(defaultShader));
 	_shaders.emplace("skybox", std::move(skyboxShader));
 
-	/*if (!_sceneInstance.Initialize(configure["scene"].as<std::string>(),
-		Core::VertexFormat::Position3Normal3TexCoord2Color4))
-		return false;
-
-	if (!_skyDome.Initialize(configure["envmap"].as<std::string>()))
-		return false;*/
-
 	glGenBuffers(1, &_uniformBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, _uniformBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(SceneData), &_sceneData, GL_STATIC_COPY);
@@ -63,9 +56,30 @@ bool GLTFSceneApp::OnInitialize(std::shared_ptr<GL3::Window> window)
 	return true;
 }
 
+bool GLTFSceneApp::AddGLTFScene(const std::string& scenePath)
+{
+    GL3::Scene newScene;
+    if (!newScene.Initialize(scenePath, Core::VertexFormat::Position3Normal3TexCoord2Color4))
+        return false;
+
+	_sceneInstances.emplace_back(std::move(newScene));
+    return true;
+}
+
+bool GLTFSceneApp::AttachEnvironment(const std::string& hdrImage)
+{
+    if (!_skyDome.Initialize(hdrImage))
+        return false;
+		
+	return true;
+}
+
 void GLTFSceneApp::OnCleanUp()
 {
-	_sceneInstance.CleanUp();
+    _skyDome.CleanUp();
+    for (auto& scene : _sceneInstances)
+		scene.CleanUp();
+    _sceneInstances.clear();
 }
 
 void GLTFSceneApp::OnUpdate(double dt)
@@ -95,7 +109,9 @@ void GLTFSceneApp::OnDraw()
 
 	_cameras[0]->BindCamera(0);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, _uniformBuffer);
-	_sceneInstance.Render(pbrShader, GL_BLEND_SRC_ALPHA);
+
+    for (const auto& scene : _sceneInstances)
+        scene.Render(pbrShader, GL_BLEND_SRC_ALPHA);
 }
 
 void GLTFSceneApp::OnProcessInput(unsigned int key)

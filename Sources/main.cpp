@@ -1,6 +1,7 @@
 #include <cxxopts/cxxopts.hpp>
 
 #include <GLTFSceneRenderer.hpp>
+#include <GLTFSceneApp.hpp>
 #include <GL3/Window.hpp>
 #include <GLFW/glfw3.h>
 #include <chrono>
@@ -31,7 +32,21 @@ int main(int argc, char* argv[])
 	auto renderer = std::make_unique<GLTFSceneRenderer>();
     if (!renderer->Initialize(result["title"].as<std::string>(), result["width"].as<int>(), result["height"].as<int>()))
 	{
-		std::cerr << "Failed to initialize the Renderer" << std::endl;
+		std::cerr << "Failed to initialize the Renderer\n";
+		return EXIT_FAILURE;
+	}
+
+	auto app = std::dynamic_pointer_cast<GLTFSceneApp>(renderer->GetCurrentApplication());
+	
+	if (!app->AddGLTFScene(result["scene"].as<std::string>()))
+	{
+		std::cerr << "Failed to add gltf scene to the renderer\n";
+		return EXIT_FAILURE;
+	}
+
+	if (!app->AttachEnvironment(result["envmap"].as<std::string>()))
+	{
+		std::cerr << "Failed to attach HDR environment map\n";
 		return EXIT_FAILURE;
 	}
 
