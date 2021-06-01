@@ -76,7 +76,8 @@ bool GLTFSceneApp::AttachEnvironment(const std::string& hdrImage)
 
 void GLTFSceneApp::OnCleanUp()
 {
-    _skyDome.CleanUp();
+	glDeleteBuffers(1, &_uniformBuffer);
+	_skyDome.CleanUp();
     for (auto& scene : _sceneInstances)
 		scene.CleanUp();
     _sceneInstances.clear();
