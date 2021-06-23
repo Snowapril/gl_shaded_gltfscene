@@ -239,7 +239,7 @@ namespace GL3 {
 		////glTextureSubImage3D(_textureSet.irradianceCube, 0, 0, 0, dim, dim, GL_RGBA, GL_FLOAT, nullptr);
 
 		//! Create framebuffer for capturing
-		GLuint fbo, rbo;
+		GLuint fbo;
 		glCreateFramebuffers(1, &fbo);
 
 		//! Create shader
@@ -256,8 +256,7 @@ namespace GL3 {
 		glBindTextureUnit(0, _textureSet.hdrTexture);
 		glBindTextureUnit(1, _textureSet.accelTexture);
 		RenderToCube(fbo, _textureSet.irradianceCube, &shader, dim, numMips);
-		glDeleteRenderbuffers(1, &rbo);
-		glDeleteBuffers(1, &fbo);
+		glDeleteFramebuffers(1, &fbo);
 
 		auto timerEnd = std::chrono::high_resolution_clock::now();
 		auto elapsed = std::chrono::duration<double, std::milli>(timerEnd - timerStart).count();
@@ -279,7 +278,7 @@ namespace GL3 {
 		//glTextureSubImage3D(_textureSet.prefilteredCube, 0, 0, 0, dim, dim, GL_RGBA, GL_FLOAT, nullptr);
 
 		//! Create framebuffer for capturing
-		GLuint fbo, rbo;
+		GLuint fbo;
 		glCreateFramebuffers(1, &fbo);
 
 		//! Create shader
@@ -296,8 +295,7 @@ namespace GL3 {
 		glBindTextureUnit(0, _textureSet.hdrTexture);
 		glBindTextureUnit(1, _textureSet.accelTexture);
 		RenderToCube(fbo, _textureSet.prefilteredCube, &shader, dim, numMips);
-		glDeleteRenderbuffers(1, &rbo);
-		glDeleteBuffers(1, &fbo);
+		glDeleteFramebuffers(1, &fbo);
 
 		auto timerEnd = std::chrono::high_resolution_clock::now();
 		auto elapsed = std::chrono::duration<double, std::milli>(timerEnd - timerStart).count();
