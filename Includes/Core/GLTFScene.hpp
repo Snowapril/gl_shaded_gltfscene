@@ -6,6 +6,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <string>
 #include <limits>
 #include <functional>
@@ -133,6 +134,9 @@ namespace Core {
 		struct GLTFNode
 		{
 			glm::mat4 world{ 1.0f };
+			glm::vec3 translation{ 0.0f };
+			glm::vec3 scale{ 1.0f };
+			glm::quat rotation;
 			int primMesh{ 0 };
 		};
 
@@ -165,15 +169,6 @@ namespace Core {
 			tinygltf::Light light;
 		};
 
-		struct GLTFAnimation
-		{
-			int samplerIndex{ 0 };
-			int samplerCount{ 0 };
-			int channelIndex{ 0 };
-			int channelCount{ 0 };
-			std::string name;
-		};
-
 		struct GLTFSampler
 		{
 			enum class Interpolation
@@ -181,22 +176,33 @@ namespace Core {
 				Linear = 0,
 				Step = 1,
 				Cubicspline = 2
-			} mode;
-			int inputNodeIndex{ 0 };
-			int outputNodeIndex{ 0 };
+			};
+			Interpolation interpolation { Interpolation::Linear };
+			std::vector<float> inputs;
+			std::vector<glm::vec4> outputs;
 		};
 
-		struct GLTFChannels
+		struct GLTFChannel
 		{
-			int samplerIndex{ 0 };
-			int nodeIndex{ 0 };
 			enum class Path
 			{
 				Translation = 0,
 				Rotation = 1,
 				Scale = 2,
 				Weights = 3
-			} path;
+			};
+			Path path { Path::Translation };
+			int samplerIndex { 0 };
+			int nodeIndex { 0 };
+		};
+
+		struct GLTFAnimation
+		{
+			std::string name;
+			int samplerIndex { 0 };
+			int samplerCount { 0 };
+			int channelIndex { 0 };
+			int channelCount { 0 };
 		};
 
 		struct SceneDimension
@@ -215,7 +221,7 @@ namespace Core {
 		std::vector<GLTFLight> _sceneLights;
 		std::vector<GLTFAnimation> _sceneAnims;
 		std::vector<GLTFSampler> _sceneSamplers;
-		std::vector<GLTFChannels> _sceneChannels;
+		std::vector<GLTFChannel> _sceneChannels;
 
 		std::vector<glm::vec3> _positions;
 		std::vector<glm::vec3> _normals;
