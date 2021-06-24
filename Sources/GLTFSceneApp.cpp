@@ -18,7 +18,7 @@ GLTFSceneApp::~GLTFSceneApp()
 	//! Do nothing
 }
 
-bool GLTFSceneApp::OnInitialize(std::shared_ptr<GL3::Window> window)
+bool GLTFSceneApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts::ParseResult& configure)
 {
 	//! Add perspective camera with default settings
 	auto defaultCam = std::make_shared<GL3::PerspectiveCamera>();
@@ -53,7 +53,14 @@ bool GLTFSceneApp::OnInitialize(std::shared_ptr<GL3::Window> window)
 	_debug.SetObjectName(GL_PROGRAM, skyboxShader->GetResourceID(), "Skybox Program");
 	_shaders.emplace("skybox", std::move(skyboxShader));
 
-	//! Initialize scene data uniform buffer
+
+	if (!_sceneInstance.Initialize(configure["scene"].as<std::string>(),
+		Core::VertexFormat::Position3Normal3TexCoord2Color4))
+		return false;
+
+	if (!_skyDome.Initialize(configure["envmap"].as<std::string>()))
+		return false;
+
 	glGenBuffers(1, &_uniformBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, _uniformBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(SceneData), &_sceneData, GL_STATIC_COPY);

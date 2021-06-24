@@ -5,7 +5,6 @@
 #include <GL3/PostProcessing.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
 
 static const float kClearColor[] = { 0.81f, 0.81f, 0.81f, 1.0f };
 
@@ -22,12 +21,14 @@ namespace GL3 {
 		//! Do nothing
 	}
 
-	bool Renderer::Initialize(const std::string& title, int width, int height)
+	bool Renderer::Initialize(const cxxopts::ParseResult& configure)
 	{
 		//! Create window shared_ptr with default constructor
 		_mainWindow = std::make_shared<Window>();
 		//! Initialize the window and check the returned error.
-		if (!_mainWindow->Initialize(title, width, height))
+		if (!_mainWindow->Initialize(configure["title"].as<std::string>(), 
+									 configure["width"].as<int>(), 
+									 configure["height"].as<int>()))
 			return false;
 
 		//! Pass the Renderer input handling method to window.
@@ -45,13 +46,13 @@ namespace GL3 {
 		_postProcessing->Resize(_mainWindow->GetWindowExtent());
 
 		//! Initialize implementation parts
-		if (!OnInitialize())
+		if (!OnInitialize(configure))
 			return false;
 
 		return true;
 	}
 
-	bool Renderer::AddApplication(std::shared_ptr<Application> app)
+	bool Renderer::AddApplication(std::shared_ptr<Application> app, const cxxopts::ParseResult& configure)
 	{
 		//! If this is first application, register it to current application weak_ptr
 		if (_applications.empty())
@@ -61,7 +62,7 @@ namespace GL3 {
 		_applications.push_back(app);
 
 		//! Initialize the application and return it's result.
-		return app->Initialize(_mainWindow);
+		return app->Initialize(_mainWindow, configure);
 	}
 
 	void Renderer::UpdateFrame(double dt)

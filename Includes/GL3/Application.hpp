@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <cxxopts/cxxopts.hpp>
 
 namespace GL3
 {
@@ -26,7 +27,7 @@ namespace GL3
 		//! Default desctrutor
 		virtual ~Application();
 		//! Initialize the Application
-		bool Initialize(std::shared_ptr<GL3::Window> window);
+		bool Initialize(std::shared_ptr<GL3::Window> window, const cxxopts::ParseResult& configure);
 		//! Add camera instance with Perspective or Orthogonal
 		void AddCamera(std::shared_ptr< GL3::Camera >&& camera);
 		//! Update the application with delta time.
@@ -44,7 +45,7 @@ namespace GL3
 		//! Process framebuffer resizing
 		void ProcessResize(int width, int height);
 	protected:
-		virtual bool OnInitialize(std::shared_ptr<GL3::Window> window) = 0;
+		virtual bool OnInitialize(std::shared_ptr<GL3::Window> window, const cxxopts::ParseResult& configure) = 0;
 		virtual void OnCleanUp() = 0;
 		virtual void OnUpdate(double dt) = 0;
 		virtual void OnDraw() = 0;

@@ -11,7 +11,7 @@ public:
 	//! Default desctrutor
 	~GLTFSceneRenderer();
 protected:
-	bool OnInitialize() override;
+	bool OnInitialize(const cxxopts::ParseResult& configure) override;
 	void OnCleanUp() override;
 	void OnUpdateFrame(double dt) override;
 	void OnBeginDraw() override;
