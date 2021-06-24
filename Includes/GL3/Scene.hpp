@@ -31,7 +31,7 @@ namespace GL3 {
 		//! Update the scene for animating
 		void Update(double dt);
 		//! Render the whole nodes of the parsed gltf-scene
-		void Render(const std::shared_ptr< Shader >& shader, GLenum alphaMode);
+		void Render(const std::shared_ptr< Shader >& shader, GLenum alphaMode) const;
 		//! Clean up the generated resources
 		void CleanUp();
 	private:

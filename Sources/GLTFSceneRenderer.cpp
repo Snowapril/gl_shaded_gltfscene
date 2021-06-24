@@ -12,9 +12,9 @@ GLTFSceneRenderer::~GLTFSceneRenderer()
 	//! Do nothing
 }
 
-bool GLTFSceneRenderer::OnInitialize(const cxxopts::ParseResult& configure)
+bool GLTFSceneRenderer::OnInitialize()
 {
-	if (!AddApplication(std::make_shared<GLTFSceneApp>(), configure))
+	if (!AddApplication(std::make_shared<GLTFSceneApp>()))
 		return false;
 
 	glEnable(GL_DEPTH_TEST);

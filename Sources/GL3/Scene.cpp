@@ -139,12 +139,7 @@ namespace GL3 {
 		return true;
 	}
 
-	void Scene::Update(double dt)
-	{
-		(void)dt;
-	}
-
-	void Scene::Render(const std::shared_ptr< Shader >& shader, GLenum alphaMode)
+	void Scene::Render(const std::shared_ptr< Shader >& shader, GLenum alphaMode) const
 	{
 		(void)alphaMode;
 		auto scope = _debug.ScopeLabel("Scene Rendering");

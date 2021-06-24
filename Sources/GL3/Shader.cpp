@@ -149,7 +149,7 @@ namespace GL3 {
 
 		GLint loc = GetUniformLocation(name);
 
-		return loc != -1;
+		return loc != GL_INVALID_INDEX;
 	}
 
 	GLint Shader::GetUniformLocation(const std::string& name)
@@ -160,8 +160,8 @@ namespace GL3 {
 		{
 			GLint loc = glGetUniformLocation(this->_programID, name.c_str());
 			
-			if (loc == -1)
-				return -1;
+			if (loc == GL_INVALID_INDEX)
+				return GL_INVALID_INDEX;
 
 			_uniformCache.emplace(name, loc);
 			return loc;
