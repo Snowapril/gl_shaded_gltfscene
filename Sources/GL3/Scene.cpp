@@ -1,5 +1,6 @@
 #include <GL3/Scene.hpp>
 #include <GL3/Shader.hpp>
+#include <GL3/Macros.hpp>
 #include <bitset>
 #include <glad/glad.h>
 #include <chrono>
@@ -141,12 +142,13 @@ namespace GL3 {
 
 	void Scene::Update(double dt)
 	{
-		(void)dt;
+		UNUSED_VARIABLE(dt);
 	}
 
 	void Scene::Render(const std::shared_ptr< Shader >& shader, GLenum alphaMode) const
 	{
-		(void)alphaMode;
+		UNUSED_VARIABLE(alphaMode);
+
 		auto scope = _debug.ScopeLabel("Scene Rendering");
 		glBindVertexArray(_vao);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _matrixBuffer);
@@ -161,9 +163,6 @@ namespace GL3 {
 		int lastMaterialIdx = -1, nodeIdx = 0;
 		for (auto& node : _sceneNodes)
 		{
-			const size_t uboOffset = sizeof(NodeMatrix) * nodeIdx;
-			(void)uboOffset;
-
 			auto& primMesh = _scenePrimMeshes[node.primMesh];
 			if (primMesh.materialIndex != lastMaterialIdx)
 			{

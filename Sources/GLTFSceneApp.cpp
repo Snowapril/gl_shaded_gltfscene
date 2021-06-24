@@ -2,6 +2,7 @@
 #include <GL3/Window.hpp>
 #include <GL3/PerspectiveCamera.hpp>
 #include <GL3/Shader.hpp>
+#include <GL3/Macros.hpp>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -123,5 +124,6 @@ void GLTFSceneApp::OnProcessInput(unsigned int key)
 
 void GLTFSceneApp::OnProcessResize(int width, int height)
 {
-	(void)width; (void)height;
+	UNUSED_VARIABLE(width);
+	UNUSED_VARIABLE(height);
 }

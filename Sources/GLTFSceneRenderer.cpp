@@ -1,5 +1,6 @@
 #include <GLTFSceneRenderer.hpp>
 #include <GLTFSceneApp.hpp>
+#include <GL3/Macros.hpp>
 #include <glad/glad.h>
 
 GLTFSceneRenderer::GLTFSceneRenderer()
@@ -30,7 +31,7 @@ void GLTFSceneRenderer::OnCleanUp()
 
 void GLTFSceneRenderer::OnUpdateFrame(double dt)
 {
-	(void)dt;
+	UNUSED_VARIABLE(dt);
 }
 
 void GLTFSceneRenderer::OnBeginDraw()
@@ -45,10 +46,11 @@ void GLTFSceneRenderer::OnEndDraw()
 
 void GLTFSceneRenderer::OnProcessInput(unsigned int key)
 {
-	(void)key;
+	UNUSED_VARIABLE(key);
 }
 
 void GLTFSceneRenderer::OnProcessResize(int width, int height)
 {
-	(void)width; (void)height;
+	UNUSED_VARIABLE(width);
+	UNUSED_VARIABLE(height);
 }
