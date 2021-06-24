@@ -70,33 +70,9 @@ bool GLTFSceneApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxop
 	return true;
 }
 
-bool GLTFSceneApp::AddGLTFScene(const std::string& scenePath)
-{
-    GL3::Scene newScene;
-    if (!newScene.Initialize(scenePath, Core::VertexFormat::Position3Normal3TexCoord2Color4))
-		return false;
-
-	_sceneInstances.emplace_back(std::move(newScene));
-    return true;
-}
-
-bool GLTFSceneApp::AttachEnvironment(const std::string& hdrImage)
-{
-    if (!_skyDome.Initialize(hdrImage))
-		return false;
-	
-	return true;
-}
-
 void GLTFSceneApp::OnCleanUp()
 {
-	//! Release scene data uniform buffer
-	glDeleteBuffers(1, &_uniformBuffer);
-	//! Clean up skydome and scenes
-	_skyDome.CleanUp();
-    for (auto& scene : _sceneInstances)
-		scene.CleanUp();
-    _sceneInstances.clear();
+	_sceneInstance.CleanUp();
 }
 
 void GLTFSceneApp::OnUpdate(double dt)
@@ -128,9 +104,9 @@ void GLTFSceneApp::OnDraw()
 	glBindTextureUnit(1, iblTextures.brdfLUT);
 	glBindTextureUnit(2, iblTextures.prefilteredCube);
 
-	//! Render all the scenes
-    for (const auto& scene : _sceneInstances)
-        scene.Render(pbrShader, GL_BLEND_SRC_ALPHA);
+	_cameras[0]->BindCamera(0);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 1, _uniformBuffer);
+	_sceneInstance.Render(pbrShader, GL_BLEND_SRC_ALPHA);
 }
 
 void GLTFSceneApp::OnProcessInput(unsigned int key)

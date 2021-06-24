@@ -5,7 +5,6 @@
 #include <GL3/Scene.hpp>
 #include <GL3/DebugUtils.hpp>
 #include <GL3/SkyDome.hpp>
-#include <vector>
 
 class GLTFSceneApp : public GL3::Application
 {
@@ -38,7 +37,7 @@ private:
 		int			_padding[3];
 	} _sceneData;
 
-	std::vector<GL3::Scene> _sceneInstances;
+	GL3::Scene _sceneInstance;
 	GL3::SkyDome _skyDome;
 	GL3::DebugUtils _debug;
 	GLuint _uniformBuffer;
