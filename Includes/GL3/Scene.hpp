@@ -34,13 +34,19 @@ namespace GL3 {
 		void Render(const std::shared_ptr< Shader >& shader, GLenum alphaMode) const;
 		//! Clean up the generated resources
 		void CleanUp();
+		//! Returns the number of animations
+		size_t GetNumAnimations() const;
+		//! Set current scene animation index
+		void SetAnimIndex(size_t animIndex);
 	private:
+
 		std::vector< GLuint > _textures;
 		std::vector< GLuint > _buffers;
 		DebugUtils _debug;
 		GLuint _vao{ 0 }, _ebo{ 0 };
 		GLuint _matrixBuffer{ 0 };
 		GLuint _materialBuffer{ 0 };
+		size_t _animIndex{ 0 };
 	};
 
 };

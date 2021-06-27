@@ -1,6 +1,6 @@
 #include <GL3/Scene.hpp>
 #include <GL3/Shader.hpp>
-#include <GL3/Macros.hpp>
+#include <Core/Macros.hpp>
 #include <bitset>
 #include <glad/glad.h>
 #include <chrono>
@@ -192,5 +192,15 @@ namespace GL3 {
 		glDeleteBuffers(_buffers.size(), _buffers.data());
 		glDeleteBuffers(1, &_ebo);
 		glDeleteVertexArrays(1, &_vao);
+	}
+
+	size_t Scene::GetNumAnimations() const
+	{
+		return _sceneAnims.size();
+	}
+
+	void Scene::SetAnimIndex(size_t animIndex)
+	{
+		_animIndex = animIndex;
 	}
 };
