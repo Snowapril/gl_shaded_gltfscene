@@ -142,7 +142,27 @@ namespace GL3 {
 
 	void Scene::Update(double dt)
 	{
-		UNUSED_VARIABLE(dt);
+		bool sceneModified = UpdateAnimation(_animIndex, _timeElapsed);
+
+		if (sceneModified)
+		{
+			std::vector<NodeMatrix> matrices;
+			matrices.reserve(_sceneNodes.size());
+			for (const auto& node : _sceneNodes)
+			{
+				NodeMatrix instance;
+				instance.first = node.world;
+				instance.second = glm::transpose(glm::inverse(instance.first));
+				matrices.emplace_back(std::move(instance));
+			}
+
+			//! TODO(snowapril) : mark only modified node and update the contents of them
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, _matrixBuffer);
+			glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, matrices.size() * sizeof(NodeMatrix), matrices.data());
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+		}
+
+		_timeElapsed += dt;
 	}
 
 	void Scene::Render(const std::shared_ptr< Shader >& shader, GLenum alphaMode) const

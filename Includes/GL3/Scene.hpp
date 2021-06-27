@@ -46,6 +46,7 @@ namespace GL3 {
 		GLuint _vao{ 0 }, _ebo{ 0 };
 		GLuint _matrixBuffer{ 0 };
 		GLuint _materialBuffer{ 0 };
+		double _timeElapsed{ 0.0 };
 		size_t _animIndex{ 0 };
 	};
 
