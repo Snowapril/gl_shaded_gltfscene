@@ -1,6 +1,6 @@
 #include <GL3/SkyDome.hpp>
 #include <GL3/Shader.hpp>
-#include <GL3/Macros.hpp>
+#include <Core/Macros.hpp>
 #include <Core/AssetLoader.hpp>
 #include <glad/glad.h>
 #include <glm/vec3.hpp>

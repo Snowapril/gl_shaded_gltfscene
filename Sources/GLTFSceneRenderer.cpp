@@ -1,6 +1,6 @@
 #include <GLTFSceneRenderer.hpp>
 #include <GLTFSceneApp.hpp>
-#include <GL3/Macros.hpp>
+#include <Core/Macros.hpp>
 #include <glad/glad.h>
 
 GLTFSceneRenderer::GLTFSceneRenderer()

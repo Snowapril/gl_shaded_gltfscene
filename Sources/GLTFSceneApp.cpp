@@ -2,7 +2,7 @@
 #include <GL3/Window.hpp>
 #include <GL3/PerspectiveCamera.hpp>
 #include <GL3/Shader.hpp>
-#include <GL3/Macros.hpp>
+#include <Core/Macros.hpp>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
