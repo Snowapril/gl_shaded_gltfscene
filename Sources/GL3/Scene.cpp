@@ -180,25 +180,28 @@ namespace GL3 {
 				glBindTextureUnit(i + 3, _textures[i]);
 		}
 
-		int lastMaterialIdx = -1, nodeIdx = 0;
+		int lastMaterialIdx = -1, instanceIdx = 0;
 		for (auto& node : _sceneNodes)
 		{
-			auto& primMesh = _scenePrimMeshes[node.primMesh];
-			if (primMesh.materialIndex != lastMaterialIdx)
+			shader->SendUniformVariable("instanceIdx", instanceIdx);
+
+			for (unsigned int meshIdx : node.primMeshes)
 			{
-				auto materialScope = _debug.ScopeLabel("Material Binding: " + std::to_string(nodeIdx));
-				shader->SendUniformVariable("materialIdx", primMesh.materialIndex);
-				lastMaterialIdx = primMesh.materialIndex;
+				auto& primMesh = _scenePrimMeshes[meshIdx];
+				if (primMesh.materialIndex != lastMaterialIdx)
+				{
+					auto materialScope = _debug.ScopeLabel("Material Binding: " + std::to_string(instanceIdx));
+					shader->SendUniformVariable("materialIdx", primMesh.materialIndex);
+					lastMaterialIdx = primMesh.materialIndex;
+				}
+
+				auto drawScope = _debug.ScopeLabel("Draw Mesh: " + std::to_string(instanceIdx));
+				//! Draw elements with primitive mesh index informations.
+				glDrawElementsBaseVertex(GL_TRIANGLES, primMesh.indexCount, GL_UNSIGNED_INT,
+					reinterpret_cast<const void*>(primMesh.firstIndex * sizeof(unsigned int)), primMesh.vertexOffset);
+
+				++instanceIdx;
 			}
-			
-			shader->SendUniformVariable("instanceIdx", nodeIdx);
-
-			auto drawScope = _debug.ScopeLabel("Draw Mesh: " + std::to_string(nodeIdx));
-			//! Draw elements with primitive mesh index informations.
-			glDrawElementsBaseVertex(GL_TRIANGLES, primMesh.indexCount, GL_UNSIGNED_INT, 
-				reinterpret_cast<const void*>(primMesh.firstIndex * sizeof(unsigned int)), primMesh.vertexOffset);
-
-			++nodeIdx;
 		}
 
 		glBindVertexArray(0);
