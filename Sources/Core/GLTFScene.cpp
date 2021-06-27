@@ -1,4 +1,5 @@
 #include <Core/GLTFScene.hpp>
+#include <Core/MathUtils.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <unordered_set>
@@ -430,7 +431,7 @@ namespace Core {
 		return res;
 	}
 
-	void GLTFScene::ProcessNode(const tinygltf::Model& model, int& nodeIdx, const glm::mat4& parentMatrix)
+	void GLTFScene::ProcessNode(const tinygltf::Model& model, int nodeIdx, const glm::mat4& parentMatrix)
 	{
 		const auto& node = model.nodes[nodeIdx];
 
@@ -495,6 +496,68 @@ namespace Core {
 		}
 	}
 
+	void GLTFScene::UpdateNode(int nodeIndex)
+	{
+		//! TODO(snowapril)
+		//! world가 SRT가 적용된 matrix라서 UpdateNode를 호출할수록 위치가 어긋날 가능성이 있음
+		//! scale, rotation, translation이 적용안된 matrix를 따로 저장하고, 적용된 matrix를 따로 저장하면 되지만 너무 용량이 커짐.. 고민
+		auto& node = _sceneNodes[nodeIndex];
+		node.world = glm::scale(glm::mat4(1.0f), node.scale) * glm::toMat4(node.rotation) * glm::translate(glm::mat4(1.0f), node.translation) * node.world;
+
+		for (int child : node.childNodes)
+			UpdateNode(child);
+	}
+
+	bool GLTFScene::UpdateAnimation(int animIndex, float timeElapsed)
+	{
+		//! There is no animation corresponded to given index, therefore return.
+		if (_sceneAnims.size() <= animIndex)
+			return false;
+
+		bool sceneModified = false;
+		const auto& anim = _sceneAnims[animIndex];
+		for (int ch = anim.channelIndex; ch < anim.channelCount + anim.channelIndex; ++ch)
+		{
+			const auto& channel = _sceneChannels[ch];
+			const auto& sampler = _sceneSamplers[channel.samplerIndex];
+			auto& node = _sceneNodes[channel.nodeIndex];
+
+			const double elapsed = std::fmod(timeElapsed, sampler.inputs.back());
+
+			for (size_t i = 0; i < sampler.inputs.size() - 1; ++i)
+			{
+				if (sampler.inputs[i] <= elapsed && elapsed < sampler.inputs[i + 1])
+				{
+					const double keyframe = std::max(0.0, (elapsed - sampler.inputs[i]) / (sampler.inputs[i + 1] - sampler.inputs[i]));
+					if (keyframe <= 1.0)
+					{
+						switch (channel.path)
+						{
+						case GLTFChannel::Path::Translation:
+							node.translation = Interpolation::Lerp(sampler.outputs[i], sampler.outputs[i + 1], keyframe);
+							break;
+						case GLTFChannel::Path::Rotation:
+							node.rotation = glm::quat(Interpolation::SLerp(sampler.outputs[i], sampler.outputs[i + 1], keyframe));
+							break;
+						case GLTFChannel::Path::Scale:
+							node.scale = Interpolation::Lerp(sampler.outputs[i], sampler.outputs[i + 1], keyframe);
+							break;
+						case GLTFChannel::Path::Weights:
+							std::cerr << "[GLTFScene::UpdateAnimation] Weights not implemented yet" << std::endl;
+							return false;
+							break;
+						}
+
+						UpdateNode(channel.samplerIndex);
+						sceneModified = true;
+					}
+				}
+			}
+		}
+
+		return sceneModified;
+	}
+
 	void GLTFScene::ProcessAnimation(const tinygltf::Model& model, const tinygltf::Animation& anim, std::size_t channelOffset, std::size_t samplerOffset)
 	{
 		GLTFAnimation animation;
@@ -515,6 +578,8 @@ namespace Core {
 				channel.path = GLTFChannel::Path::Scale;
 			else if (ch.target_path == "rotation")
 				channel.path = GLTFChannel::Path::Rotation;
+			else if (ch.target_path == "weights")
+				channel.path = GLTFChannel::Path::Weights;
 			else
 			{
 				//! Unknown gltf channel target path.
@@ -528,7 +593,6 @@ namespace Core {
 		for (const auto& s : anim.samplers)
 		{
 			GLTFSampler sampler;
-
 			if (s.interpolation == "LINEAR")
 				sampler.interpolation = GLTFSampler::Interpolation::Linear;
 			else if (s.interpolation == "STEP")
@@ -563,7 +627,13 @@ namespace Core {
 
 				assert(accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT);
 
-				if (accessor.type == TINYGLTF_TYPE_VEC3)
+				if (accessor.type == TINYGLTF_TYPE_SCALAR)
+				{
+					const float* dataPtr = reinterpret_cast<const float*>(&buffer.data[0]);
+					for (size_t i = 0; i < accessor.count; ++i)
+						sampler.outputs.push_back(glm::vec4(*(dataPtr++), glm::vec3(0.0f)));
+				}
+				else if (accessor.type == TINYGLTF_TYPE_VEC3)
 				{
 					const glm::vec3* dataPtr = reinterpret_cast<const glm::vec3*>(&buffer.data[0]);
 					for (size_t i = 0; i < accessor.count; ++i)

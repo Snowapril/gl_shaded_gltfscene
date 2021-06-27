@@ -97,7 +97,9 @@ namespace Core {
 		virtual ~GLTFScene();
 		//! Initialize the GLTFScene with gltf scene file path
 		bool Initialize(const std::string& filename, VertexFormat format, ImageCallback imageCallback = nullptr);
-
+		//! Update scene animation
+		//! Returns whether scene is modified or not
+		bool UpdateAnimation(int animIndex, float timeElapsed);
 	protected:
 		//! https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#reference-material
 		struct GLTFMaterial
@@ -137,6 +139,7 @@ namespace Core {
 			glm::vec3 translation{ 0.0f };
 			glm::vec3 scale{ 1.0f };
 			glm::quat rotation;
+			std::vector<int> childNodes;
 			int primMesh{ 0 };
 		};
 
@@ -252,7 +255,9 @@ namespace Core {
 		//! Process mesh in the model
 		void ProcessMesh(const tinygltf::Model& model, const tinygltf::Primitive& mesh, VertexFormat format, const std::string& name);
 		//! Process node in the model recursively.
-		void ProcessNode(const tinygltf::Model& model, int& nodeIdx, const glm::mat4& parentMatrix);
+		void ProcessNode(const tinygltf::Model& model, int nodeIdx, const glm::mat4& parentMatrix);
+		//! Update the given node and childs matrices
+		void UpdateNode(int nodeIndex);
 		//! Process animation in the model
 		void ProcessAnimation(const tinygltf::Model& model, const tinygltf::Animation& anim, std::size_t channelOffset, std::size_t samplerOffset);
 		//! Calculate the scene dimension from loaded nodes.
