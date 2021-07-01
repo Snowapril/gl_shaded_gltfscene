@@ -28,7 +28,7 @@ bool GLTFSceneApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxop
 		return false;
 
 	defaultCam->SetupCamera(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	defaultCam->SetProperties(window->GetAspectRatio(), 60.0f, 0.1f, 100.0f);
+	defaultCam->SetProperties(window->GetAspectRatio(), 60.0f, 0.001f, 100.0f);
 	defaultCam->UpdateMatrix();
 
 	AddCamera(std::move(defaultCam));
