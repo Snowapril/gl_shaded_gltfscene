@@ -39,6 +39,8 @@ namespace GL3 {
 		//! Set current scene animation index
 		void SetAnimIndex(size_t animIndex);
 	private:
+		//! Update matrix buffer with modified scene nodes
+		void UpdateMatrixBuffer();
 
 		std::vector< GLuint > _textures;
 		std::vector< GLuint > _buffers;
