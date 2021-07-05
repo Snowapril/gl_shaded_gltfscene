@@ -594,9 +594,11 @@ namespace Core {
 		{
 			GLTFChannel channel;
 			channel.samplerIndex = ch.sampler;
+			//! Remapping gltf::channel::node_index to our node index
 			for (int i = 0; i < static_cast<int>(_sceneNodes.size()); ++i)
 				if (_sceneNodes[i].nodeIndex == ch.target_node)
 					channel.nodeIndex = i;
+			//! Assign matched channel path by comparing target_path string
 			if (ch.target_path == "translation")
 				channel.path = GLTFChannel::Path::Translation;
 			else if (ch.target_path == "scale")
@@ -618,6 +620,7 @@ namespace Core {
 		for (const auto& s : anim.samplers)
 		{
 			GLTFSampler sampler;
+			//! Assign sampler interpolation method by comparing interpolation string
 			if (s.interpolation == "LINEAR")
 				sampler.interpolation = GLTFSampler::Interpolation::Linear;
 			else if (s.interpolation == "STEP")
