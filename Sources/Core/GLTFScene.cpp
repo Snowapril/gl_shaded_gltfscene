@@ -530,13 +530,20 @@ namespace Core {
 
 		bool sceneModified = false;
 		const auto& anim = _sceneAnims[animIndex];
+
+		//! Get maximum interval from scene samplers
+		//! TODO(snowapril) : this can be precalculated
+		float maxAnimInterval = 0.0f;
+		for (int s = anim.samplerIndex; s < anim.samplerIndex + anim.samplerCount; ++s)
+			maxAnimInterval = std::max(maxAnimInterval, _sceneSamplers[s].inputs.back());
+		//! Calculate timeElapsed modulo max interval
+		const float elapsed = std::fmod(timeElapsed, maxAnimInterval);
+
 		for (int ch = anim.channelIndex; ch < anim.channelCount + anim.channelIndex; ++ch)
 		{
 			const auto& channel = _sceneChannels[ch];
 			const auto& sampler = _sceneSamplers[channel.samplerIndex];
 			auto& node = _sceneNodes[channel.nodeIndex];
-
-			const float elapsed = std::fmod(timeElapsed, sampler.inputs.back());
 
 			for (size_t i = 0; i < sampler.inputs.size() - 1; ++i)
 			{
