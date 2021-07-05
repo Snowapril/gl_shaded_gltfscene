@@ -251,15 +251,13 @@ namespace Core {
 		template <typename Type>
 		static bool GetAttributes(const tinygltf::Model& model, const tinygltf::Primitive& primitive, std::vector<Type>& attributes, const std::string& name);
 		//! Returns the SRT matrix combination of this node.
-		static glm::mat4 GetLocalMatrix(const tinygltf::Node& node);
 		static glm::mat4 GetLocalMatrix(const GLTFNode& node);
-		static void GetNodeTransform(const tinygltf::Node& srcNode, GLTFNode& destNode);
 		//! Import materials from the model
 		void ImportMaterials(const tinygltf::Model& model);
 		//! Process mesh in the model
 		void ProcessMesh(const tinygltf::Model& model, const tinygltf::Primitive& mesh, VertexFormat format, const std::string& name);
 		//! Process node in the model recursively.
-		void ProcessNode(const tinygltf::Model& model, int nodeIdx, const glm::mat4& parentMatrix, int parentIdx);
+		void ProcessNode(const tinygltf::Model& model, int nodeIdx, int parentIndex);
 		//! Update the given node and childs matrices
 		void UpdateNode(int nodeIndex, const glm::mat4& parentMatrix = glm::mat4(1.0f));
 		//! Process animation in the model
@@ -276,7 +274,7 @@ namespace Core {
 		static void GetValue(const tinygltf::Value& value, const std::string& name, Type& val);
 		//! Returns texture ID for a tinygltf::Value
 		static void GetTextureID(const tinygltf::Value& value, const std::string& name, int& id);
-		//! Temporary storage for processing nodes.
+		//! Temporary storages for processing nodes.
 		std::unordered_map<unsigned int, std::vector<unsigned int>> _meshToPrimMap;
 		std::vector<unsigned int> _u32Buffer;
 		std::vector<unsigned short> _u16Buffer;

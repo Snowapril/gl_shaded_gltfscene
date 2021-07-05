@@ -126,7 +126,7 @@ namespace Core {
 		const auto& scene = model.scenes[defaultScene];
 		for (auto nodeIdx : scene.nodes)
 		{
-			ProcessNode(model, nodeIdx, glm::mat4(1.0f), -1);
+			ProcessNode(model, nodeIdx, -1);
 		}
 
 		//! Convert all channels & samplers into each single vectors,
@@ -431,28 +431,29 @@ namespace Core {
 		return res;
 	}
 
-	void GLTFScene::ProcessNode(const tinygltf::Model& model, int nodeIdx, const glm::mat4& parentMatrix, int parentIdx)
+	void GLTFScene::ProcessNode(const tinygltf::Model& model, int nodeIdx, int parentIndex)
 	{
 		const auto& node = model.nodes[nodeIdx];
 
-		GLTFNode tempNode;
-		GetNodeTransform(node, tempNode);
-		glm::mat4 localMat = GetLocalMatrix(tempNode);
-		glm::mat4 worldMat = parentMatrix * localMat;
-		int newNodeIdx = -1;
-
-		if (node.mesh > -1)
+		GLTFNode newNode;
+		//! Gets transformation info from the given node
+		if (node.translation.empty() == false)
+			newNode.translation = glm::vec3(node.translation[0], node.translation[1], node.translation[2]);
+		if (node.scale.empty() == false)
+			newNode.scale = glm::vec3(node.scale[0], node.scale[1], node.scale[2]);
+		if (node.rotation.empty() == false)
+			newNode.rotation = glm::quat(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
+		if (node.matrix.empty() == false)
 		{
-			newNodeIdx = _sceneNodes.size();
-			const auto& meshes = _meshToPrimMap[node.mesh];
-			tempNode.world = worldMat;
-			tempNode.primMeshes = std::move(_meshToPrimMap[node.mesh]);
-			tempNode.nodeIndex = nodeIdx;
-			_sceneNodes.emplace_back(std::move(tempNode));
-			if (parentIdx != -1)
-				_sceneNodes[parentIdx].childNodes.push_back(newNodeIdx);
+			float* nodeMatPtr = glm::value_ptr(newNode.local);
+			for (int i = 0; i < 16; ++i)
+				nodeMatPtr[i] = static_cast<float>(node.matrix[i]);
 		}
-		else if (node.camera > -1)
+
+		//! Calculate world matrix
+		glm::mat4 worldMat = (parentIndex != -1 ? _sceneNodes[parentIndex].world : glm::mat4(1.0f)) * GetLocalMatrix(newNode);
+
+		if (node.camera > -1)
 		{
 			GLTFCamera camera;
 			camera.world = worldMat;
@@ -492,17 +493,30 @@ namespace Core {
 			light.world = worldMat;
 			_sceneLights.emplace_back(light);
 		}
-
-		for (auto child : node.children)
+		else
 		{
-			ProcessNode(model, child, worldMat, newNodeIdx);
+			if (node.mesh > -1)
+				newNode.primMeshes = std::move(_meshToPrimMap[node.mesh]);
+
+			newNode.world = std::move(worldMat);
+			newNode.nodeIndex = nodeIdx;
+
+			//! Push newnode to both linear scene node array and parent child array
+			const int newNodeIndex = static_cast<int>(_sceneNodes.size());
+			_sceneNodes.emplace_back(std::move(newNode));
+			if (parentIndex != -1)
+				_sceneNodes[parentIndex].childNodes.push_back(newNodeIndex);
+
+			//! Call ProcessNode recursively to the childs of this newNode
+			for (auto child : node.children)
+				ProcessNode(model, child, newNodeIndex);
 		}
 	}
 
 	void GLTFScene::UpdateNode(int nodeIndex, const glm::mat4& parentMatrix)	
 	{
 		auto& node = _sceneNodes[nodeIndex];
-		node.world = parentMatrix * glm::scale(glm::mat4(1.0f), node.scale) * glm::toMat4(node.rotation) * glm::translate(glm::mat4(1.0f), node.translation) * node.local;
+		node.world = parentMatrix * GetLocalMatrix(node);
 		
 		for (int child : node.childNodes)
 			UpdateNode(child, node.world);
@@ -550,7 +564,7 @@ namespace Core {
 							break;
 						}
 
-						UpdateNode(channel.samplerIndex);
+						UpdateNode(channel.nodeIndex);
 						sceneModified = true;
 					}
 				}
@@ -667,51 +681,12 @@ namespace Core {
 		_sceneAnims.emplace_back(std::move(animation));
 	}
 
-	glm::mat4 GLTFScene::GetLocalMatrix(const tinygltf::Node& node)
-	{
-		glm::mat4 T(1.0f);
-		glm::mat4 S(1.0f);
-		glm::mat4 R(1.0f);
-		glm::mat4 nodeMat(1.0f);
-
-		if (node.translation.empty() == false)
-			T = glm::translate(T, glm::vec3(node.translation[0], node.translation[1], node.translation[2]));
-		if (node.scale.empty() == false)
-			S = glm::scale(S, glm::vec3(node.scale[0], node.scale[1], node.scale[2]));
-		if (node.rotation.empty() == false)
-		{
-			glm::quat rotationQuat(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
-			R = glm::toMat4(rotationQuat);
-		}
-		if (node.matrix.empty() == false)
-		{
-			float* nodeMatPtr = glm::value_ptr(nodeMat);
-			for (int i = 0; i < 16; ++i)
-				nodeMatPtr[i] = static_cast<float>(node.matrix[i]);
-		}
-		return T * R * S * nodeMat;
-	}
-
 	glm::mat4 GLTFScene::GetLocalMatrix(const GLTFNode& node)
 	{
-		return glm::translate(glm::mat4(1.0f), node.translation) * glm::toMat4(node.rotation) 
-				* glm::scale(glm::mat4(1.0f), node.scale) * node.local;
-	}
-
-	void GLTFScene::GetNodeTransform(const tinygltf::Node& srcNode, GLTFNode& destNode)
-	{
-		if (srcNode.translation.empty() == false)
-			destNode.translation = glm::vec3(srcNode.translation[0], srcNode.translation[1], srcNode.translation[2]);
-		if (srcNode.scale.empty() == false)
-			destNode.scale = glm::vec3(srcNode.scale[0], srcNode.scale[1], srcNode.scale[2]);
-		if (srcNode.rotation.empty() == false)
-			destNode.rotation = glm::quat(srcNode.rotation[3], srcNode.rotation[0], srcNode.rotation[1], srcNode.rotation[2]);
-		if (srcNode.matrix.empty() == false)
-		{
-			float* nodeMatPtr = glm::value_ptr(destNode.local);
-			for (int i = 0; i < 16; ++i)
-				nodeMatPtr[i] = static_cast<float>(srcNode.matrix[i]);
-		}
+		return glm::translate(glm::mat4(1.0f), node.translation) * 
+			   glm::toMat4(node.rotation) *
+			   glm::scale(glm::mat4(1.0f), node.scale) *
+			   node.local;
 	}
 
 	void GLTFScene::CalculateSceneDimension()
