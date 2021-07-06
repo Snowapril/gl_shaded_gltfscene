@@ -209,12 +209,12 @@ namespace GL3 {
 					instance.second = glm::transpose(glm::inverse(instance.first));
 				matrices.emplace_back(std::move(instance));
 			}
-
-			//! TODO(snowapril) : mark only modified node and update the contents of them
-			glBindBuffer(GL_SHADER_STORAGE_BUFFER, _matrixBuffer);
-			glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, matrices.size() * sizeof(NodeMatrix), matrices.data());
-			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 		}
+
+		//! TODO(snowapril) : mark only modified node and update the contents of them
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, _matrixBuffer);
+		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, matrices.size() * sizeof(NodeMatrix), matrices.data());
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}
 
 	void Scene::CleanUp()
