@@ -263,6 +263,10 @@ namespace Core {
 		void UpdateNode(int nodeIndex);
 		//! Process animation in the model
 		void ProcessAnimation(const tinygltf::Model& model, const tinygltf::Animation& anim, std::size_t channelOffset, std::size_t samplerOffset);
+		//! Process animation channel and append it to _sceneChannels
+		void ProcessChannel(const tinygltf::Model& model, const tinygltf::AnimationChannel& channel);
+		//! Process animation sampler and append it to _sceneSamplers
+		void ProcessSampler(const tinygltf::Model& model, const tinygltf::AnimationSampler& sampler);
 		//! Calculate the scene dimension from loaded nodes.
 		void CalculateSceneDimension();
 		//! Compute the uninitialized cameras with parsed scene dimension.

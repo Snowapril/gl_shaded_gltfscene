@@ -605,105 +605,111 @@ namespace Core {
 		animation.samplerIndex = samplerOffset;
 		animation.samplerCount = static_cast<int>(anim.samplers.size());
 
-		for (const auto& ch : anim.channels)
-		{
-			GLTFChannel channel;
-			channel.samplerIndex = ch.sampler;
-			//! Remapping gltf::channel::node_index to our node index
-			for (int i = 0; i < static_cast<int>(_sceneNodes.size()); ++i)
-				if (_sceneNodes[i].nodeIndex == ch.target_node)
-					channel.nodeIndex = i;
-			//! Assign matched channel path by comparing target_path string
-			if (ch.target_path == "translation")
-				channel.path = GLTFChannel::Path::Translation;
-			else if (ch.target_path == "scale")
-				channel.path = GLTFChannel::Path::Scale;
-			else if (ch.target_path == "rotation")
-				channel.path = GLTFChannel::Path::Rotation;
-			else if (ch.target_path == "weights")
-				channel.path = GLTFChannel::Path::Weights;
-			else
-			{
-				//! Unknown gltf channel target path.
-				std::cerr << "[GLTFScene::ProcessAnimation] Unknown channel target path : " << ch.target_path << '\n';
-				return;
-			}
+		for (const auto& channel : anim.channels)
+			ProcessChannel(model, channel);
 
-			_sceneChannels.emplace_back(std::move(channel));
-		}
-
-		for (const auto& s : anim.samplers)
-		{
-			GLTFSampler sampler;
-			//! Assign sampler interpolation method by comparing interpolation string
-			if (s.interpolation == "LINEAR")
-				sampler.interpolation = GLTFSampler::Interpolation::Linear;
-			else if (s.interpolation == "STEP")
-				sampler.interpolation = GLTFSampler::Interpolation::Step;
-			else if (s.interpolation == "CUBICSPLINE")
-				sampler.interpolation = GLTFSampler::Interpolation::Cubicspline;
-			else
-			{
-				//! Unknown gltf sampler interpolation method
-				std::cerr << "[GLTFScene::ProcessAnimation] Unknown sampler interpolation method : " << s.interpolation << '\n';
-				return;
-			}
-
-			//! Process sampler inputs
-			{
-				const tinygltf::Accessor& accessor = model.accessors[s.input];
-				const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
-				const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
-
-				assert(accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT);
-
-				const void* dataPtr = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
-
-				const float* buf = static_cast<const float*>(dataPtr);
-				for (size_t i = 0; i < accessor.count; ++i)
-					sampler.inputs.push_back(buf[i]);
-			}
-
-			//! Process sampler outputs
-			{
-				const tinygltf::Accessor& accessor = model.accessors[s.output];
-				const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
-				const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
-
-				assert(accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT);
-
-				const void* dataPtr = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
-
-				if (accessor.type == TINYGLTF_TYPE_SCALAR)
-				{
-					const float* buf = static_cast<const float*>(dataPtr);
-					for (size_t i = 0; i < accessor.count; ++i)
-						sampler.outputs.push_back(glm::vec4(buf[i], glm::vec3(0.0f)));
-				}
-				else if (accessor.type == TINYGLTF_TYPE_VEC3)
-				{
-					const glm::vec3* buf = static_cast<const glm::vec3*>(dataPtr);
-					for (size_t i = 0; i < accessor.count; ++i)
-						sampler.outputs.push_back(glm::vec4(buf[i], 1.0));
-				}
-				else if (accessor.type == TINYGLTF_TYPE_VEC4)
-				{
-					const glm::vec4* buf = static_cast<const glm::vec4*>(dataPtr);
-					for (size_t i = 0; i < accessor.count; ++i)
-						sampler.outputs.push_back(buf[i]);
-				}
-				else
-				{
-					//! Unknown sampler output type
-					std::cerr << "[GLTFScene::ProcessAnimation] Unknown sampler output type : " << accessor.type << '\n';
-					return;
-				}
-			}
-
-			_sceneSamplers.emplace_back(std::move(sampler));
-		}
+		for (const auto& sampler : anim.samplers)
+			ProcessSampler(model, sampler);
 
 		_sceneAnims.emplace_back(std::move(animation));
+	}
+
+	void GLTFScene::ProcessChannel(const tinygltf::Model& model, const tinygltf::AnimationChannel& channel)
+	{
+		GLTFChannel newChannel;
+		newChannel.samplerIndex = channel.sampler;
+		//! Remapping gltf::channel::node_index to our node index
+		for (int i = 0; i < static_cast<int>(_sceneNodes.size()); ++i)
+			if (_sceneNodes[i].nodeIndex == channel.target_node)
+				newChannel.nodeIndex = i;
+		//! Assign matched channel path by comparing target_path string
+		if (channel.target_path == "translation")
+			newChannel.path = GLTFChannel::Path::Translation;
+		else if (channel.target_path == "scale")
+			newChannel.path = GLTFChannel::Path::Scale;
+		else if (channel.target_path == "rotation")
+			newChannel.path = GLTFChannel::Path::Rotation;
+		else if (channel.target_path == "weights")
+			newChannel.path = GLTFChannel::Path::Weights;
+		else
+		{
+			//! Unknown gltf channel target path.
+			std::cerr << "[GLTFScene::ProcessAnimation] Unknown channel target path : " << channel.target_path << '\n';
+			return;
+		}
+
+		_sceneChannels.emplace_back(std::move(newChannel));
+	}
+
+	void GLTFScene::ProcessSampler(const tinygltf::Model& model, const tinygltf::AnimationSampler& sampler)
+	{
+		GLTFSampler newSampler;
+		//! Assign sampler interpolation method by comparing interpolation string
+		if (sampler.interpolation == "LINEAR")
+			newSampler.interpolation = GLTFSampler::Interpolation::Linear;
+		else if (sampler.interpolation == "STEP")
+			newSampler.interpolation = GLTFSampler::Interpolation::Step;
+		else if (sampler.interpolation == "CUBICSPLINE")
+			newSampler.interpolation = GLTFSampler::Interpolation::Cubicspline;
+		else
+		{
+			//! Unknown gltf sampler interpolation method
+			std::cerr << "[GLTFScene::ProcessAnimation] Unknown sampler interpolation method : " << sampler.interpolation << '\n';
+			return;
+		}
+
+		//! Process sampler inputs
+		{
+			const tinygltf::Accessor& accessor = model.accessors[sampler.input];
+			const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
+			const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
+
+			assert(accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT);
+
+			const void* dataPtr = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
+
+			const float* buf = static_cast<const float*>(dataPtr);
+			for (size_t i = 0; i < accessor.count; ++i)
+				newSampler.inputs.push_back(buf[i]);
+		}
+
+		//! Process sampler outputs
+		{
+			const tinygltf::Accessor& accessor = model.accessors[sampler.output];
+			const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
+			const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
+
+			assert(accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT);
+
+			const void* dataPtr = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
+
+			if (accessor.type == TINYGLTF_TYPE_SCALAR)
+			{
+				const float* buf = static_cast<const float*>(dataPtr);
+				for (size_t i = 0; i < accessor.count; ++i)
+					newSampler.outputs.push_back(glm::vec4(buf[i], glm::vec3(0.0f)));
+			}
+			else if (accessor.type == TINYGLTF_TYPE_VEC3)
+			{
+				const glm::vec3* buf = static_cast<const glm::vec3*>(dataPtr);
+				for (size_t i = 0; i < accessor.count; ++i)
+					newSampler.outputs.push_back(glm::vec4(buf[i], 1.0));
+			}
+			else if (accessor.type == TINYGLTF_TYPE_VEC4)
+			{
+				const glm::vec4* buf = static_cast<const glm::vec4*>(dataPtr);
+				for (size_t i = 0; i < accessor.count; ++i)
+					newSampler.outputs.push_back(buf[i]);
+			}
+			else
+			{
+				//! Unknown sampler output type
+				std::cerr << "[GLTFScene::ProcessAnimation] Unknown sampler output type : " << accessor.type << '\n';
+				return;
+			}
+		}
+
+		_sceneSamplers.emplace_back(std::move(newSampler));
 	}
 
 	glm::mat4 GLTFScene::GetLocalMatrix(const GLTFNode& node)
