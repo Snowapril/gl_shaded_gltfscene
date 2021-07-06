@@ -2,6 +2,7 @@
 #include <GL3/Window.hpp>
 #include <GL3/PerspectiveCamera.hpp>
 #include <GL3/Shader.hpp>
+#include <Core/Macros.hpp>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -26,8 +27,8 @@ bool GLTFSceneApp::OnInitialize(std::shared_ptr<GL3::Window> window, const cxxop
 	if (!defaultCam->SetupUniformBuffer())
 		return false;
 
-	defaultCam->SetupCamera(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	defaultCam->SetProperties(window->GetAspectRatio(), 60.0f, 0.1f, 100.0f);
+	defaultCam->SetupCamera(glm::vec3(-3.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	defaultCam->SetProperties(window->GetAspectRatio(), 60.0f, 0.001f, 100.0f);
 	defaultCam->UpdateMatrix();
 
 	AddCamera(std::move(defaultCam));
@@ -77,7 +78,7 @@ void GLTFSceneApp::OnCleanUp()
 
 void GLTFSceneApp::OnUpdate(double dt)
 {
-	(void)dt;
+	_sceneInstance.Update(dt);
 }
 
 void GLTFSceneApp::OnDraw()
@@ -123,5 +124,6 @@ void GLTFSceneApp::OnProcessInput(unsigned int key)
 
 void GLTFSceneApp::OnProcessResize(int width, int height)
 {
-	(void)width; (void)height;
+	UNUSED_VARIABLE(width);
+	UNUSED_VARIABLE(height);
 }

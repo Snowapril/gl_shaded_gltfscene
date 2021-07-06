@@ -1,4 +1,5 @@
 #include <GL3/DebugUtils.hpp>
+#include <Core/Macros.hpp>
 #include <iostream>
 #include <cstdio>
 
@@ -168,8 +169,8 @@ namespace GL3
 
     void DebugUtils::DebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const GLvoid* userParam)
     {
-        (void)userParam;
-        (void)length;
+        UNUSED_VARIABLE(userParam);
+        UNUSED_VARIABLE(length);
 
         std::cerr << "[Type] : "       << Detail::GetStringForType(type)           << 
                 	 "[Source] : "     << Detail::GetStringForSource(source)       <<

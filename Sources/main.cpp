@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 	while (!renderer->GetRendererShouldExit())
 	{
 		auto nowTime = std::chrono::steady_clock::now();
-		double dt = std::chrono::duration_cast<std::chrono::microseconds>(nowTime - startTime).count() / 1e-6;
+		double dt = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(nowTime - startTime).count() * 0.001;
 		startTime = nowTime;
 
 		renderer->UpdateFrame(dt);

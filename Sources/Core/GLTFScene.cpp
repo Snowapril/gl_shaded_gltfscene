@@ -1,4 +1,5 @@
 #include <Core/GLTFScene.hpp>
+#include <Core/MathUtils.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <unordered_set>
@@ -125,7 +126,14 @@ namespace Core {
 		const auto& scene = model.scenes[defaultScene];
 		for (auto nodeIdx : scene.nodes)
 		{
-			ProcessNode(model, nodeIdx, glm::mat4(1.0f));
+			ProcessNode(model, nodeIdx, -1);
+		}
+
+		//! Convert all channels & samplers into each single vectors,
+		//! make animation node point to base & stride of them.
+		for (const auto& anim : model.animations)
+		{
+			ProcessAnimation(model, anim, _sceneChannels.size(), _sceneSamplers.size());
 		}
 
 		//! Compute scene dimension
@@ -423,25 +431,29 @@ namespace Core {
 		return res;
 	}
 
-	void GLTFScene::ProcessNode(const tinygltf::Model& model, int& nodeIdx, const glm::mat4& parentMatrix)
+	void GLTFScene::ProcessNode(const tinygltf::Model& model, int nodeIdx, int parentIndex)
 	{
 		const auto& node = model.nodes[nodeIdx];
 
-		glm::mat4 localMat = GetLocalMatrix(node);
-		glm::mat4 worldMat = parentMatrix * localMat;
-
-		if (node.mesh > -1)
+		GLTFNode newNode;
+		//! Gets transformation info from the given node
+		if (node.translation.empty() == false)
+			newNode.translation = glm::vec3(node.translation[0], node.translation[1], node.translation[2]);
+		if (node.scale.empty() == false)
+			newNode.scale = glm::vec3(node.scale[0], node.scale[1], node.scale[2]);
+		if (node.rotation.empty() == false)
+			newNode.rotation = glm::quat(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
+		if (node.matrix.empty() == false)
 		{
-			const auto& meshes = _meshToPrimMap[node.mesh];
-			for (const auto& mesh : meshes)
-			{
-				GLTFNode tempNode;
-				tempNode.primMesh = mesh;
-				tempNode.world = worldMat;
-				_sceneNodes.emplace_back(tempNode);
-			}
+			float* nodeMatPtr = glm::value_ptr(newNode.local);
+			for (int i = 0; i < 16; ++i)
+				nodeMatPtr[i] = static_cast<float>(node.matrix[i]);
 		}
-		else if (node.camera > -1)
+
+		//! Calculate world matrix
+		glm::mat4 worldMat = (parentIndex != -1 ? _sceneNodes[parentIndex].world : glm::mat4(1.0f)) * GetLocalMatrix(newNode);
+
+		if (node.camera > -1)
 		{
 			GLTFCamera camera;
 			camera.world = worldMat;
@@ -481,36 +493,232 @@ namespace Core {
 			light.world = worldMat;
 			_sceneLights.emplace_back(light);
 		}
-
-		for (auto child : node.children)
+		else
 		{
-			ProcessNode(model, child, worldMat);
+			if (node.mesh > -1)
+				newNode.primMeshes = std::move(_meshToPrimMap[node.mesh]);
+
+			newNode.world = std::move(worldMat);
+			newNode.nodeIndex = nodeIdx;
+			newNode.parentNode = parentIndex;
+
+			//! Push newnode to both linear scene node array and parent child array
+			const int newNodeIndex = static_cast<int>(_sceneNodes.size());
+			_sceneNodes.emplace_back(std::move(newNode));
+			if (parentIndex != -1)
+				_sceneNodes[parentIndex].childNodes.push_back(newNodeIndex);
+
+			//! Call ProcessNode recursively to the childs of this newNode
+			for (auto child : node.children)
+				ProcessNode(model, child, newNodeIndex);
 		}
 	}
 
-	glm::mat4 GLTFScene::GetLocalMatrix(const tinygltf::Node& node)
+	void GLTFScene::UpdateNode(int nodeIndex)	
 	{
-		glm::mat4 T(1.0f);
-		glm::mat4 S(1.0f);
-		glm::mat4 R(1.0f);
-		glm::mat4 nodeMat(1.0f);
+		auto& node = _sceneNodes[nodeIndex];
+		if (!node.primMeshes.empty())
+		{
+			node.world = GetLocalMatrix(node);
+			int parentNode = node.parentNode;
+			while (parentNode != -1)
+			{
+				node.world = GetLocalMatrix(_sceneNodes[parentNode]) * node.world;
+				parentNode = _sceneNodes[parentNode].parentNode;
+			}
+		}
 
-		if (node.translation.empty() == false)
-			T = glm::translate(T, glm::vec3(node.translation[0], node.translation[1], node.translation[2]));
-		if (node.scale.empty() == false)
-			S = glm::scale(S, glm::vec3(node.scale[0], node.scale[1], node.scale[2]));
-		if (node.rotation.empty() == false)
+		for (int child : node.childNodes)
+			UpdateNode(child);
+	}
+
+	bool GLTFScene::UpdateAnimation(int animIndex, float timeElapsed)
+	{
+		//! There is no animation corresponded to given index, therefore return.
+		if (_sceneAnims.size() <= animIndex)
+			return false;
+
+		bool sceneModified = false;
+		const auto& anim = _sceneAnims[animIndex];
+
+		//! Get maximum interval from scene samplers
+		//! TODO(snowapril) : this can be precalculated
+		float maxAnimInterval = 0.0f;
+		for (int s = anim.samplerIndex; s < anim.samplerIndex + anim.samplerCount; ++s)
+			maxAnimInterval = std::max(maxAnimInterval, _sceneSamplers[s].inputs.back());
+		//! Calculate timeElapsed modulo max interval
+		const float elapsed = std::fmod(timeElapsed, maxAnimInterval);
+
+		for (int ch = anim.channelIndex; ch < anim.channelCount + anim.channelIndex; ++ch)
 		{
-			glm::quat rotationQuat(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
-			R = glm::toMat4(rotationQuat);
+			const auto& channel = _sceneChannels[ch];
+			const auto& sampler = _sceneSamplers[channel.samplerIndex];
+			auto& node = _sceneNodes[channel.nodeIndex];
+
+			for (size_t i = 0; i < sampler.inputs.size() - 1; ++i)
+			{
+				if (sampler.inputs[i] <= elapsed && elapsed < sampler.inputs[i + 1])
+				{
+					const float keyframe = std::max(0.0f, (elapsed - sampler.inputs[i]) / (sampler.inputs[i + 1] - sampler.inputs[i]));
+					if (keyframe <= 1.0f)
+					{
+						switch (channel.path)
+						{
+						case GLTFChannel::Path::Translation:
+							node.translation = Interpolation::Lerp(sampler.outputs[i], sampler.outputs[i + 1], keyframe);
+							break;
+						case GLTFChannel::Path::Rotation:
+							node.rotation = glm::normalize(Interpolation::SLerp(
+								glm::quat(sampler.outputs[i].w, sampler.outputs[i].x, sampler.outputs[i].y, sampler.outputs[i].z),
+								glm::quat(sampler.outputs[i + 1].w, sampler.outputs[i + 1].x, sampler.outputs[i + 1].y, sampler.outputs[i + 1].z),
+								keyframe));
+							break;
+						case GLTFChannel::Path::Scale:
+							node.scale = Interpolation::Lerp(sampler.outputs[i], sampler.outputs[i + 1], keyframe);
+							break;
+						case GLTFChannel::Path::Weights:
+							std::cerr << "[GLTFScene::UpdateAnimation] Weights not implemented yet" << std::endl;
+							return false;
+							break;
+						}
+
+						sceneModified = true;
+					}
+				}
+			}
 		}
-		if (node.matrix.empty() == false)
+
+		if (sceneModified)
 		{
-			float* nodeMatPtr = glm::value_ptr(nodeMat);
-			for (int i = 0; i < 16; ++i)
-				nodeMatPtr[i] = static_cast<float>(node.matrix[i]);
+			for (int i = 0; i < _sceneNodes.size(); ++i)
+				UpdateNode(i);
 		}
-		return T * R * S * nodeMat;
+
+		return sceneModified;
+	}
+
+	void GLTFScene::ProcessAnimation(const tinygltf::Model& model, const tinygltf::Animation& anim, std::size_t channelOffset, std::size_t samplerOffset)
+	{
+		GLTFAnimation animation;
+		animation.name = anim.name;
+		animation.channelIndex = channelOffset;
+		animation.channelCount = static_cast<int>(anim.channels.size());
+		animation.samplerIndex = samplerOffset;
+		animation.samplerCount = static_cast<int>(anim.samplers.size());
+
+		for (const auto& channel : anim.channels)
+			ProcessChannel(model, channel);
+
+		for (const auto& sampler : anim.samplers)
+			ProcessSampler(model, sampler);
+
+		_sceneAnims.emplace_back(std::move(animation));
+	}
+
+	void GLTFScene::ProcessChannel(const tinygltf::Model& model, const tinygltf::AnimationChannel& channel)
+	{
+		GLTFChannel newChannel;
+		newChannel.samplerIndex = channel.sampler;
+		//! Remapping gltf::channel::node_index to our node index
+		for (int i = 0; i < static_cast<int>(_sceneNodes.size()); ++i)
+			if (_sceneNodes[i].nodeIndex == channel.target_node)
+				newChannel.nodeIndex = i;
+		//! Assign matched channel path by comparing target_path string
+		if (channel.target_path == "translation")
+			newChannel.path = GLTFChannel::Path::Translation;
+		else if (channel.target_path == "scale")
+			newChannel.path = GLTFChannel::Path::Scale;
+		else if (channel.target_path == "rotation")
+			newChannel.path = GLTFChannel::Path::Rotation;
+		else if (channel.target_path == "weights")
+			newChannel.path = GLTFChannel::Path::Weights;
+		else
+		{
+			//! Unknown gltf channel target path.
+			std::cerr << "[GLTFScene::ProcessAnimation] Unknown channel target path : " << channel.target_path << '\n';
+			return;
+		}
+
+		_sceneChannels.emplace_back(std::move(newChannel));
+	}
+
+	void GLTFScene::ProcessSampler(const tinygltf::Model& model, const tinygltf::AnimationSampler& sampler)
+	{
+		GLTFSampler newSampler;
+		//! Assign sampler interpolation method by comparing interpolation string
+		if (sampler.interpolation == "LINEAR")
+			newSampler.interpolation = GLTFSampler::Interpolation::Linear;
+		else if (sampler.interpolation == "STEP")
+			newSampler.interpolation = GLTFSampler::Interpolation::Step;
+		else if (sampler.interpolation == "CUBICSPLINE")
+			newSampler.interpolation = GLTFSampler::Interpolation::Cubicspline;
+		else
+		{
+			//! Unknown gltf sampler interpolation method
+			std::cerr << "[GLTFScene::ProcessAnimation] Unknown sampler interpolation method : " << sampler.interpolation << '\n';
+			return;
+		}
+
+		//! Process sampler inputs
+		{
+			const tinygltf::Accessor& accessor = model.accessors[sampler.input];
+			const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
+			const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
+
+			assert(accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT);
+
+			const void* dataPtr = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
+
+			const float* buf = static_cast<const float*>(dataPtr);
+			for (size_t i = 0; i < accessor.count; ++i)
+				newSampler.inputs.push_back(buf[i]);
+		}
+
+		//! Process sampler outputs
+		{
+			const tinygltf::Accessor& accessor = model.accessors[sampler.output];
+			const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
+			const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
+
+			assert(accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT);
+
+			const void* dataPtr = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
+
+			if (accessor.type == TINYGLTF_TYPE_SCALAR)
+			{
+				const float* buf = static_cast<const float*>(dataPtr);
+				for (size_t i = 0; i < accessor.count; ++i)
+					newSampler.outputs.push_back(glm::vec4(buf[i], glm::vec3(0.0f)));
+			}
+			else if (accessor.type == TINYGLTF_TYPE_VEC3)
+			{
+				const glm::vec3* buf = static_cast<const glm::vec3*>(dataPtr);
+				for (size_t i = 0; i < accessor.count; ++i)
+					newSampler.outputs.push_back(glm::vec4(buf[i], 1.0));
+			}
+			else if (accessor.type == TINYGLTF_TYPE_VEC4)
+			{
+				const glm::vec4* buf = static_cast<const glm::vec4*>(dataPtr);
+				for (size_t i = 0; i < accessor.count; ++i)
+					newSampler.outputs.push_back(buf[i]);
+			}
+			else
+			{
+				//! Unknown sampler output type
+				std::cerr << "[GLTFScene::ProcessAnimation] Unknown sampler output type : " << accessor.type << '\n';
+				return;
+			}
+		}
+
+		_sceneSamplers.emplace_back(std::move(newSampler));
+	}
+
+	glm::mat4 GLTFScene::GetLocalMatrix(const GLTFNode& node)
+	{
+		return glm::translate(glm::mat4(1.0f), node.translation) * 
+			   glm::toMat4(node.rotation) *
+			   glm::scale(glm::mat4(1.0f), node.scale) *
+			   node.local;
 	}
 
 	void GLTFScene::CalculateSceneDimension()
@@ -519,13 +727,16 @@ namespace Core {
 		auto bbMax = glm::vec3(std::numeric_limits<float>::min());
 		for (const auto& node : _sceneNodes)
 		{
-			const auto& mesh = _scenePrimMeshes[node.primMesh];
+			for (unsigned int meshIdx : node.primMeshes)
+			{
+				const auto& mesh = _scenePrimMeshes[meshIdx];
 
-			auto localMin = node.world * glm::vec4(mesh.min, 1.0f);
-			auto localMax = node.world * glm::vec4(mesh.max, 1.0f);
+				auto localMin = node.world * glm::vec4(mesh.min, 1.0f);
+				auto localMax = node.world * glm::vec4(mesh.max, 1.0f);
 
-			bbMin = { std::min(bbMin.x, localMin.x), std::min(bbMin.z, localMin.z), std::min(bbMin.z, localMin.z) };
-			bbMax = { std::max(bbMax.x, localMax.x), std::max(bbMax.z, localMax.z), std::max(bbMax.z, localMax.z) };
+				bbMin = { std::min(bbMin.x, localMin.x), std::min(bbMin.z, localMin.z), std::min(bbMin.z, localMin.z) };
+				bbMax = { std::max(bbMax.x, localMax.x), std::max(bbMax.z, localMax.z), std::max(bbMax.z, localMax.z) };
+			}
 		}
 
 		if (bbMin == bbMax)

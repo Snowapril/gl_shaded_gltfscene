@@ -1,7 +1,9 @@
 #include <GL3/Scene.hpp>
 #include <GL3/Shader.hpp>
-#include <bitset>
+#include <Core/Macros.hpp>
 #include <glad/glad.h>
+#include <bitset>
+#include <algorithm>
 #include <chrono>
 
 using namespace glm;
@@ -84,25 +86,21 @@ namespace GL3 {
 		glVertexArrayElementBuffer(_vao, _ebo);
 		_debug.SetObjectName(GL_BUFFER, _ebo, "Scene Element Buffer");
 
-		//! Create shader storage buffer object for matrices per-instance.
-		std::vector<NodeMatrix> matrices;
-		matrices.reserve(_sceneNodes.size());
-		for (const auto& node : _sceneNodes)
-		{
-			NodeMatrix instance;
-			instance.first = node.world;
-			instance.second = glm::transpose(glm::inverse(instance.first));
-			matrices.emplace_back(std::move(instance));
-		}
-		
+		//! Create shader storage buffer object for matrices of scene nodes
+		const size_t numMatrices = std::count_if(_sceneNodes.begin(), _sceneNodes.end(), [](const GLTFNode& node){
+			return !node.primMeshes.empty();
+		});
 		glGenBuffers(1, &_matrixBuffer);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, _matrixBuffer);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, matrices.size() * sizeof(NodeMatrix), matrices.data(), GL_STATIC_COPY);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, numMatrices * sizeof(NodeMatrix), nullptr, GL_STATIC_COPY);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _matrixBuffer);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 		_debug.SetObjectName(GL_BUFFER, _matrixBuffer, "Scene Instance Buffer");
 
-		//! Create shader storage buffer object for materials
+		//! Initialize matrix buffer contents
+		UpdateMatrixBuffer();
+
+		//! Create shader storage buffer object for materials and fill it
 		std::vector<GltfShadeMaterial> materials;
 		materials.reserve(_sceneMaterials.size());
 		for (const auto& material : _sceneMaterials)
@@ -128,7 +126,6 @@ namespace GL3 {
 								  material.occlusionTextureStrength,
 								  material.shadingModel});
 		}
-
 		glGenBuffers(1, &_materialBuffer);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, _materialBuffer);
 		glBufferData(GL_SHADER_STORAGE_BUFFER, materials.size() * sizeof(GltfShadeMaterial), materials.data(), GL_STATIC_COPY);
@@ -136,48 +133,88 @@ namespace GL3 {
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 		_debug.SetObjectName(GL_BUFFER, _materialBuffer, "Scene Material Buffer");
 
+		//! After uploading all required vertex data, We can release them to free
+		ReleaseSourceData();
+
 		return true;
+	}
+
+	void Scene::Update(double dt)
+	{
+		bool sceneModified = UpdateAnimation(_animIndex, _timeElapsed);
+
+		//! If the scene is modified, update the matrix buffer
+		if (sceneModified)
+			UpdateMatrixBuffer();			
+
+		_timeElapsed += dt;
 	}
 
 	void Scene::Render(const std::shared_ptr< Shader >& shader, GLenum alphaMode) const
 	{
-		(void)alphaMode;
+		UNUSED_VARIABLE(alphaMode);
+
 		auto scope = _debug.ScopeLabel("Scene Rendering");
 		glBindVertexArray(_vao);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _matrixBuffer);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, _materialBuffer);
 
+		//! Use block-scope for calling destructor of scope label instance
 		{
 			auto textureScope = _debug.ScopeLabel("Scene Texture Binding");
 			for (int i = 0; i < static_cast<int>(_textures.size()); ++i)
 				glBindTextureUnit(i + 3, _textures[i]);
 		}
 
-		int lastMaterialIdx = -1, nodeIdx = 0;
+		int lastMaterialIdx = -1, instanceIdx = 0;
 		for (auto& node : _sceneNodes)
 		{
-			const size_t uboOffset = sizeof(NodeMatrix) * nodeIdx;
-			(void)uboOffset;
+			shader->SendUniformVariable("instanceIdx", instanceIdx);
 
-			auto& primMesh = _scenePrimMeshes[node.primMesh];
-			if (primMesh.materialIndex != lastMaterialIdx)
+			for (unsigned int meshIdx : node.primMeshes)
 			{
-				auto materialScope = _debug.ScopeLabel("Material Binding: " + std::to_string(nodeIdx));
-				shader->SendUniformVariable("materialIdx", primMesh.materialIndex);
-				lastMaterialIdx = primMesh.materialIndex;
+				auto& primMesh = _scenePrimMeshes[meshIdx];
+				if (primMesh.materialIndex != lastMaterialIdx)
+				{
+					auto materialScope = _debug.ScopeLabel("Material Binding: " + std::to_string(instanceIdx));
+					shader->SendUniformVariable("materialIdx", primMesh.materialIndex);
+					lastMaterialIdx = primMesh.materialIndex;
+				}
+
+				auto drawScope = _debug.ScopeLabel("Draw Mesh: " + std::to_string(instanceIdx));
+				//! Draw elements with primitive mesh index informations.
+				glDrawElementsBaseVertex(GL_TRIANGLES, primMesh.indexCount, GL_UNSIGNED_INT,
+					reinterpret_cast<const void*>(primMesh.firstIndex * sizeof(unsigned int)), primMesh.vertexOffset);
+
+				++instanceIdx;
 			}
-			
-			shader->SendUniformVariable("instanceIdx", nodeIdx);
-
-			auto drawScope = _debug.ScopeLabel("Draw Mesh: " + std::to_string(nodeIdx));
-			//! Draw elements with primitive mesh index informations.
-			glDrawElementsBaseVertex(GL_TRIANGLES, primMesh.indexCount, GL_UNSIGNED_INT, 
-				reinterpret_cast<const void*>(primMesh.firstIndex * sizeof(unsigned int)), primMesh.vertexOffset);
-
-			++nodeIdx;
 		}
 
 		glBindVertexArray(0);
+	}
+
+	void Scene::UpdateMatrixBuffer()
+	{
+		std::vector<NodeMatrix> matrices;
+		matrices.reserve(_sceneNodes.size());
+		for (const auto& node : _sceneNodes)
+		{
+			if (!node.primMeshes.empty())
+			{
+				NodeMatrix instance;
+				instance.first = node.world;
+				if (glm::determinant(instance.first) == 0.0f)
+					instance.second = glm::transpose(instance.first);
+				else
+					instance.second = glm::transpose(glm::inverse(instance.first));
+				matrices.emplace_back(std::move(instance));
+			}
+		}
+
+		//! TODO(snowapril) : mark only modified node and update the contents of them
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, _matrixBuffer);
+		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, matrices.size() * sizeof(NodeMatrix), matrices.data());
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}
 
 	void Scene::CleanUp()
@@ -188,5 +225,15 @@ namespace GL3 {
 		glDeleteBuffers(_buffers.size(), _buffers.data());
 		glDeleteBuffers(1, &_ebo);
 		glDeleteVertexArrays(1, &_vao);
+	}
+
+	size_t Scene::GetNumAnimations() const
+	{
+		return _sceneAnims.size();
+	}
+
+	void Scene::SetAnimIndex(size_t animIndex)
+	{
+		_animIndex = animIndex;
 	}
 };

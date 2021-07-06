@@ -6,6 +6,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <string>
 #include <limits>
 #include <functional>
@@ -96,7 +97,9 @@ namespace Core {
 		virtual ~GLTFScene();
 		//! Initialize the GLTFScene with gltf scene file path
 		bool Initialize(const std::string& filename, VertexFormat format, ImageCallback imageCallback = nullptr);
-
+		//! Update scene animation
+		//! Returns whether scene is modified or not
+		bool UpdateAnimation(int animIndex, float timeElapsed);
 	protected:
 		//! https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#reference-material
 		struct GLTFMaterial
@@ -133,7 +136,14 @@ namespace Core {
 		struct GLTFNode
 		{
 			glm::mat4 world{ 1.0f };
-			int primMesh{ 0 };
+			glm::mat4 local{ 1.0f };
+			glm::vec3 translation{ 0.0f };
+			glm::vec3 scale{ 1.0f };
+			glm::quat rotation{ 0.0f, 0.0f, 0.0f, 0.0f };
+			std::vector<unsigned int> primMeshes;
+			std::vector<int> childNodes;
+			int parentNode{ -1 };
+			int nodeIndex{ 0 };
 		};
 
 		struct GLTFPrimMesh
@@ -165,6 +175,42 @@ namespace Core {
 			tinygltf::Light light;
 		};
 
+		struct GLTFSampler
+		{
+			enum class Interpolation
+			{
+				Linear = 0,
+				Step = 1,
+				Cubicspline = 2
+			};
+			Interpolation interpolation { Interpolation::Linear };
+			std::vector<float> inputs;
+			std::vector<glm::vec4> outputs;
+		};
+
+		struct GLTFChannel
+		{
+			enum class Path
+			{
+				Translation = 0,
+				Rotation = 1,
+				Scale = 2,
+				Weights = 3
+			};
+			Path path { Path::Translation };
+			int samplerIndex { 0 };
+			int nodeIndex { 0 };
+		};
+
+		struct GLTFAnimation
+		{
+			std::string name;
+			int samplerIndex { 0 };
+			int samplerCount { 0 };
+			int channelIndex { 0 };
+			int channelCount { 0 };
+		};
+
 		struct SceneDimension
 		{
 			glm::vec3 min = { std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max() };
@@ -179,6 +225,9 @@ namespace Core {
 		std::vector<GLTFPrimMesh> _scenePrimMeshes;
 		std::vector<GLTFCamera> _sceneCameras;
 		std::vector<GLTFLight> _sceneLights;
+		std::vector<GLTFAnimation> _sceneAnims;
+		std::vector<GLTFSampler> _sceneSamplers;
+		std::vector<GLTFChannel> _sceneChannels;
 
 		std::vector<glm::vec3> _positions;
 		std::vector<glm::vec3> _normals;
@@ -203,13 +252,21 @@ namespace Core {
 		template <typename Type>
 		static bool GetAttributes(const tinygltf::Model& model, const tinygltf::Primitive& primitive, std::vector<Type>& attributes, const std::string& name);
 		//! Returns the SRT matrix combination of this node.
-		static glm::mat4 GetLocalMatrix(const tinygltf::Node& node);
+		static glm::mat4 GetLocalMatrix(const GLTFNode& node);
 		//! Import materials from the model
 		void ImportMaterials(const tinygltf::Model& model);
 		//! Process mesh in the model
 		void ProcessMesh(const tinygltf::Model& model, const tinygltf::Primitive& mesh, VertexFormat format, const std::string& name);
 		//! Process node in the model recursively.
-		void ProcessNode(const tinygltf::Model& model, int& nodeIdx, const glm::mat4& parentMatrix);
+		void ProcessNode(const tinygltf::Model& model, int nodeIdx, int parentIndex);
+		//! Update world coordinates of the given node and child nodes
+		void UpdateNode(int nodeIndex);
+		//! Process animation in the model
+		void ProcessAnimation(const tinygltf::Model& model, const tinygltf::Animation& anim, std::size_t channelOffset, std::size_t samplerOffset);
+		//! Process animation channel and append it to _sceneChannels
+		void ProcessChannel(const tinygltf::Model& model, const tinygltf::AnimationChannel& channel);
+		//! Process animation sampler and append it to _sceneSamplers
+		void ProcessSampler(const tinygltf::Model& model, const tinygltf::AnimationSampler& sampler);
 		//! Calculate the scene dimension from loaded nodes.
 		void CalculateSceneDimension();
 		//! Compute the uninitialized cameras with parsed scene dimension.
@@ -222,7 +279,7 @@ namespace Core {
 		static void GetValue(const tinygltf::Value& value, const std::string& name, Type& val);
 		//! Returns texture ID for a tinygltf::Value
 		static void GetTextureID(const tinygltf::Value& value, const std::string& name, int& id);
-		//! Temporary storage for processing nodes.
+		//! Temporary storages for processing nodes.
 		std::unordered_map<unsigned int, std::vector<unsigned int>> _meshToPrimMap;
 		std::vector<unsigned int> _u32Buffer;
 		std::vector<unsigned short> _u16Buffer;

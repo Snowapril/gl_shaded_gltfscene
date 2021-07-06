@@ -1,5 +1,6 @@
 #include <GL3/SkyDome.hpp>
 #include <GL3/Shader.hpp>
+#include <Core/Macros.hpp>
 #include <Core/AssetLoader.hpp>
 #include <glad/glad.h>
 #include <glm/vec3.hpp>
@@ -69,7 +70,9 @@ namespace GL3 {
 
 	void SkyDome::Render(const std::shared_ptr< Shader >& shader, GLenum alphaMode)
 	{
-		(void)shader;  (void)alphaMode;
+		UNUSED_VARIABLE(shader);
+		UNUSED_VARIABLE(alphaMode);
+
 		auto renderScope = _debug.ScopeLabel("SkyDome Rendering");
 
 		glDisable(GL_DEPTH_TEST);
