@@ -42,7 +42,6 @@ namespace Core
 			float scalePrevQuat = std::cos(theta) - dotProduct * sinTheta * sinTheta0Inv;
 			float scaleNextQuat = sinTheta * sinTheta0Inv;
 			return scalePrevQuat * prev + scaleNextQuat * next;
-
 		}
 
 		template <typename Type>
