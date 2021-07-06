@@ -500,6 +500,7 @@ namespace Core {
 
 			newNode.world = std::move(worldMat);
 			newNode.nodeIndex = nodeIdx;
+			newNode.parentNode = parentIndex;
 
 			//! Push newnode to both linear scene node array and parent child array
 			const int newNodeIndex = static_cast<int>(_sceneNodes.size());
@@ -513,13 +514,22 @@ namespace Core {
 		}
 	}
 
-	void GLTFScene::UpdateNode(int nodeIndex, const glm::mat4& parentMatrix)	
+	void GLTFScene::UpdateNode(int nodeIndex)	
 	{
 		auto& node = _sceneNodes[nodeIndex];
-		node.world = parentMatrix * GetLocalMatrix(node);
-		
+		if (!node.primMeshes.empty())
+		{
+			node.world = GetLocalMatrix(node);
+			int parentNode = node.parentNode;
+			while (parentNode != -1)
+			{
+				node.world = GetLocalMatrix(_sceneNodes[parentNode]) * node.world;
+				parentNode = _sceneNodes[parentNode].parentNode;
+			}
+		}
+
 		for (int child : node.childNodes)
-			UpdateNode(child, node.world);
+			UpdateNode(child);
 	}
 
 	bool GLTFScene::UpdateAnimation(int animIndex, float timeElapsed)
@@ -571,11 +581,16 @@ namespace Core {
 							break;
 						}
 
-						UpdateNode(channel.nodeIndex);
 						sceneModified = true;
 					}
 				}
 			}
+		}
+
+		if (sceneModified)
+		{
+			for (int i = 0; i < _sceneNodes.size(); ++i)
+				UpdateNode(i);
 		}
 
 		return sceneModified;

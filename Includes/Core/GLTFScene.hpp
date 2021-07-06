@@ -142,6 +142,7 @@ namespace Core {
 			glm::quat rotation{ 0.0f, 0.0f, 0.0f, 0.0f };
 			std::vector<unsigned int> primMeshes;
 			std::vector<int> childNodes;
+			int parentNode{ -1 };
 			int nodeIndex{ 0 };
 		};
 
@@ -258,8 +259,8 @@ namespace Core {
 		void ProcessMesh(const tinygltf::Model& model, const tinygltf::Primitive& mesh, VertexFormat format, const std::string& name);
 		//! Process node in the model recursively.
 		void ProcessNode(const tinygltf::Model& model, int nodeIdx, int parentIndex);
-		//! Update the given node and childs matrices
-		void UpdateNode(int nodeIndex, const glm::mat4& parentMatrix = glm::mat4(1.0f));
+		//! Update world coordinates of the given node and child nodes
+		void UpdateNode(int nodeIndex);
 		//! Process animation in the model
 		void ProcessAnimation(const tinygltf::Model& model, const tinygltf::Animation& anim, std::size_t channelOffset, std::size_t samplerOffset);
 		//! Calculate the scene dimension from loaded nodes.
