@@ -203,7 +203,10 @@ namespace GL3 {
 			{
 				NodeMatrix instance;
 				instance.first = node.world;
-				instance.second = glm::transpose(glm::inverse(instance.first));
+				if (glm::determinant(instance.first) == 0.0f)
+					instance.second = glm::transpose(instance.first);
+				else
+					instance.second = glm::transpose(glm::inverse(instance.first));
 				matrices.emplace_back(std::move(instance));
 			}
 
