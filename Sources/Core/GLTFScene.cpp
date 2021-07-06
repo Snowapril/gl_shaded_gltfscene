@@ -568,9 +568,10 @@ namespace Core {
 							node.translation = Interpolation::Lerp(sampler.outputs[i], sampler.outputs[i + 1], keyframe);
 							break;
 						case GLTFChannel::Path::Rotation:
-							glm::quat q1(sampler.outputs[i].w, sampler.outputs[i].x, sampler.outputs[i].y, sampler.outputs[i].z);
-							glm::quat q2(sampler.outputs[i + 1].w, sampler.outputs[i + 1].x, sampler.outputs[i + 1].y, sampler.outputs[i + 1].z);
-							node.rotation = glm::normalize(Interpolation::SLerp(q1, q2, keyframe));
+							node.rotation = glm::normalize(Interpolation::SLerp(
+								glm::quat(sampler.outputs[i].w, sampler.outputs[i].x, sampler.outputs[i].y, sampler.outputs[i].z),
+								glm::quat(sampler.outputs[i + 1].w, sampler.outputs[i + 1].x, sampler.outputs[i + 1].y, sampler.outputs[i + 1].z),
+								keyframe));
 							break;
 						case GLTFChannel::Path::Scale:
 							node.scale = Interpolation::Lerp(sampler.outputs[i], sampler.outputs[i + 1], keyframe);
